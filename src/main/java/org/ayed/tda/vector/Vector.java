@@ -1,5 +1,7 @@
 package org.ayed.tda.vector;
 
+import java.util.concurrent.ExecutionException;
+
 public class Vector<T> {
     private T[] datos;
     private int tamanioFisico;
@@ -10,7 +12,9 @@ public class Vector<T> {
      */
     @SuppressWarnings("unchecked")
     public Vector() {
-        // Implementar.
+        this.datos = (T[]) new Object [0];
+        this.tamanioFisico = 0;
+        this.tamanioLogico = 0;
     }
 
     /**
@@ -22,7 +26,14 @@ public class Vector<T> {
      */
     @SuppressWarnings("unchecked")
     public Vector(Vector<T> vector) {
-        // Implementar.
+        if ( vector == null) {
+            throw new ExcepcionVector ("El vector no puede ser nulo");
+        } else {
+            this.tamanioFisico = vector.tamanioMaximo();
+            this.tamanioLogico = vector.tamanio();
+            this.datos = (T[]) new Object [this.tamanioFisico];
+            System.arraycopy(vector.datos, 0, this.datos, 0, tamanioFisico);
+        }
     }
 
     /**
@@ -31,7 +42,11 @@ public class Vector<T> {
      * @param dato Dato a agregar.
      */
     public void agregar(T dato) {
-        // Implementar.
+        if (lleno()) {
+            redimensionar(); // si está lleno, redimensionamos
+        }
+        this.datos[tamanioLogico] = dato; // agregamos el elemento
+        tamanioLogico++;
     }
 
     /**
@@ -53,7 +68,15 @@ public class Vector<T> {
      * @throws ExcepcionVector si el índice no es válido.
      */
     public void agregar(T dato, int indice) {
-        // Implementar.
+        if ( indice < 0 || indice > tamanioLogico){
+            throw new ExcepcionVector ("Indice invalido");
+        }else {
+            redimensionar();
+            System.arraycopy(datos, indice, datos, indice+1, tamanioLogico - indice);
+            datos[indice] = dato;
+            tamanioLogico++;
+
+        }
     }
 
     /**
@@ -63,8 +86,15 @@ public class Vector<T> {
      * @throws ExcepcionVector si el vector está vacío.
      */
     public T eliminar() {
-        // Implementar.
-        return (T) new Object();
+        T auxiliar = null;
+        if (vacio()){
+            throw new ExcepcionVector ("Vector vacío");
+        } else if ( indiceValido(tamanioLogico) ){
+            auxiliar = datos[tamanioLogico - 1];
+            datos[--tamanioLogico] = null;
+            redimensionar();
+        }
+        return auxiliar;
     }
 
     /**
@@ -87,8 +117,22 @@ public class Vector<T> {
      *                         o si el índice no es válido.
      */
     public T eliminar(int indice) {
-        // Implementar.
-        return (T) new Object();
+        if (vacio()){
+            throw new ExcepcionVector(("Vector vacìo"));
+        } else if (!indiceValido(indice) || indice == tamanioLogico){
+            throw new ExcepcionVector("Indice invalido");
+        }
+        T datoEliminado =  this.datos[indice];
+
+
+        for (int i = indice ; i < tamanioLogico - 1  ; i++){
+            this.datos[i] = this.datos[i+1];
+        }
+        tamanioLogico--;
+        this.datos[tamanioLogico] = null;
+        redimensionar();
+
+        return datoEliminado;
     }
 
     /**
@@ -98,11 +142,18 @@ public class Vector<T> {
      *               No puede ser negativo.
      *               No puede ser mayor o igual que el tamaño del vector.
      * @return el dato en el índice indicado.
-     * @throws ExcepcionVector si el índice no es válido.
+     * @throws ExcepcionVector si el índice no es válido. Si esta vacio.
      */
     public T dato(int indice) {
-        // Implementar.
-        return (T) new Object();
+        if ( !indiceValido(indice) || indice == tamanioLogico){
+            throw new ExcepcionVector ("Indice invalido");
+        } else if (vacio()) {
+            throw new ExcepcionVector("el vector no puede estar vacio");
+        }
+        {
+            return this.datos[indice];
+        }
+
     }
 
     /**
@@ -115,7 +166,17 @@ public class Vector<T> {
      * @throws ExcepcionVector si el índice no es válido.
      */
     public void modificarDato(T dato, int indice) {
-        // Implementar.
+
+        if ( !indiceValido(indice) || indice == tamanioLogico){
+            throw new ExcepcionVector ("Indice invalido");
+        }else if (vacio()){
+            throw new ExcepcionVector ("No se puede modificar un vector vacio");
+        } else {
+            this.datos[indice] = dato;
+        }
+
+
+
     }
 
     /**
@@ -124,8 +185,8 @@ public class Vector<T> {
      * @return el tamaño del vector.
      */
     public int tamanio() {
-        // Implementar.
-        return 0;
+        return tamanioLogico;
+
     }
 
     /**
@@ -146,7 +207,58 @@ public class Vector<T> {
      * @return true si el vector está vacío.
      */
     public boolean vacio() {
-        // Implementar.
-        return true;
+        boolean estaVacio = (tamanioLogico == 0)? true: false;
+        return estaVacio;
+    }
+
+    /**
+     * Evalúa si el vector está lleno.
+     *
+     * @return true si el vector está lleno.
+     */
+    public boolean lleno() {
+        return tamanioLogico == tamanioFisico;
+    }
+
+    /**
+     * Verifica que el indice sea valido
+     *
+     * @param indice Índice del dato a modificar.
+     *               No puede ser negativo.
+     *               No puede ser mayor o igual que el tamaño del vector.
+     * @return true -> indice valido
+     *         false -> indice invalido
+     */
+    public boolean indiceValido(int indice) {
+        boolean valido = (indice >= 0 && indice <= tamanioLogico)? true: false;
+        return valido;
+    }
+
+    /**
+     * Redimenciona el vector en caso de ser necesario
+     *
+     *
+     */
+    public void redimensionar() {
+        T[] nuevoArray;
+        int nuevaCapacidad = tamanioFisico;
+
+
+        if (lleno()){
+            nuevaCapacidad++;
+            //System.out.println("Redimensionando a " + nuevaCapacidad);
+            nuevoArray =  (T[]) new Object [nuevaCapacidad];
+        } else if (tamanioFisico-tamanioLogico>=4){
+            nuevaCapacidad--;
+            //System.out.println("Redimensionando a " + nuevaCapacidad);
+            nuevoArray =  (T[]) new Object [nuevaCapacidad];
+        } else {
+            return;
+        }
+
+        System.arraycopy(datos, 0, nuevoArray, 0, Math.min(tamanioLogico, nuevaCapacidad));
+
+        this.datos = nuevoArray;
+        this.tamanioFisico = nuevaCapacidad;
     }
 }

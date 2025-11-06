@@ -14,7 +14,13 @@ public class VectorEstatico<T> {
      */
     @SuppressWarnings("unchecked")
     public VectorEstatico(int tamanio) {
-        // Implementar.
+        if ( tamanio >= 0){
+            this.datos = (T[]) new Object [tamanio];
+            this.tamanioFisico = tamanio;
+            this.tamanioLogico = 0;
+        } else {
+            throw new ExcepcionVector ("El tamaño fisico no puede ser negativo");
+        }
     }
 
     /**
@@ -26,7 +32,16 @@ public class VectorEstatico<T> {
      */
     @SuppressWarnings("unchecked")
     public VectorEstatico(VectorEstatico<T> vectorEstatico) {
-        // Implementar.
+        if ( vectorEstatico == null) {
+            throw new ExcepcionVector ("El vector no puede ser nulo");
+        } else {
+            this.tamanioFisico = vectorEstatico.tamanioMaximo();
+            this.tamanioLogico = 0;
+            this.datos = (T[]) new Object [this.tamanioFisico];
+            for (int i = 0; i < vectorEstatico.tamanio(); i++) {
+                agregar(vectorEstatico.dato(i));
+            }
+        }
     }
 
     /**
@@ -36,9 +51,13 @@ public class VectorEstatico<T> {
      * @throws ExcepcionVector si el vector está lleno.
      */
     public void agregar(T dato) {
-        // Implementar.
-    }
+        if (lleno()) {
+            throw new ExcepcionVector("El vector está lleno");
+        } else {
+            this.datos[tamanioLogico++] = dato;
 
+        }
+    }
     /**
      * Agrega un dato al vector en el índice indicado.
      * <p>
@@ -59,8 +78,19 @@ public class VectorEstatico<T> {
      *                         o si el índice no es válido.
      */
     public void agregar(T dato, int indice) {
-        // Implementar.
-    }
+        if (!indiceValido(indice)){
+            throw new ExcepcionVector ("Indice invalido");
+        }else if (lleno()){
+            throw new ExcepcionVector ("Vector lleno");
+        }else{
+            for (int i = tamanioLogico; i > indice; i--) {
+                datos[i] = datos[i - 1];
+            }
+            datos[indice] = dato;
+            tamanioLogico++;
+        }
+        }
+
 
     /**
      * Elimina el último dato del vector.
@@ -69,8 +99,14 @@ public class VectorEstatico<T> {
      * @throws ExcepcionVector si el vector está vacío.
      */
     public T eliminar() {
-        // Implementar.
-        return (T) new Object();
+        T auxiliar;
+        if (vacio()){
+            throw new ExcepcionVector ("Vector vacío");
+        }else {
+            auxiliar = datos[tamanioLogico - 1];
+            datos[--tamanioLogico] = null;
+        }
+        return auxiliar;
     }
 
     /**
@@ -93,8 +129,19 @@ public class VectorEstatico<T> {
      *                         o si el índice no es válido.
      */
     public T eliminar(int indice) {
-        // Implementar.
-        return (T) new Object();
+        T auxiliar;
+        if (!indiceValido(indice) ){
+            throw new ExcepcionVector ("Indice invalido");
+        }else if (vacio()){
+            throw new ExcepcionVector ("vector vacio");
+        } else {
+            auxiliar =  this.datos[indice];
+            for (int i = indice; i < tamanioLogico - 1; i++) {
+                datos[i] = datos[i + 1];
+            }
+            datos[--tamanioLogico] = null;
+        }
+        return auxiliar;
     }
 
     /**
@@ -107,8 +154,11 @@ public class VectorEstatico<T> {
      * @throws ExcepcionVector si el índice no es válido.
      */
     public T dato(int indice) {
-        // Implementar.
-        return (T) new Object();
+        if (!indiceValido(indice) ){
+            throw new ExcepcionVector ("Indice invalido");
+        }else {
+            return this.datos[indice];
+        }
     }
 
     /**
@@ -121,7 +171,11 @@ public class VectorEstatico<T> {
      * @throws ExcepcionVector si el índice no es válido.
      */
     public void modificarDato(T dato, int indice) {
-        // Implementar.
+        if (!indiceValido(indice)){
+            throw new ExcepcionVector ("Indice invalido");
+        }else {
+            this.datos[indice] = dato;
+        }
     }
 
     /**
@@ -130,8 +184,7 @@ public class VectorEstatico<T> {
      * @return el tamaño del vector.
      */
     public int tamanio() {
-        // Implementar.
-        return 0;
+        return tamanioLogico;
     }
 
     /**
@@ -140,8 +193,7 @@ public class VectorEstatico<T> {
      * @return el tamaño máximo del vector.
      */
     public int tamanioMaximo() {
-        // Implementar.
-        return 0;
+        return tamanioFisico;
     }
 
     /**
@@ -150,7 +202,28 @@ public class VectorEstatico<T> {
      * @return true si el vector está vacío.
      */
     public boolean vacio() {
-        // Implementar.
-        return true;
+        return tamanioLogico == 0;
+    }
+
+    /**
+     * Evalúa si el vector está lleno.
+     *
+     * @return true si el vector está lleno.
+     */
+    public boolean lleno() {
+        return tamanioLogico == tamanioFisico;
+    }
+    /**
+     * Verifica que el indice sea valido
+     *
+     * @param indice Índice del dato a modificar.
+     *               No puede ser negativo.
+     *               No puede ser mayor o igual que el tamaño del vector.
+     * @return true -> indice valido
+     *         false -> indice invalido
+     */
+    public boolean indiceValido(int indice) {
+        boolean valido = (indice >= 0 && indice < tamanioLogico)? true: false;
+        return valido;
     }
 }

@@ -1,3 +1,15 @@
+// interfaz esperada para Cola (para que el garage la use despues)
+// guia para cuando se suba el TDA real
+// ---------------------------------------------------------
+// interface Cola<T> {
+//     void encolar(T x);
+//     T desencolar();
+//     T frente();          // opcional
+//     boolean vacia();
+//     int tamanio();       // opcional
+// }
+
+
 package org.ayed.gta;
 
 import org.ayed.tda.vector.Vector;
@@ -8,6 +20,7 @@ public class Garaje {
     private int capacidad;                       // lugares dentro del garaje
     private int creditos;                        // moneda para mejorar el garaje
     private Vector<Vehiculo> vehiculosEnGaraje;  // vehículos utilizables (adentro)
+    // TODO: cuando esté el TDA Cola real, reemplazar este Vector por Cola<Vehiculo
     private Vector<Vehiculo> zonaDeEspera;       // cola FIFO de vehículos que no entraron (no utilizables)
 
     private static final String RUTA = "garaje.csv";
@@ -31,13 +44,14 @@ public class Garaje {
     // -----------------------------
 
     /**
-     * Si hay lugar, entra al garaje. Si no, va a la zona de espera (FIFO) y NO se puede usar.
+     * si hay lugar, entra al garaje. Si no, va a la zona de espera (FIFO) y NO se puede usar.
      */
     public void agregarVehiculo(Vehiculo vehiculo) {
         if (vehiculosEnGaraje.tamanio() < capacidad) {
             vehiculosEnGaraje.agregar(vehiculo);
             System.out.println("Ingresó al garaje: " + vehiculo.obtenerVehiculo());
         } else {
+        	// TODO: cuando haya una Cola real, cambiar agregar() por encolar()
             zonaDeEspera.agregar(vehiculo); // al final de la cola
             System.out.println("Garaje lleno. Agregado a zona de espera: " + vehiculo.obtenerVehiculo());
         }
@@ -54,7 +68,7 @@ public class Garaje {
         System.out.println("Eliminado del garaje: " + eliminado.obtenerVehiculo());
 
      // si se libera un espacio en el garaje, el primer vehiculo en espera entra automaticamente.
-
+     // TODO: cuando haya una Cola real, cambiar eliminar(0) por desencolar()
         if (!zonaDeEspera.vacio() && vehiculosEnGaraje.tamanio() < capacidad) {
             Vehiculo siguiente = zonaDeEspera.eliminar(0);
             vehiculosEnGaraje.agregar(siguiente);

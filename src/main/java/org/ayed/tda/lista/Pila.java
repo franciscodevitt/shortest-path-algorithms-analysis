@@ -20,11 +20,27 @@ public class Pila<T> {
      * @throws ExcepcionLista si la pila es nula.
      */
     public Pila(Pila<T> pila) {
-        ultimo = null;
-        cantidadDatos = 0;
-        while (!pila.vacio()) {
-            T dato = pila.eliminar();
-            agregar(dato);
+        if(pila == null){
+            throw new ExcepcionLista("Pila nula.");
+        }
+        if(pila.vacio()){
+            ultimo = null;
+            cantidadDatos = 0;
+        }
+        else{
+            Pila<T> aux = new Pila<>();
+            Nodo<T> actual = pila.ultimo;
+            
+            while (actual != null) {
+                aux.agregar(actual.dato);
+                actual = actual.anterior;
+            }
+
+            actual = aux.ultimo;
+            while (actual != null) {
+                agregar(actual.dato);
+                actual = actual.anterior;
+            }
         }
     }
 

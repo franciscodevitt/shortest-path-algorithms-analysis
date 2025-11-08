@@ -22,9 +22,18 @@ public class Cola<T> {
      * @throws ExcepcionLista si la cola es nula.
      */
     public Cola(Cola<T> cola) {
+        if(cola == null){
+            throw new ExcepcionLista("Cola nula.");
+        }
         primero = null;
         ultimo = null;
         cantidadDatos = 0;
+
+        Nodo<T> actual = cola.primero;
+        while (actual != null) {
+            agregar(actual.dato);
+            actual = actual.siguiente;
+        }
     }
 
     /**

@@ -8,7 +8,8 @@ public class Pila<T> {
      * Constructor de Pila.
      */
     public Pila() {
-        // Implementar.
+        ultimo = null;
+        cantidadDatos = 0;
     }
 
     /**
@@ -19,7 +20,10 @@ public class Pila<T> {
      * @throws ExcepcionLista si la pila es nula.
      */
     public Pila(Pila<T> pila) {
-        // Implementar.
+        while (!pila.vacio()) {
+            T dato = pila.eliminar();
+            agregar(dato);
+        }
     }
 
     /**
@@ -28,7 +32,9 @@ public class Pila<T> {
      * @param dato Dato a agregar.
      */
     public void agregar(T dato) {
-        // Implementar.
+        Nodo<T> nuevo = new Nodo<T>(dato,ultimo,null);
+        ultimo = nuevo;
+        cantidadDatos++;
     }
 
     /**
@@ -38,8 +44,14 @@ public class Pila<T> {
      * @throws ExcepcionLista si la pila está vacía.
      */
     public T eliminar() {
-        // Implementar.
-        return (T) new Object();
+        if(vacio()){
+            throw new ExcepcionLista("La pila esta vacia.");
+        }
+        T dato = ultimo.dato;
+        ultimo = ultimo.anterior;
+        ultimo.siguiente = null;
+        cantidadDatos--;
+        return dato;
     }
 
     /**
@@ -49,8 +61,10 @@ public class Pila<T> {
      * @throws ExcepcionLista si la pila está vacía.
      */
     public T siguiente() {
-        // Implementar.
-        return (T) new Object();
+        if(vacio()){
+            throw new ExcepcionLista("La pila esta vacia.");
+        }
+        return ultimo.dato;
     }
 
     /**
@@ -59,8 +73,7 @@ public class Pila<T> {
      * @return el tamaño de la pila.
      */
     public int tamanio() {
-        // Implementar.
-        return 0;
+        return cantidadDatos;
     }
 
     /**
@@ -69,7 +82,6 @@ public class Pila<T> {
      * @return true si la pila está vacía.
      */
     public boolean vacio() {
-        // Implementar.
-        return true;
+        return ultimo==null;
     }
 }

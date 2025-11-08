@@ -20,6 +20,8 @@ public class Pila<T> {
      * @throws ExcepcionLista si la pila es nula.
      */
     public Pila(Pila<T> pila) {
+        ultimo = null;
+        cantidadDatos = 0;
         while (!pila.vacio()) {
             T dato = pila.eliminar();
             agregar(dato);
@@ -48,8 +50,13 @@ public class Pila<T> {
             throw new ExcepcionLista("La pila esta vacia.");
         }
         T dato = ultimo.dato;
-        ultimo = ultimo.anterior;
-        ultimo.siguiente = null;
+        if(ultimo.anterior != null){
+            ultimo = ultimo.anterior;
+            ultimo.siguiente = null;
+        }
+        else{
+            ultimo = null;
+        }
         cantidadDatos--;
         return dato;
     }

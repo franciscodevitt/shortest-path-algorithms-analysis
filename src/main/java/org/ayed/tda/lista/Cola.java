@@ -9,7 +9,9 @@ public class Cola<T> {
      * Constructor de Cola.
      */
     public Cola() {
-        // Implementar.
+        primero = null;
+        ultimo = null;
+        cantidadDatos = 0;
     }
 
     /**
@@ -20,7 +22,9 @@ public class Cola<T> {
      * @throws ExcepcionLista si la cola es nula.
      */
     public Cola(Cola<T> cola) {
-        // Implementar.
+        primero = null;
+        ultimo = null;
+        cantidadDatos = 0;
     }
 
     /**
@@ -29,7 +33,16 @@ public class Cola<T> {
      * @param dato Dato a agregar.
      */
     public void agregar(T dato) {
-        // Implementar.
+        Nodo<T> nuevo = new Nodo<T>(dato,ultimo,null);
+        if(vacio()){
+            primero = nuevo;
+            ultimo = nuevo;
+        }
+        else{
+            ultimo.siguiente = nuevo;
+            ultimo = nuevo;
+        }
+        cantidadDatos++;
     }
 
     /**
@@ -39,8 +52,19 @@ public class Cola<T> {
      * @throws ExcepcionLista si la cola está vacía.
      */
     public T eliminar() {
-        // Implementar.
-        return (T) new Object();
+        if(vacio()){
+            throw new ExcepcionLista("Cola vacia.");
+        }
+        T dato = primero.dato;
+        if(primero.siguiente != null){
+            primero = primero.siguiente;
+            primero.anterior = null;
+        }
+        else{
+            primero = null;
+            ultimo = null;
+        }
+        return dato;
     }
 
     /**
@@ -50,8 +74,11 @@ public class Cola<T> {
      * @throws ExcepcionLista si la cola está vacía.
      */
     public T siguiente() {
-        // Implementar.
-        return (T) new Object();
+        if(vacio()){
+            throw new ExcepcionLista("Cola vacia.");
+        }
+        T dato = primero.dato;
+        return dato;
     }
 
     /**
@@ -60,8 +87,7 @@ public class Cola<T> {
      * @return el tamaño de la cola.
      */
     public int tamanio() {
-        // Implementar.
-        return 0;
+        return cantidadDatos;
     }
 
     /**
@@ -70,7 +96,6 @@ public class Cola<T> {
      * @return true si la cola está vacía.
      */
     public boolean vacio() {
-        // Implementar.
-        return true;
+        return primero == null;
     }
 }

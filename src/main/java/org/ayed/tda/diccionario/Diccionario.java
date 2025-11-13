@@ -22,7 +22,7 @@ import org.ayed.tda.vector.VectorEstatico;
 public class Diccionario<C, V> {
     private VectorEstatico<Lista<Tupla<C, V>>> datos;
     // Completar con un valor apropiado según la teoría.
-    private static final double FACTOR_DEFAULT = 0;
+    private static final double FACTOR_DEFAULT = 0.75;
     private double factorDeCarga;
     private int tamanioTabla;
     private int cantidadDatos;
@@ -62,8 +62,16 @@ public class Diccionario<C, V> {
      * @return el tamaño de la tabla.
      */
     private int calcularTamanioTabla(int tamanio) {
-        // Implementar.
-        return 0;
+        // ----------------------------------------Implementado-------
+        if (tamanio<2){
+            return 2;
+        }
+
+        while (!esPrimo(tamanio)) { // si el tamaño no esprimo se va incrementando hasta encontrar un valor que sea primo
+
+            tamanio++;    
+        }
+        return tamanio;
     }
 
     /**
@@ -81,7 +89,23 @@ public class Diccionario<C, V> {
      *                              de carga no es válido.
      */
     public Diccionario(int tamanio, double factorDeCarga) {
-        // Implementar.
+        //------------------------------------------------ Implementar---------.
+        if (factorDeCarga<=0 || factorDeCarga>1){
+            throw new ExcepcionDiccionario("el factor de carga no es valido");
+        }
+        if (tamanio<1){
+            throw new ExcepcionDiccionario("el tamaño no es valido");
+        }
+
+        this.tamanioTabla = siguientePrimo((int)(tamanio/factorDeCarga)); //divide la cantidad de datos a guarar por el factor de carga y busca el proximo primo
+        this.cantidadDatos = 0;
+        this.factorDeCarga = factorDeCarga;
+        this.datos = new VectorEstatico<Lista<Tupla<C,V>>>(this.tamanioTabla);
+        
+        for (int i=0; i<tamanioTabla; i++){ //inicializa la tabla de datos con una lista en cada posicion
+            Lista<Tupla<C,V>> l = new Lista<Tupla<C,V>>();
+            datos.agregar(l);
+        }
     }
 
     /**
@@ -123,7 +147,8 @@ public class Diccionario<C, V> {
      * anterior, devuelve null.
      */
     public V agregar(C clave, V valor) {
-        // Implementar.
+        // --------------------------------Implementar----------------.
+        
         return (V) new Object();
     }
 
@@ -140,7 +165,7 @@ public class Diccionario<C, V> {
      * un valor, devuelve null.
      */
     public V eliminar(C clave) {
-        // Implementar.
+        //---------------------------------------------------------- Implementar-----------.
         return (V) new Object();
     }
 
@@ -153,7 +178,7 @@ public class Diccionario<C, V> {
      * null.
      */
     public V obtenerValor(C clave) {
-        // Implementar.
+        //---------------------------------------------------------  Implementar.
         return (V) new Object();
     }
 
@@ -163,7 +188,7 @@ public class Diccionario<C, V> {
      * @return el tamaño del diccionario.
      */
     public int tamanio() {
-        // Implementar.
+        // --------------------------------------------------------- Implementar.
         return 0;
     }
 
@@ -195,5 +220,35 @@ public class Diccionario<C, V> {
             }
         }
         return valores;
+    }
+
+    private boolean esPrimo(int n){
+        boolean es = true;
+        if (n<1){
+            es = false;
+        }
+        
+        if (n%2==0 && n != 2){
+            es = false;
+        }else{
+            
+            int raiz = (int) Math.sqrt(n);
+            
+            for (int i=3; i<raiz; i+=2){
+                if(n%i == 0){
+                    es = false;
+                    break; // ya se sabe que no es primo.
+                }
+            }
+        }
+
+        return es;
+    }
+
+    private int siguientePrimo(int n){
+        while (!esPrimo(n)) {
+            n++;
+        }
+        return n;
     }
 }

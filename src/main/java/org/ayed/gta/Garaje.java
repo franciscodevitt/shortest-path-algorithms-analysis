@@ -13,15 +13,14 @@
 package org.ayed.gta;
 
 import org.ayed.tda.vector.Vector;
-
+import org.ayed.tda.lista.Cola;
 import java.io.*;
 
 public class Garaje {
     private int capacidad;                       // lugares dentro del garaje
     private int creditos;                        // moneda para mejorar el garaje
     private Vector<Vehiculo> vehiculosEnGaraje;  // vehículos utilizables (adentro)
-    // TODO: cuando esté el TDA Cola real, reemplazar este Vector por Cola<Vehiculo
-    private Vector<Vehiculo> zonaDeEspera;       // cola FIFO de vehículos que no entraron (no utilizables)
+    private Cola<Vehiculo> zonaDeEspera;         // cola FIFO real de vehículos que no entraron
 
     private static final String RUTA = "garaje.csv";
 
@@ -36,7 +35,8 @@ public class Garaje {
         this.capacidad = 5;
         this.creditos = 0;
         this.vehiculosEnGaraje = new Vector<>();
-        this.zonaDeEspera = new Vector<>();
+        this.zonaDeEspera = new Cola<>();
+
     }
 
     // -----------------------------
@@ -70,7 +70,8 @@ public class Garaje {
      // si se libera un espacio en el garaje, el primer vehiculo en espera entra automaticamente.
      // TODO: cuando haya una Cola real, cambiar eliminar(0) por desencolar()
         if (!zonaDeEspera.vacio() && vehiculosEnGaraje.tamanio() < capacidad) {
-            Vehiculo siguiente = zonaDeEspera.eliminar(0);
+        	Vehiculo siguiente = zonaDeEspera.eliminar();   // ahora usa FIFO real
+
             vehiculosEnGaraje.agregar(siguiente);
             System.out.println("Ingresó desde zona de espera: " + siguiente.obtenerVehiculo());
         }
@@ -93,7 +94,7 @@ public class Garaje {
         this.capacidad++;
 
         while (vehiculosEnGaraje.tamanio() < capacidad && !zonaDeEspera.vacio()) {
-            Vehiculo siguiente = zonaDeEspera.eliminar(0);
+            Vehiculo siguiente = zonaDeEspera.eliminar();
             vehiculosEnGaraje.agregar(siguiente);
             System.out.println("Ingresó desde espera por mejora: " + siguiente.obtenerVehiculo());
         }

@@ -66,9 +66,7 @@ public class Diccionario<C, V> {
         if (tamanio<2){
             return 2;
         }
-
         while (!esPrimo(tamanio)) { // si el tamaño no esprimo se va incrementando hasta encontrar un valor que sea primo
-
             tamanio++;    
         }
         return tamanio;
@@ -148,8 +146,18 @@ public class Diccionario<C, V> {
      */
     public V agregar(C clave, V valor) {
         // --------------------------------Implementar----------------.
-        
-        return (V) new Object();
+        int indice = obtenerIndice(clave);
+        V datoAnterior = null;
+        Iterador<Tupla<C,V>> ubicacion = this.buscar(clave); //iterador en la ubicacion de la clave
+
+        if (ubicacion != null){
+            datoAnterior = ubicacion.dato().valor(); //obtengo el dato anterior
+            ubicacion.modificarDato(new Tupla<C,V>(clave, valor)); //Modifico el dato asociado a la clave
+        }else{ //si no encuentro la clave, agrego la tupla a la lista
+            this.datos.dato(indice).agregar(new Tupla<C,V>(clave, valor));
+            this.cantidadDatos++;
+        }
+        return datoAnterior;
     }
 
     /**
@@ -166,7 +174,15 @@ public class Diccionario<C, V> {
      */
     public V eliminar(C clave) {
         //---------------------------------------------------------- Implementar-----------.
-        return (V) new Object();
+        V valor = null;
+        Iterador<Tupla<C,V>> iter = this.buscar(clave);
+
+        if (iter!=null){
+            valor = iter.dato().valor();
+            iter.eliminar();
+            this.cantidadDatos--;
+        }
+        return valor;
     }
 
     /**
@@ -179,7 +195,13 @@ public class Diccionario<C, V> {
      */
     public V obtenerValor(C clave) {
         //---------------------------------------------------------  Implementar.
-        return (V) new Object();
+        V valor = null;
+        Iterador<Tupla<C,V>> iter = this.buscar(clave);
+
+        if (iter!=null){
+            valor = iter.dato().valor();
+        }
+        return valor;
     }
 
     /**
@@ -189,7 +211,7 @@ public class Diccionario<C, V> {
      */
     public int tamanio() {
         // --------------------------------------------------------- Implementar.
-        return 0;
+        return this.cantidadDatos;
     }
 
     /**
@@ -199,7 +221,8 @@ public class Diccionario<C, V> {
      */
     public boolean vacio() {
         // Implementar.
-        return true;
+        
+        return (this.cantidadDatos==0);
     }
 
     /**
@@ -251,4 +274,32 @@ public class Diccionario<C, V> {
         }
         return n;
     }
+
+
+    /**
+     * 
+     * @param clave clave a buscar en el diccionario
+     * @return El iterador en la posicion de la clave.
+     * si no encuentra la clave devuelve null.
+     */
+    private Iterador<Tupla<C,V>> buscar(C clave){
+        int indice = obtenerIndice(clave);
+        Iterador<Tupla<C,V>> iter =this.datos.dato(indice).iterador();
+
+        while (iter.haySiguiente()) {
+            if (iter.dato().clave().equals(clave)){
+                return iter;
+            }
+            
+            iter.siguiente();
+        }
+
+        return null;
+    }
+
+
+    //private void aumentarCapacidad(){
+        
+    //}
+
 }

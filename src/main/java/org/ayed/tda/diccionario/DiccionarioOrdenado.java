@@ -32,6 +32,12 @@ public class DiccionarioOrdenado<C, V> {
      */
     public DiccionarioOrdenado(Comparador<C> comparador) {
         // Implementar.
+        if (comparador == null){
+            throw new ExcepcionDiccionario("el comparador es nulo");
+        }
+        this.comparador = comparador;
+        this.raiz = null;
+        this.cantidadDatos = 0;
     }
 
     /**
@@ -45,6 +51,12 @@ public class DiccionarioOrdenado<C, V> {
      */
     public DiccionarioOrdenado(DiccionarioOrdenado<C, V> diccionarioOrdenado) {
         // Implementar.
+        if (diccionarioOrdenado == null){
+            throw new ExcepcionDiccionario("El diccionario a copiar es null");
+        }
+        this.raiz = clonarSubArbol(diccionarioOrdenado.raiz);
+        this.cantidadDatos = diccionarioOrdenado.cantidadDatos;
+        this.comparador = diccionarioOrdenado.comparador;
     }
 
     /**
@@ -55,8 +67,31 @@ public class DiccionarioOrdenado<C, V> {
      */
     private Nodo<C, V> obtenerSucesorInmediato(Nodo<C, V> nodo) {
         // Implementar.
-        return new Nodo<>((C) new Object(), (V) new Object());
+        Nodo<C, V> sucesor;
+        if (nodo == null) { //si el nodo es null devuelvo null
+            sucesor = null;
+        }else if (nodo.hijoDerecho != null) { // Si hay subárbol derecho -> sucesor = mínimo del derecho
+            sucesor = nodo.hijoDerecho;
+            while (sucesor.hijoIzquierdo != null) {
+                sucesor = sucesor.hijoIzquierdo;
+            }
+        }else{
+            //Si no hay subárbol derecho -> hay que ver los ancestros: subo por los padres
+            Nodo<C, V> padre = nodo.padre;
+            Nodo<C, V> actual = nodo;
+    
+            while (padre != null && actual == padre.hijoDerecho) { // subir mientras sea hijo derecho
+                actual = padre;
+                padre = padre.padre;
+            }
+    
+            sucesor = padre;
+
+        }
+        return sucesor;
+
     }
+
 
     /**
      * Agrega un mapeo {clave, valor} al diccionario.
@@ -70,7 +105,34 @@ public class DiccionarioOrdenado<C, V> {
      */
     public V agregar(C clave, V valor) {
         // Implementar.
-        return (V) new Object();
+        V valorAnterior = null;
+        Nodo<C,V> nuevoDato = new Nodo<C,V>(clave, valor);
+        
+        if (this.cantidadDatos == 0){ //si el diccionario esta vacio lo agrego en la raiz
+            this.raiz = new Nodo<C,V>(clave, valor);
+        }else{ //sino busco al padre
+            
+            Nodo<C,V> padre = buscarNodoPadre(clave, this.raiz);
+
+            if(cmp(clave, padre.clave) <= 0){ //si es menor o igual al padre lo agrego a su izquierda
+                if(padre.hijoIzquierdo != null){ //si ya existia actualizo el valor anterior
+                    valorAnterior = padre.hijoIzquierdo.valor;
+                    padre.hijoIzquierdo.valor = valor;
+                }else{ //si no existia creo
+                    padre.hijoIzquierdo = new Nodo<C,V>(clave, valor);
+                }
+            }else{ //si es mayor al padre lo agrego a su derecha
+                if(padre.hijoDerecho != null){ //si ya existia actualizo el valor anterior
+                    valorAnterior = padre.hijoDerecho.valor;
+                    padre.hijoDerecho.valor = valor;
+                }else{ //si no existia lo creo
+                    padre.hijoDerecho = new Nodo<C,V>(clave, valor);
+                }
+            }
+
+        }
+
+        return valorAnterior;
     }
 
     /**
@@ -87,6 +149,33 @@ public class DiccionarioOrdenado<C, V> {
      */
     public V eliminar(C clave) {
         // Implementar.
+        Nodo<C,V> padre = buscarNodoPadre(clave, this.raiz);
+        Nodo<C,V> nodo = null;
+        V dato = null;
+        if (padre == null){
+            this.raiz = null;
+        }
+        if (padre.hijoIzquierdo != null && padre.hijoIzquierdo.clave.equals(clave)){
+            nodo = padre.hijoIzquierdo;
+            dato = nodo.valor;
+        }else if(padre.hijoDerecho != null && padre.hijoDerecho.clave.equals(clave)){
+            nodo = padre.hijoDerecho;
+            dato = nodo.valor;
+        }
+
+        if (nodo != null && cantHijos(nodo) == 0){
+            eliminarSinHijos(nodo, padre);
+        }else if(nodo != null && cantHijos(nodo) == 1){
+            eliminarConUnHijo(nodo, padre);
+        }else{
+            Nodo<C,V> sucesor = obtenerSucesorInmediato(nodo);
+            this.swap(nodo, sucesor);
+            if (sucesor.hijoDerecho != null){
+                sucesor.padre.hijoIzquierdo = sucesor.hijoDerecho;
+            }
+
+        }
+
         return (V) new Object();
     }
 
@@ -150,7 +239,7 @@ public class DiccionarioOrdenado<C, V> {
      */
     public int tamanio() {
         // Implementar.
-        return 0;
+        return this.cantidadDatos;
     }
 
     /**
@@ -160,6 +249,89 @@ public class DiccionarioOrdenado<C, V> {
      */
     public boolean vacio() {
         // Implementar.
-        return true;
+        return (this.cantidadDatos==0);
     }
+
+
+    private Nodo<C,V> clonarSubArbol(Nodo<C,V> nodo){
+        if (nodo == null){
+            return null;
+        }
+        // Creo nodo sin padre ni hijos
+    Nodo<C,V> nuevo = new Nodo<>(nodo.clave, nodo.valor);
+
+    // Clona el hijo izquierdo
+    nuevo.hijoIzquierdo = clonarSubArbol(nodo.hijoIzquierdo);
+    if (nuevo.hijoIzquierdo != null) {
+        nuevo.hijoIzquierdo.padre = nuevo;
+    }
+
+    // Clona el hijo derecho
+    nuevo.hijoDerecho = clonarSubArbol(nodo.hijoDerecho);
+    if (nuevo.hijoDerecho != null) {
+        nuevo.hijoDerecho.padre = nuevo;
+    }
+
+    return nuevo;
+    }
+
+    private int cmp(C clave1, C clave2){
+        return this.comparador.comparar(clave1, clave2);
+    }
+
+    /**
+     * Busca el padre de un nodo segun su clave. si el nodo no existe devuelve cual seria su padre si este nodo existiese.
+     * @param clave la clave del nodo que estoy buscando
+     * @param raiz Raiz del subarbol en el que busco la clave
+     * @return el padre del nodo que estoy buscando, si el nodo no existe me devuelve el padre de donde tendria que estar.
+     */
+    private Nodo<C,V> buscarNodoPadre(C clave, Nodo<C,V> raiz){
+        Nodo<C,V> padre = null;
+        if (raiz != null){
+            if (raiz.clave.equals(clave)){
+                padre = raiz.padre;
+            } else if (cmp(clave, raiz.clave) < 0){
+                if (raiz.hijoIzquierdo == null){
+                    padre = raiz;
+                }else{
+                    padre = buscarNodoPadre(clave, raiz.hijoIzquierdo);
+                }
+            }else if (cmp(clave, raiz.clave) > 0){
+                if (raiz.hijoDerecho == null){
+                    padre = raiz;
+                }else{
+                    padre = buscarNodoPadre(clave, raiz.hijoDerecho);
+                }
+            }else if(cmp(clave, raiz.clave) == 0){
+                padre = raiz;
+            }
+        }
+        return padre;
+    }
+
+    private void swap(Nodo<C,V> nodo1, Nodo<C,V> nodo2){
+        if (nodo1 == null || nodo2 ==null){
+            throw new ExcepcionDiccionario("No se puede hacer swap con un nodo nulo");
+        }
+        C claveAux = nodo1.clave;
+        V valorAux = nodo1.valor;
+        
+        nodo1.clave = nodo2.clave;
+        nodo1.valor = nodo2.valor;
+
+        nodo2.clave = claveAux;
+        nodo2.valor = valorAux;
+
+    }
+
+    private int cantHijos(Nodo<C,V> nodo){
+        int cantidad = 0;
+        if (nodo.hijoDerecho != null && nodo.hijoIzquierdo != null){
+            cantidad = 2;
+        }else if (nodo.hijoDerecho != null || nodo.hijoIzquierdo != null){
+            cantidad = 1;
+        }
+        return cantidad;
+    }
+
 }

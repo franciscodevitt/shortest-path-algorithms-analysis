@@ -106,30 +106,22 @@ public class DiccionarioOrdenado<C, V> {
     public V agregar(C clave, V valor) {
         // Implementar.
         V valorAnterior = null;
-        Nodo<C,V> nuevoDato = new Nodo<C,V>(clave, valor);
         
         if (this.cantidadDatos == 0){ //si el diccionario esta vacio lo agrego en la raiz
             this.raiz = new Nodo<C,V>(clave, valor);
-        }else{ //sino busco al padre
+        }else{ //sino busco al nodo
             
-            Nodo<C,V> padre = buscarNodoPadre(clave, this.raiz);
-
-            if(cmp(clave, padre.clave) <= 0){ //si es menor o igual al padre lo agrego a su izquierda
-                if(padre.hijoIzquierdo != null){ //si ya existia actualizo el valor anterior
-                    valorAnterior = padre.hijoIzquierdo.valor;
-                    padre.hijoIzquierdo.valor = valor;
-                }else{ //si no existia creo
-                    padre.hijoIzquierdo = new Nodo<C,V>(clave, valor);
+            Nodo<C,V> nodo = buscarNodo(clave, this.raiz);
+            if (!nodo.clave.equals(clave)){ //si las claves no coinciden es porque tengo al padre, y el nodo hay que crearlo
+                if(cmp(clave, nodo.clave) <= 0){ //si es menor o igual al padre lo agrego a su izquierda
+                    nodo.hijoIzquierdo = new Nodo<C,V>(clave, valor);
+                }else{ //si es mayor al padre lo agrego a su derecha
+                    nodo.hijoDerecho = new Nodo<C,V>(clave, valor);
                 }
-            }else{ //si es mayor al padre lo agrego a su derecha
-                if(padre.hijoDerecho != null){ //si ya existia actualizo el valor anterior
-                    valorAnterior = padre.hijoDerecho.valor;
-                    padre.hijoDerecho.valor = valor;
-                }else{ //si no existia lo creo
-                    padre.hijoDerecho = new Nodo<C,V>(clave, valor);
-                }
+            }else{ //si el nodo ya existe le modifico el valor
+                valorAnterior = nodo.valor;
+                nodo.valor = valor;
             }
-
         }
 
         return valorAnterior;
@@ -149,8 +141,8 @@ public class DiccionarioOrdenado<C, V> {
      */
     public V eliminar(C clave) {
         // Implementar.
-        Nodo<C,V> padre = buscarNodoPadre(clave, this.raiz);
         Nodo<C,V> nodo = null;
+        Nodo<C,V> padre = buscarNodo(clave, this.raiz);
         V dato = null;
         if (padre == null){
             this.raiz = null;
@@ -285,28 +277,26 @@ public class DiccionarioOrdenado<C, V> {
      * @param raiz Raiz del subarbol en el que busco la clave
      * @return el padre del nodo que estoy buscando, si el nodo no existe me devuelve el padre de donde tendria que estar.
      */
-    private Nodo<C,V> buscarNodoPadre(C clave, Nodo<C,V> raiz){
-        Nodo<C,V> padre = null;
+    private Nodo<C,V> buscarNodo(C clave, Nodo<C,V> raiz){
+        Nodo<C,V> nodo = null;
         if (raiz != null){
-            if (raiz.clave.equals(clave)){
-                padre = raiz.padre;
-            } else if (cmp(clave, raiz.clave) < 0){
-                if (raiz.hijoIzquierdo == null){
-                    padre = raiz;
+            if (raiz.clave.equals(clave)){ //si la clave coincide encontre el nodo
+                nodo = raiz;
+            } else if (cmp(clave, raiz.clave) < 0){ // si la clave es menor busco a la izquierda
+                if (raiz.hijoIzquierdo == null){ // si no hay izquierda el nodo no exite y encontre al padre
+                    nodo = raiz;
                 }else{
-                    padre = buscarNodoPadre(clave, raiz.hijoIzquierdo);
+                    nodo = buscarNodo(clave, raiz.hijoIzquierdo);
                 }
-            }else if (cmp(clave, raiz.clave) > 0){
-                if (raiz.hijoDerecho == null){
-                    padre = raiz;
+            }else if (cmp(clave, raiz.clave) > 0){ //si la clave es mayor busco a la derecha
+                if (raiz.hijoDerecho == null){ // si no hay derecha el nodo no existe y encontre al padre
+                    nodo = raiz;
                 }else{
-                    padre = buscarNodoPadre(clave, raiz.hijoDerecho);
+                    nodo = buscarNodo(clave, raiz.hijoDerecho);
                 }
-            }else if(cmp(clave, raiz.clave) == 0){
-                padre = raiz;
             }
         }
-        return padre;
+        return nodo;
     }
 
     private void swap(Nodo<C,V> nodo1, Nodo<C,V> nodo2){

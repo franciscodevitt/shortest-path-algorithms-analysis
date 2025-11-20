@@ -15,7 +15,7 @@ import java.util.*;
 public class Grafo<T> {
     protected final Map<T, Map<T, Integer>> adyacencias;
     protected static final int INFINITO = 99999; // Ajustar si es necesario.
-    protected static final int SIN_PESO = 1; // Ajustar si es necesario.
+    protected static final int SIN_PESO = 1;     // Ajustar si es necesario.
 
     /**
      * Constructor de Grafo.
@@ -26,7 +26,7 @@ public class Grafo<T> {
 
     /**
      * Constructor de copia de Grafo.
-     *
+     *SS
      * @param grafo Grafo a copiar.
      *              No puede ser nulo.
      * @throws ExcepcionGrafo si el grafo es nulo.
@@ -37,6 +37,7 @@ public class Grafo<T> {
         }
         adyacencias = new HashMap<>();
         for (T vertice : grafo.adyacencias.keySet()) {
+            // copia las adyacencias del otro grafo
             adyacencias.put(vertice, new HashMap<>(grafo.obtenerAdyacentes(vertice)));
         }
     }
@@ -98,6 +99,13 @@ public class Grafo<T> {
     }
 
     /**
+     * Agrega una arista con peso por defecto.
+     */
+    public void agregarArista(T origen, T destino) {
+        agregarArista(origen, destino, SIN_PESO);
+    }
+
+    /**
      * Elimina una arista del grafo. Si no existe, no hace nada.
      *
      * @param origen  Vértice origen.
@@ -149,4 +157,26 @@ public class Grafo<T> {
         }
         return adyacencias.get(vertice);
     }
+
+    /** Obtiene todos los vértices del grafo. */
+    public Set<T> obtenerVertices() {
+        return adyacencias.keySet();
+    }
+
+    /** Indica si un vértice existe en el grafo. */
+    public boolean tieneVertice(T vertice) {
+        return adyacencias.containsKey(vertice);
+    }
+
+    /** Indica si existe una arista entre dos vértices. */
+    public boolean tieneArista(T origen, T destino) {
+        if (!tieneVertice(origen) || !tieneVertice(destino)) return false;
+        return adyacencias.get(origen).containsKey(destino);
+    }
+
+    /** Obtiene el grado (cantidad de adyacentes) de un vértice. */
+    public int grado(T vertice) {
+        return obtenerAdyacentes(vertice).size();
+    }
 }
+

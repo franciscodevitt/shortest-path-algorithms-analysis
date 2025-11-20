@@ -51,8 +51,7 @@ public class Garaje {
             vehiculosEnGaraje.agregar(vehiculo);
             System.out.println("Ingresó al garaje: " + vehiculo.obtenerVehiculo());
         } else {
-        	// TODO: cuando haya una Cola real, cambiar agregar() por encolar()
-            zonaDeEspera.agregar(vehiculo); // al final de la cola
+            zonaDeEspera.agregar(vehiculo); // FIFO real de tu Cola
             System.out.println("Garaje lleno. Agregado a zona de espera: " + vehiculo.obtenerVehiculo());
         }
     }
@@ -70,11 +69,11 @@ public class Garaje {
      // si se libera un espacio en el garaje, el primer vehiculo en espera entra automaticamente.
      // TODO: cuando haya una Cola real, cambiar eliminar(0) por desencolar()
         if (!zonaDeEspera.vacio() && vehiculosEnGaraje.tamanio() < capacidad) {
-        	Vehiculo siguiente = zonaDeEspera.eliminar();   // ahora usa FIFO real
-
+            Vehiculo siguiente = zonaDeEspera.eliminar();   // FIFO real
             vehiculosEnGaraje.agregar(siguiente);
             System.out.println("Ingresó desde zona de espera: " + siguiente.obtenerVehiculo());
         }
+
     }
 
     /**
@@ -150,16 +149,22 @@ public class Garaje {
         }
 
         System.out.println("===== Zona de ESPERA (" + zonaDeEspera.tamanio() + ") =====");
-        if (zonaDeEspera.vacio()) System.out.println("(sin espera)");
-        for (int i = 0; i < zonaDeEspera.tamanio(); i++) {
-            System.out.println("[espera " + (i + 1) + "] " + zonaDeEspera.dato(i).obtenerVehiculo());
+        if (zonaDeEspera.vacio()) {
+            System.out.println("(sin espera)");
+        } else {
+            int n = zonaDeEspera.tamanio();
+            for (int i = 0; i < n; i++) {
+                Vehiculo v = zonaDeEspera.eliminar();              // saco el primero
+                System.out.println("[espera " + (i + 1) + "] " + v.obtenerVehiculo());
+                zonaDeEspera.agregar(v);                            // lo vuelvo a poner al final
+            }
         }
     }
 
     public int getCreditos() { return this.creditos; }
     public int getCapacidad() { return this.capacidad; }
     public Vector<Vehiculo> getVehiculosEnGaraje() { return vehiculosEnGaraje; }
-    public Vector<Vehiculo> getZonaDeEspera() { return zonaDeEspera; }
+    public Cola<Vehiculo> getZonaDeEspera() { return zonaDeEspera; }
 
     // -----------------------------
     // CSV con dos secciones
@@ -188,16 +193,22 @@ public class Garaje {
 
             // espera
             writer.println("#ESPERA");
-            for (int i = 0; i < zonaDeEspera.tamanio(); i++) {
-                writer.println(zonaDeEspera.dato(i).obtenerVehiculoParaExportar());
+            int n = zonaDeEspera.tamanio();
+            for (int i = 0; i < n; i++) {
+                Vehiculo v = zonaDeEspera.eliminar();             // saco el primero
+                writer.println(v.obtenerVehiculoParaExportar());  // lo escribo en el CSV
+                zonaDeEspera.agregar(v);                          // lo vuelvo a encolar
             }
         } catch (IOException e) {
             throw new ExcepcionGaraje("No se pudo exportar el garaje: " + e.getMessage());
         }
     }
 
+
     public void importarGaraje() {
         try (BufferedReader reader = new BufferedReader(new FileReader(RUTA))) {
+
+            // ---- 1) Leer la primera línea: meta ----
             String linea = reader.readLine();
             if (linea != null) {
                 String[] meta = linea.split(",");
@@ -205,22 +216,47 @@ public class Garaje {
                 this.creditos  = Integer.parseInt(meta[1].trim());
             }
 
-            // reset listas
+            // ---- 2) Reiniciar estructuras ----
             this.vehiculosEnGaraje = new Vector<>();
-            this.zonaDeEspera = new Vector<>();
+            this.zonaDeEspera = new Cola<>(); // tu Cola real
 
-            // leer secciones
-            leerSeccion(reader, "#GARAJE", vehiculosEnGaraje);
-            leerSeccion(reader, "#ESPERA", zonaDeEspera);
+            // ---- 3) Variable para saber en qué sección estamos ----
+            String seccionActual = null;
 
-         // si el archivo CSV contiene mas vehiculos de los que entran en el garaje,
-         // los vehiculos excedentes se mueven automaticamente a la zona de espera
-         // para mantenerlos registrados sin superar la capacidad maxima.
+            // ---- 4) Leer el resto del archivo ----
+            while ((linea = reader.readLine()) != null) {
+                linea = linea.trim();
+                if (linea.isEmpty()) continue;
 
+                // Detectar secciones
+                if (linea.startsWith("#")) {
+                    if (linea.equalsIgnoreCase("#GARAJE")) {
+                        seccionActual = "GARAJE";
+                    } else if (linea.equalsIgnoreCase("#ESPERA")) {
+                        seccionActual = "ESPERA";
+                    } else {
+                        seccionActual = null; // secciones desconocidas
+                    }
+                    continue;
+                }
+
+                // ---- 5) Parsear vehículo (una línea normal) ----
+                Vehiculo v = parsearVehiculoDesdeCsv(linea);
+
+                // ---- 6) Guardar en la estructura correspondiente ----
+                if ("GARAJE".equals(seccionActual)) {
+                    vehiculosEnGaraje.agregar(v);
+                } else if ("ESPERA".equals(seccionActual)) {
+                    zonaDeEspera.agregar(v);
+                }
+            }
+
+            // ---- 7) Ajustar si había más autos que capacidad ----
             while (vehiculosEnGaraje.tamanio() > capacidad) {
                 Vehiculo v = vehiculosEnGaraje.eliminar(vehiculosEnGaraje.tamanio() - 1);
                 zonaDeEspera.agregar(v);
             }
+
         } catch (IOException e) {
             throw new ExcepcionGaraje("No se pudo leer el garaje: " + e.getMessage());
         } catch (RuntimeException e) {
@@ -228,31 +264,19 @@ public class Garaje {
         }
     }
 
-    private static void leerSeccion(BufferedReader br, String marca, Vector<Vehiculo> destino) throws IOException {
-        String linea;
 
-   
-        // avanza en el archivo hasta encontrar la sección indicada (#GARAJE o #ESPERA)
-        while ((linea = br.readLine()) != null && !linea.startsWith(marca)) { }
 
-        if (linea == null) return; // seccion no encontrada - no hay nada que leer
+    
+    private Vehiculo parsearVehiculoDesdeCsv(String linea) {
+        // formato: NOMBRE, PRECIO, TIPO, CANTIDAD_RUEDAS, CAPACIDAD_GASOLINA
+        String[] parte = linea.split(",");
 
-        br.mark(1 << 20);
-        while ((linea = br.readLine()) != null && !linea.startsWith("#")) {
-            if (linea.trim().isEmpty()) { br.mark(1 << 20); continue; }
+        String nombre = parte[NOMBRE].trim();
+        int precio = Integer.parseInt(parte[PRECIO].trim());
+        TipoVehiculo tipo = TipoVehiculo.valueOf(parte[TIPO_VEHICULO].trim().toUpperCase());
+        int capacidadGasolina = Integer.parseInt(parte[CAPACIDAD_GASAOLINA].trim());
 
-            // NOMBRE, PRECIO, TIPO, CANTIDAD_RUEDAS, CAPACIDAD_GASOLINA
-            String[] parte = linea.split(",");
-            String nombre = parte[NOMBRE].trim();
-            int precio = Integer.parseInt(parte[PRECIO].trim());
-            TipoVehiculo tipo = TipoVehiculo.valueOf(parte[TIPO_VEHICULO].trim().toUpperCase());
-            int capacidadGasolina = Integer.parseInt(parte[CAPACIDAD_GASAOLINA].trim());
-
-            Vehiculo vehiculo = new Vehiculo(nombre, tipo, precio, capacidadGasolina);
-            destino.agregar(vehiculo);
-
-            br.mark(1 << 20);
-        }
-        if (linea != null && linea.startsWith("#")) br.reset();
+        return new Vehiculo(nombre, tipo, precio, capacidadGasolina);
     }
+
 }

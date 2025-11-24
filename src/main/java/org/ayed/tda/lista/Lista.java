@@ -1,6 +1,7 @@
 package org.ayed.tda.lista;
 
 import org.ayed.tda.iterador.Iterador;
+import org.ayed.tda.vector.ExcepcionVector;
 
 public class Lista<T> {
     Nodo<T> primero;
@@ -11,7 +12,9 @@ public class Lista<T> {
      * Constructor de Lista.
      */
     public Lista() {
-        // Implementar.
+        this.primero = null;
+        this.ultimo = null;
+        this.cantidadDatos = 0;
     }
 
     /**
@@ -22,7 +25,12 @@ public class Lista<T> {
      * @throws ExcepcionLista si la lista es nula.
      */
     public Lista(Lista<T> lista) {
-        // Implementar.
+        if (lista != null){
+
+        } else {
+            throw new ExcepcionVector("La lista no puede ser nula.");
+        }
+
     }
 
     /**
@@ -31,7 +39,15 @@ public class Lista<T> {
      * @param dato Dato a agregar.
      */
     public void agregar(T dato) {
-        // Implementar.
+        Nodo<T>  nuevoNodo = new Nodo<T>(dato, this.ultimo, null);
+
+        if (vacio()){
+            this.primero = nuevoNodo;
+            this.ultimo = nuevoNodo;
+        } else {
+            this.ultimo = nuevoNodo;
+        }
+        this.cantidadDatos++;
     }
 
     /**
@@ -53,7 +69,9 @@ public class Lista<T> {
      * @throws ExcepcionLista si el índice no es válido.
      */
     public void agregar(T dato, int indice) {
-        // Implementar.
+        if (indiceValido( indice )){
+        IteradorLista <T> new Iterador<>();
+        }
     }
 
     /**
@@ -132,8 +150,7 @@ public class Lista<T> {
      * @return true si la lista está vacía.
      */
     public boolean vacio() {
-        // Implementar.
-        return true;
+        return this.primero == null;
     }
 
     /**
@@ -163,4 +180,20 @@ public class Lista<T> {
         // Implementar.
         return (Iterador<T>) new Object();
     }
+
+    /**
+     * Verifica que el indice sea valido
+     *
+     * @param indice Índice del dato a modificar.
+     *               No puede ser negativo.
+     *               No puede ser mayor o igual que el tamaño del vector.
+     * @return true -> indice valido
+     *         false -> indice invalido
+     */
+    public boolean indiceValido(int indice) {
+        boolean valido = (indice >= 0 && indice <= cantidadDatos)? true: false;
+        return valido;
+    }
+
+
 }

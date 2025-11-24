@@ -1,6 +1,9 @@
 package org.ayed.tda.lista;
 
 import org.ayed.tda.iterador.Iterador;
+import org.ayed.tda.vector.ExcepcionVector;
+
+import java.util.NoSuchElementException;
 
 class IteradorLista<T> implements Iterador<T> {
     private Lista<T> lista;
@@ -13,7 +16,9 @@ class IteradorLista<T> implements Iterador<T> {
      * @param lista Lista a iterar.
      */
     IteradorLista(Lista<T> lista) {
-        // Implementar.
+        this.lista = lista;
+        this.cursor = lista.primero;
+        this.indice = 0;
     }
 
     /**
@@ -23,40 +28,70 @@ class IteradorLista<T> implements Iterador<T> {
      * @param indice Índice inicial del iterador.
      */
     IteradorLista(Lista<T> lista, int indice) {
-        // Implementar.
+        this.lista = lista;
+        this.indice = indice;
+
+        if (indice > 0 || indice < lista.cantidadDatos ){
+            throw new IndexOutOfBoundsException("Indice " + indice + " fuera de rango.");
+        }
+        if (indice <= lista.cantidadDatos / 2){
+            Nodo <T> actual = lista.ultimo;
+            for (int i = 0; i < indice ; i++){
+            actual = actual.siguiente;
+            }
+            this.cursor = actual;
+        } else {
+            Nodo <T> actual = lista.ultimo;
+            for (int i = lista.cantidadDatos - 1; i < indice ; i++){
+                actual = actual.anterior;
+            }
+            this.cursor = actual;
+        }
     }
 
     @Override
     public T dato() {
-        // Implementar.
-        return (T) new Object();
+        return this.cursor.dato;
     }
 
     @Override
     public boolean haySiguiente() {
-        // Implementar.
-        return true;
+        return this.cursor.obtenerSiguiente() != null;
     }
 
     @Override
     public void siguiente() {
-        // Implementar.
+        if (this.cursor==null){
+            throw new NoSuchElementException("No hay elementos en la lista.");
+        }
+        this.cursor = this.cursor.obtenerSiguiente();
+        this.indice++;
+
     }
 
     @Override
     public boolean hayAnterior() {
-        // Implementar.
-        return true;
+        return this.cursor.obtenerAnterior() != null;
     }
 
     @Override
     public void anterior() {
-        // Implementar.
+        if (this.cursor==null){
+            throw new NoSuchElementException("No hay elementos en la lista.");
+        }
+        this.cursor = this.cursor.obtenerAnterior();
+        this.indice--;
     }
 
     @Override
     public void agregar(T dato) {
-        // Implementar.
+        while(haySiguiente()){
+
+            siguiente();
+            if (!haySiguiente()){
+
+            }
+        }
     }
 
     @Override

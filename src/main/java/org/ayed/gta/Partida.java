@@ -90,7 +90,7 @@ public class Partida {
         int precio = ingresarPrecio();
         int capacidadGasolina = ingresarCapacidadGasolina();
 
-        Vehiculo vehiculo = new Vehiculo(nombre, tipoVehiculo, precio, capacidadGasolina);
+        Vehiculo vehiculo = new Moto(nombre, 12, precio, capacidadGasolina);
         return vehiculo;
     }
     /**

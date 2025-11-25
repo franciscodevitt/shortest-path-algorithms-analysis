@@ -125,6 +125,7 @@ public class Diccionario<C, V> {
      * @throws ExcepcionDiccionario si el diccionario es nulo.
      */
     public Diccionario(Diccionario<C, V> diccionario) {
+        if(diccionario == null) throw new ExcepcionDiccionario("No se puede copiar un diccionario nulo");
         this.factorDeCarga = diccionario.factorDeCarga;
         this.tamanioTabla = diccionario.tamanioTabla;
         datos = new VectorEstatico<>(tamanioTabla);

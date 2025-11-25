@@ -1,9 +1,8 @@
 package org.ayed.tda.lista;
 
+import org.ayed.tda.iterador.ExcepcionNoHayDato;
 import org.ayed.tda.iterador.Iterador;
-import org.ayed.tda.vector.ExcepcionVector;
 
-import java.util.NoSuchElementException;
 
 class IteradorLista<T> implements Iterador<T> {
     private Lista<T> lista;
@@ -18,7 +17,7 @@ class IteradorLista<T> implements Iterador<T> {
     IteradorLista(Lista<T> lista) {
         this.lista = lista;
         this.cursor = lista.primero;
-        this.indice = 0;
+        this.indice = -1;
     }
 
     /**
@@ -28,80 +27,117 @@ class IteradorLista<T> implements Iterador<T> {
      * @param indice Índice inicial del iterador.
      */
     IteradorLista(Lista<T> lista, int indice) {
-        this.lista = lista;
-        this.indice = indice;
+        if (indice < 0 || indice > lista.cantidadDatos)
+            throw new ExcepcionLista("Índice inválido.");
 
-        if (indice > 0 || indice < lista.cantidadDatos ){
-            throw new IndexOutOfBoundsException("Indice " + indice + " fuera de rango.");
-        }
-        if (indice <= lista.cantidadDatos / 2){
-            Nodo <T> actual = lista.ultimo;
-            for (int i = 0; i < indice ; i++){
-            actual = actual.siguiente;
-            }
-            this.cursor = actual;
+        this.lista = lista;
+
+        if (indice == lista.cantidadDatos) {
+            this.cursor = null; // final
         } else {
-            Nodo <T> actual = lista.ultimo;
-            for (int i = lista.cantidadDatos - 1; i < indice ; i++){
-                actual = actual.anterior;
-            }
-            this.cursor = actual;
+            this.cursor = lista.obtenerNodo(indice);
         }
+
+        this.indice = indice;
     }
 
     @Override
     public T dato() {
-        return this.cursor.dato;
+        if (cursor == null)
+            throw new ExcepcionNoHayDato("No hay dato (iterador al final).");
+
+        return cursor.dato;
     }
 
     @Override
     public boolean haySiguiente() {
-        return this.cursor.obtenerSiguiente() != null;
+        return cursor != null && (indice < lista.cantidadDatos - 1);
     }
 
     @Override
     public void siguiente() {
-        if (this.cursor==null){
-            throw new NoSuchElementException("No hay elementos en la lista.");
-        }
-        this.cursor = this.cursor.obtenerSiguiente();
-        this.indice++;
+        if (!haySiguiente())
+            throw new ExcepcionNoHayDato("No hay siguiente.");
 
+        cursor = cursor.siguiente;
+        indice++;
     }
 
     @Override
     public boolean hayAnterior() {
-        return this.cursor.obtenerAnterior() != null;
+        if (cursor == null)
+            return lista.ultimo != null; // si está al final, puede retroceder si hay algo
+
+        return cursor.anterior != null;
     }
 
     @Override
     public void anterior() {
-        if (this.cursor==null){
-            throw new NoSuchElementException("No hay elementos en la lista.");
+        if (!hayAnterior())
+            throw new ExcepcionNoHayDato("No hay anterior.");
+
+        if (cursor == null) {
+            // si estamos al final, saltamos al último nodo
+            cursor = lista.ultimo;
+            indice = lista.cantidadDatos - 1;
+        } else {
+            cursor = cursor.anterior;
+            indice--;
         }
-        this.cursor = this.cursor.obtenerAnterior();
-        this.indice--;
     }
 
     @Override
     public void agregar(T dato) {
-        while(haySiguiente()){
-
-            siguiente();
-            if (!haySiguiente()){
-
-            }
+        // insertar antes del cursor
+        if (cursor == null) {
+            // agregar al final
+            lista.agregar(dato);
+            cursor = null;
+            indice = lista.cantidadDatos; // final
+        } else{
+            lista.agregar(dato, indice);
+            indice++; // mueve el cursor a la siguiente posición
         }
     }
 
     @Override
     public void modificarDato(T dato) {
-        // Implementar.
+        if (cursor == null)
+            throw new ExcepcionNoHayDato("No hay dato.");
+
+        cursor.dato = dato;
     }
 
     @Override
     public T eliminar() {
-        // Implementar.
-        return (T) new Object();
+        if (cursor == null)
+            throw new ExcepcionNoHayDato("No hay dato a eliminar.");
+
+        T valor = cursor.dato;
+        Nodo<T> ant = cursor.anterior;
+        Nodo<T> sig = cursor.siguiente;
+
+        // Caso único elemento
+        if (lista.cantidadDatos == 1) {
+            lista.primero = null;
+            lista.ultimo = null;
+            cursor = null;
+            lista.cantidadDatos--;
+            indice = 0;
+            return valor;
+        }
+
+        // Caso general
+        if (ant != null) ant.siguiente = sig;
+        else lista.primero = sig;
+
+        if (sig != null) sig.anterior = ant;
+        else lista.ultimo = ant;
+
+        // Cursor queda en el siguiente
+        cursor = sig;
+
+        lista.cantidadDatos--;
+        return valor;
     }
 }

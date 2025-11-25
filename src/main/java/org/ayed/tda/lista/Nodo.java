@@ -29,4 +29,21 @@ class Nodo<T> {
     public Nodo(T dato) {
         this(dato, null, null);
     }
+
+
+    /*
+    *Obtener Siguiente.
+    * @return NodoSiguiente
+     */
+    public Nodo<T> obtenerSiguiente() {
+        return siguiente;
+    }
+
+    /*
+     *Obtener nodo anterior.
+     * @return nodo anterior
+     */
+    public Nodo<T> obtenerAnterior() {
+        return anterior;
+    }
 }

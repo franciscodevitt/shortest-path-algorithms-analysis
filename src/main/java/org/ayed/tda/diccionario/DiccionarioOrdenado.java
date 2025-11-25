@@ -226,8 +226,8 @@ public class DiccionarioOrdenado<C, V> {
         if (nodo == null) return;
 
         lista.agregar(new Tupla<>(nodo.clave, nodo.valor));
-        inorderRecorrer(nodo.hijoIzquierdo, lista);
-        inorderRecorrer(nodo.hijoDerecho, lista);
+        preorderRecorrer(nodo.hijoIzquierdo, lista);
+        preorderRecorrer(nodo.hijoDerecho, lista);
     }
 
     /**
@@ -245,8 +245,8 @@ public class DiccionarioOrdenado<C, V> {
     private void postorderRecorrer(Nodo<C,V> nodo, Lista<Tupla<C,V>> lista) {
         if (nodo == null) return;
 
-        inorderRecorrer(nodo.hijoIzquierdo, lista);
-        inorderRecorrer(nodo.hijoDerecho, lista);
+        postorderRecorrer(nodo.hijoIzquierdo, lista);
+        postorderRecorrer(nodo.hijoDerecho, lista);
         lista.agregar(new Tupla<>(nodo.clave, nodo.valor));
     }
 
@@ -259,7 +259,7 @@ public class DiccionarioOrdenado<C, V> {
         // Implementar.
         Lista<Tupla<C, V>> listaDeElementos = new Lista<>();
         Cola<Nodo<C, V>> cola = new Cola<>();
-        cola.agregar(this.raiz); //agrego la raiz a la cola para empezar el recorrido
+        if(this.raiz != null) cola.agregar(this.raiz); //agrego la raiz a la cola para empezar el recorrido
         
         while (!cola.vacio()) {
             

@@ -1,6 +1,7 @@
 package org.ayed.tda.colaPrioridad;
 
 import org.ayed.tda.comparador.Comparador;
+import org.ayed.tda.conjunto.ExcepcionConjunto;
 import org.ayed.tda.vector.Vector;
 
 public class ColaPrioridad<T> {
@@ -18,6 +19,9 @@ public class ColaPrioridad<T> {
      */
     public ColaPrioridad(Comparador<T> comparador) {
         // Implementar.
+        if (comparador == null) throw new ExcepcionColaPrioridad("El comparador no puede ser nulo");
+        this.datos = new Vector<>();
+        this.comparador = comparador;
     }
 
     /**
@@ -29,6 +33,11 @@ public class ColaPrioridad<T> {
      */
     public ColaPrioridad(ColaPrioridad<T> colaPrioridad) {
         // Implementar.
+        if(colaPrioridad == null){
+            throw new ExcepcionColaPrioridad("No se puede copiar una cola de prioridad nula");
+        }
+        this.comparador = colaPrioridad.comparador;
+        this.datos = new Vector<>(colaPrioridad.datos);
     }
 
     /**
@@ -39,6 +48,25 @@ public class ColaPrioridad<T> {
      */
     private void heapificarHaciaArriba() {
         // Implementar.
+        Comparador<T> cmp = this.comparador;
+        
+        int indice = this.datos.tamanio()-1;
+        int indicePadre = (indice-1)/2;
+
+        T datoActual = this.datos.dato(indice);
+        T datoPadre = this.datos.dato(indicePadre);
+        
+        while ( cmp.comparar(datoActual, datoPadre) > 0 ) { // Mientras el dato actual sea mas grande que su padre, aplico swap entre ambos
+            swap(indice, indicePadre);
+
+            //actualizo los indices
+            indice = indicePadre; 
+            indicePadre = (indice-1)/2;
+
+            //actualizo los datos
+            datoPadre = this.datos.dato(indicePadre);
+        }
+
     }
 
     /**
@@ -49,6 +77,71 @@ public class ColaPrioridad<T> {
      */
     private void heapificarHaciaAbajo() {
         // Implementar.
+        Comparador<T> cmp = this.comparador;
+        
+        int indice = 0;
+        int indiceHijoIzq = 1;
+        int indiceHijoDer = 2;
+        int indiceHijoMaximo;
+
+        T datoActual = this.datos.dato(indice);
+        T datoHijoIzq = this.datos.dato(indiceHijoIzq);
+        T datoHijoDer = null;
+        T hijoMaximo;
+
+
+        if(this.datos.tamanio() > 2){
+            datoHijoDer = this.datos.dato(indiceHijoDer);
+            //Busco el hijo de mayor priorirdad
+            if(cmp.comparar(datoHijoIzq, datoHijoDer) >=0){ //hijo izquierdo >= hijo derecho
+                hijoMaximo = datoHijoIzq;
+                indiceHijoMaximo = indiceHijoIzq;
+            }else{
+                hijoMaximo = datoHijoDer;
+                indiceHijoMaximo = indiceHijoDer;
+            }
+        }else{
+            hijoMaximo = datoHijoIzq;
+            indiceHijoMaximo = indiceHijoIzq;
+        }
+
+        while (cmp.comparar(datoActual, hijoMaximo) < 0) { //dato < el hijo de mayor prioridad
+            swap(indice, indiceHijoMaximo);
+            
+            //Actualizo los indices
+            indice = indiceHijoMaximo;
+            indiceHijoIzq = (indice*2)+1;
+            indiceHijoDer = (indice*2)+2;
+
+            //actualizo los datos de los hijos
+            if(indiceHijoIzq < this.datos.tamanio()){
+                datoHijoIzq = this.datos.dato(indiceHijoIzq);
+            }else{
+                datoHijoIzq = null;
+                datoHijoDer = null;
+            }
+
+            if(indiceHijoDer < this.datos.tamanio()){
+                datoHijoDer = this.datos.dato(indiceHijoDer);
+            }else{
+                datoHijoDer= null;
+            }
+            
+            if(datoHijoIzq == null && datoHijoDer == null){ //si ambos hijos son null ya estoy en la ultima posicion, termine
+                break;
+            }
+
+            //vuelvo a buscar el hijo de mayor prioridad
+            if(datoHijoDer == null || cmp.comparar(datoHijoIzq, datoHijoDer) >=0){ //hijo izquierdo >= hijo derecho
+                hijoMaximo = datoHijoIzq;
+                indiceHijoMaximo = indiceHijoIzq;
+            }else{
+                hijoMaximo = datoHijoDer;
+                indiceHijoMaximo = indiceHijoDer;
+            }
+
+        }
+
     }
 
     /**
@@ -59,6 +152,8 @@ public class ColaPrioridad<T> {
      */
     public void agregar(T dato) {
         // Implementar.
+        this.datos.agregar(dato);
+        this.heapificarHaciaArriba();
     }
 
     /**
@@ -70,7 +165,15 @@ public class ColaPrioridad<T> {
      */
     public T eliminar() {
         // Implementar.
-        return (T) new Object();
+        T dato = this.siguiente();
+        swap(0, this.datos.tamanio()-1);
+        this.datos.eliminar();
+        
+        if(this.datos.tamanio()>1){
+            this.heapificarHaciaAbajo();
+        }
+
+        return dato;
     }
 
     /**
@@ -81,7 +184,8 @@ public class ColaPrioridad<T> {
      */
     public T siguiente() {
         // Implementar.
-        return (T) new Object();
+        if (this.datos.vacio()) throw new ExcepcionColaPrioridad("La cola esta vacia");
+        return this.datos.dato(0);
     }
 
     /**
@@ -91,7 +195,7 @@ public class ColaPrioridad<T> {
      */
     public int tamanio() {
         // Implementar.
-        return 0;
+        return this.datos.tamanio();
     }
 
     /**
@@ -101,6 +205,19 @@ public class ColaPrioridad<T> {
      */
     public boolean vacio() {
         // Implementar.
-        return true;
+        return this.datos.vacio();
     }
+
+    /**
+     * Hace un intercambio de posiciones entre dos elementos de un Vector
+     * @param i Posicion del elemento iesimo a intercambiar 
+     * @param j Posicion del elemento jesimo a intercambiar
+     */
+    private void swap(int i, int j){
+        T iDato = this.datos.dato(i);
+        T jDato = this.datos.dato(j);
+        this.datos.modificarDato(iDato, j);
+        this.datos.modificarDato(jDato, i);
+    }
+
 }

@@ -29,7 +29,7 @@ public class Garaje {
     public static final int NOMBRE = 0;
     public static final int PRECIO = 1;
     public static final int TIPO_VEHICULO = 2;
-    public static final int CAPACIDAD_GASAOLINA = 4;
+    public static final int CAPACIDAD_GASOLINA = 4;
 
     public Garaje() {
         this.capacidad = 5;
@@ -268,15 +268,28 @@ public class Garaje {
 
     
     private Vehiculo parsearVehiculoDesdeCsv(String linea) {
-        // formato: NOMBRE, PRECIO, TIPO, CANTIDAD_RUEDAS, CAPACIDAD_GASOLINA
+        // formato: nombre, precio, tipo, ruedas, capacidadGasolina
         String[] parte = linea.split(",");
 
         String nombre = parte[NOMBRE].trim();
         int precio = Integer.parseInt(parte[PRECIO].trim());
         TipoVehiculo tipo = TipoVehiculo.valueOf(parte[TIPO_VEHICULO].trim().toUpperCase());
-        int capacidadGasolina = Integer.parseInt(parte[CAPACIDAD_GASAOLINA].trim());
+        int ruedas = Integer.parseInt(parte[3].trim());
+        int capacidadGasolina = Integer.parseInt(parte[CAPACIDAD_GASOLINA].trim());
 
-        return new Vehiculo(nombre, tipo, precio, capacidadGasolina);
+        // por ahora ponemos una velocidad maxima por defecto, se puede ajustar después
+        int velocidadMaxima = 100;
+
+        switch (tipo) {
+            case AUTO:
+                return new Auto(nombre, precio, capacidadGasolina, velocidadMaxima);
+            case MOTO:
+                return new Moto(nombre, precio, capacidadGasolina, velocidadMaxima);
+            case EXOTICO:
+                return new Exotico(nombre, precio, capacidadGasolina, velocidadMaxima, ruedas);
+            default:
+                throw new ExcepcionGaraje("Tipo de vehiculo desconocido: " + tipo);
+        }
     }
 
 }

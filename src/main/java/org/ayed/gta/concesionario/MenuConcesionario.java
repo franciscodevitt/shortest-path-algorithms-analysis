@@ -52,7 +52,8 @@ public class MenuConcesionario {
     public void iniciarConcesionario() {
         int opcion;
         do {
-            opcion = menuConcesionario(); // nuevo menú que ya hiciste
+            limpiarConsola();
+            opcion = menuConcesionario();
 
             try {
                 switch (opcion) {
@@ -69,6 +70,7 @@ public class MenuConcesionario {
                     case COMPRAR_VEHICULO:
                         String nombreExacto = ingresarNombreExacto();
                         Vehiculo vehiculo = concesionario.comprarVehiculo(nombreExacto);
+                        System.out.println("Vehículo comprado: " + vehiculo.getNombre() + ", Precio: $" + vehiculo.getPrecio());
                         break;
 
                     case VOLVER:
@@ -86,19 +88,33 @@ public class MenuConcesionario {
         } while (opcion != VOLVER);
     }
 
+    private void limpiarConsola() {
+        for (int i = 0; i < 50; i++) {
+            System.out.println();
+        }
+    }
+
     private void pausar() {
         System.out.println("\nPresione ENTER para continuar...");
         scanner.nextLine();
     }
 
     private String ingresarNombre() {
-        System.out.print("Ingrese el nombre del vehículo: ");
-        return scanner.nextLine().trim();
+        String s;
+        do {
+            System.out.print("Ingrese el nombre del vehículo: ");
+            s = scanner.nextLine().trim();
+        } while (s.isEmpty());
+        return s;
     }
 
     private String ingresarMarca() {
-        System.out.print("Ingrese la marca: ");
-        return scanner.nextLine().trim();
+        String s;
+        do {
+            System.out.print("Ingrese la marca: ");
+            s = scanner.nextLine().trim();
+        } while (s.isEmpty());
+        return s;
     }
 
     private String ingresarNombreExacto() {

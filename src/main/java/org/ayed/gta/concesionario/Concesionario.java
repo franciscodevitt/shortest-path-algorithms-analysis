@@ -15,7 +15,7 @@ public class Concesionario {
         for (int i = 0; i < max; i++) {
             Vehiculo v = vehiculos.dato(i);
             if (v.getNombre().toLowerCase().contains(filtro)) {
-                System.out.println(v);
+                System.out.println(v.getNombre() + ", Precio: $" + v.getPrecio());
                 encontrado = true;
             }
         }

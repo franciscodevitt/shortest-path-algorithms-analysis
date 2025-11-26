@@ -38,5 +38,11 @@ mvn test
 
 ## Aclaraciones para el corrector
 
+Referencias:
+
+- Sobreescritura de los métodos equals(Object) y hashCode() para el manejo de objetos en las claves de estructuras de datos basadas en hashing.
+
+<https://www.geeksforgeeks.org/java/internal-working-of-hashmap-java/>
+
 Si necesitan aclarar o justificar alguna decisión de implementación,
 lo pueden hacer escribiendo en esta sección del README.

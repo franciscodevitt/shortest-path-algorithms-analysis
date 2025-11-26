@@ -239,24 +239,27 @@ public class Vector<T> {
      *
      *
      */
+    @SuppressWarnings("unchecked")
     public void redimensionar() {
         T[] nuevoArray;
         int nuevaCapacidad = tamanioFisico;
 
 
-        if (lleno()){
-            nuevaCapacidad++;
-            //System.out.println("Redimensionando a " + nuevaCapacidad);
-            nuevoArray =  (T[]) new Object [nuevaCapacidad];
-        } else if (tamanioFisico-tamanioLogico>=4){
-            nuevaCapacidad--;
-            //System.out.println("Redimensionando a " + nuevaCapacidad);
-            nuevoArray =  (T[]) new Object [nuevaCapacidad];
-        } else {
+        // Aumentar capacidad si está lleno
+        if (lleno()) {
+            nuevaCapacidad = Math.max(1, tamanioFisico * 2);
+            nuevoArray = (T[]) new Object[nuevaCapacidad];
+        }
+        // Reducir cuando tamaño lógico <= mitad
+        else if (tamanioLogico <= tamanioFisico / 2 && tamanioFisico > 1) {
+            nuevaCapacidad = Math.max(1, tamanioFisico / 2);
+            nuevoArray = (T[]) new Object[nuevaCapacidad];
+        }
+        else {
             return;
         }
 
-        System.arraycopy(datos, 0, nuevoArray, 0, Math.min(tamanioLogico, nuevaCapacidad));
+        System.arraycopy(datos, 0, nuevoArray, 0, tamanioLogico);
 
         this.datos = nuevoArray;
         this.tamanioFisico = nuevaCapacidad;

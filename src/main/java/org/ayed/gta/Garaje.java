@@ -10,6 +10,12 @@
 // }
 
 
+//TODO: Cargar todos los vehiculos con gasolina
+// Cargar un vehiculo X cantidad de gasolina
+// Cargar por completo un vehiculo.
+// Ajustar metodo nuevoVehiculo en clase partida para el nuevo sistema de herencia (se instancia el tipo que elija)
+
+
 package org.ayed.gta;
 
 import org.ayed.tda.vector.Vector;

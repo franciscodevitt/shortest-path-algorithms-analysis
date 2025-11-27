@@ -1,4 +1,4 @@
-package org.ayed.tda.grafo;
+package org.ayed.tda.aestrella;
 
 /**
  * Interfaz para una función heurística,

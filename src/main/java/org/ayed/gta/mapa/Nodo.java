@@ -1,20 +1,22 @@
 package org.ayed.gta.mapa;
 
 /**
- * Clase que representa una celda del mapa de la ciudad.
+ * Clase que representa un Nodo del mapa de la ciudad.
+ * NOTA: SOLO para las clases Mapa y Grafo. 
+ *       NO confundir con el Nodo de los diccionarios.
  */
-public class Celda {
+public class Nodo {
     private final Coordenada posicion; 
     private final String tipoTerreno;
     private final boolean trafico;
 
     /**
-     * Constructor de Celda.
-     * @param posicion La coordenada inmutable de la Celda.
+     * Constructor de Nodo.
+     * @param posicion    La coordenada del Nodo.
      * @param tipoTerreno String que representa el tipo de terreno.
-     * @param trafico Si tienen o no trafico 
+     * @param trafico     Si tienen o no trafico 
      */
-    public Celda(Coordenada posicion, String tipoTerreno, boolean trafico) {
+    public Nodo(Coordenada posicion, String tipoTerreno, boolean trafico) {
         this.posicion = posicion;
         this.tipoTerreno = tipoTerreno;
         this.trafico = trafico;
@@ -23,21 +25,21 @@ public class Celda {
     //Getters
     
     /**
-     * @return las coordenadas de la celda.
+     * @return las coordenadas del nodo.
      */
     public Coordenada obtenerCoordenada() { 
         return this.posicion; 
     }
     
     /**
-     * @return el tipo de terreno de la celda.
+     * @return el tipo de terreno del nodo.
      */
     public String obtenerTerreno() { 
         return this.tipoTerreno; 
     }
 
     /**
-     * @return True si esta celda representa un terreno transitable con trafico.
+     * @return True si este nodo representa un terreno transitable con trafico.
      *         False en el caso contrario.
      */
     public boolean tieneTrafico() {
@@ -45,13 +47,13 @@ public class Celda {
     }
 
     /**
-     * Metodo que implementa la relación de equivalencia lógica entre objetos Celda. 
-     * Dos objetos Celda son considerados iguales si y solo si poseen los mismos 
+     * Metodo que implementa la relación de equivalencia lógica entre objetos Nodo. 
+     * Dos objetos Nodo son considerados iguales si y solo si poseen los mismos 
      * valores en su atributo posicion (Coordenada)
      *
      * 
-     * @param objeto  El objeto con el cual se compara esta Celda.
-     * @return        True si objeto es una instancia de Celda y sus  
+     * @param objeto  El objeto con el cual se compara este Nodo.
+     * @return        True si objeto es una instancia de Nodo y sus  
      *                posiciones son identicas. 
      *                False en caso contrario.
      * 
@@ -61,16 +63,16 @@ public class Celda {
     public boolean equals(Object objeto) {
         if (this == objeto) return true;
         if (objeto == null || getClass() != objeto.getClass()) return false;
-        Celda celda = (Celda) objeto;
-        return this.posicion.equals(celda.obtenerCoordenada());
+        Nodo nodo = (Nodo) objeto;
+        return this.posicion.equals(nodo.obtenerCoordenada());
     }
 
     /**
-     * Metodo que implementa la funcion de hash para poder usar una Celda
+     * Metodo que implementa la funcion de hash para poder usar un Nodo
      * como llave en una tabla hash.
-     * Dos Celdas lógicamente iguales segun equals() deben producir el mismo valor de hash.
+     * Dos Nodos lógicamente iguales segun equals() deben producir el mismo valor de hash.
      * 
-     * @return Un numero entero correspondiente al valor hash calculado para esta Celda.
+     * @return Un numero entero correspondiente al valor hash calculado para este Nodo.
      * 
      * @see #equals(Object)    
      */

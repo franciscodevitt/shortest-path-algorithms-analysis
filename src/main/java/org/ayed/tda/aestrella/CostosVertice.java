@@ -1,10 +1,10 @@
 package org.ayed.tda.aestrella;
 
-
 /**
- * Estado temporal de un nodo durante la búsqueda A*.
- * Contiene el costo real (G), estimado total (F) y el nodo padre.
+ * Clase auxiliar que representa el estado temporal de un vertice durante la búsqueda A*.
+ * Contiene el costo real (G), costo estimado total (F) y el vertice padre.
  * 
+ * @param <T> Tipo de dato utilizado para representar los vértices.
  */
 public class CostosVertice<T> {
 
@@ -27,7 +27,10 @@ public class CostosVertice<T> {
     public T obtenerPadre() { return padre; }
 
     /**
-     * Actualiza los valores del nodo.
+     * Actualiza los valores del vertice.
+     * @param nuevoCostoReal  Costo real actualizado desde origen hasta este vertice.
+     * @param nuevoCostoTotal Costo total actualizado desde origen hasta el destino.
+     * @param nuevoPadre      Nuevo vertice padre de este vertice.
      */
     public void actualizar(int nuevoCostoReal, int nuevoCostoTotal, T nuevoPadre) {
         this.costoReal = nuevoCostoReal;

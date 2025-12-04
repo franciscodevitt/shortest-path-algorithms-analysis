@@ -1,0 +1,215 @@
+Lista:
+
+@startuml
+' ====== Interfaces ======
+interface "Iterador~T~" as Iterador {
+    + T dato()
+    + boolean haySiguiente()
+    + void siguiente()
+    + boolean hayAnterior()
+    + void anterior()
+    + void agregar(T dato)
+    + void modificarDato(T dato)
+    + T eliminar()
+}
+
+' ====== Classes ======
+class "Lista~T~" as Lista {
+    - Nodo primero
+    - Nodo ultimo
+    - int cantidadDatos
+
+    + Lista()
+    + Lista(lista : Lista)
+
+    + void agregar(T dato)
+    + void agregar(T dato, indice : int)
+    + T eliminar()
+    + T eliminar(indice : int)
+    + T dato(indice : int)
+    + void modificarDato(T dato, indice : int)
+    + int tamanio()
+    + boolean vacio()
+    + Iterador iterador()
+    + Iterador iterador(indice : int)
+    + boolean indiceValido(indice : int)
+    + Nodo obtenerNodo(indice : int)
+}
+
+class "Nodo~T~" as Nodo {
+    ~ T dato
+    ~ Nodo anterior
+    ~ Nodo siguiente
+
+    + Nodo(dato : T, anterior : Nodo, siguiente : Nodo)
+    + Nodo(dato : T)
+
+    + Nodo obtenerSiguiente()
+    + Nodo obtenerAnterior()
+}
+
+' ====== Relaciones ======
+Lista --> Nodo : usa
+Lista ..> Iterador : devuelve
+Iterador --> Nodo : manipula
+@enduml
+
+-------------------
+Cola Prioridad:
+
+@startuml
+
+' ====== Clases externas usadas ======
+class Vector
+class Comparador
+
+' ====== Clase ColaPrioridad ======
+class ColaPrioridad<T> {
+    - Vector datos
+    - Comparador comparador
+
+    + ColaPrioridad(comparador : Comparador)
+    + ColaPrioridad(colaPrioridad : ColaPrioridad)
+
+    -- Operaciones privadas del heap --
+    - void heapificarHaciaArriba()
+    - void heapificarHaciaAbajo()
+    - void swap(i : int, j : int)
+
+    -- Operaciones públicas --
+    + void agregar(dato : T)
+    + T eliminar()
+    + T siguiente()
+    + int tamanio()
+    + boolean vacio()
+}
+
+' ====== Relaciones ======
+ColaPrioridad --> Vector : usa
+ColaPrioridad --> Comparador : compara
+ColaPrioridad --> ColaPrioridad : copia
+
+@enduml
+
+--------------------
+Diccionario:
+
+@startuml
+
+' ====== Clases externas usadas ======
+class VectorEstatico
+class Lista
+class Tupla
+class Iterador
+
+' ====== Clase Diccionario ======
+class Diccionario<C,V> {
+    - VectorEstatico datos
+    - double factorDeCarga
+    - static double FACTOR_DEFAULT
+    - int tamanioTabla
+    - int cantidadDatos
+
+    + Diccionario(tamanio : int, factorDeCarga : double)
+    + Diccionario(tamanio : int)
+    + Diccionario(diccionario : Diccionario)
+
+    + V agregar(clave : C, valor : V)
+    + V eliminar(clave : C)
+    + V obtenerValor(clave : C)
+    + int tamanio()
+    + boolean vacio()
+    + Lista<V> valores()
+
+    -- Métodos privados --
+    - int hashear(clave : C)
+    - int obtenerIndice(clave : C)
+    - int calcularTamanioTabla(tamanio : int)
+    - boolean esPrimo(n : int)
+    - int siguientePrimo(n : int)
+    - Iterador buscar(clave : C)
+}
+
+' ====== Relaciones ======
+Diccionario --> VectorEstatico : usa
+Diccionario --> Lista : cubetas
+Diccionario --> Tupla : pares clave-valor
+Diccionario --> Iterador : recorre
+
+@enduml
+
+--------------------
+
+@startuml
+
+' ====== Clases externas usadas ======
+class Comparador
+class Lista
+class Tupla
+class Cola
+
+' ====== Clase Nodo ======
+class Nodo<C,V> {
+    C clave
+    V valor
+    Nodo padre
+    Nodo hijoIzquierdo
+    Nodo hijoDerecho
+
+    + Nodo(clave : C, valor : V, padre : Nodo, hijoIzq : Nodo, hijoDer : Nodo)
+    + Nodo(clave : C, valor : V, padre : Nodo)
+    + Nodo(clave : C, valor : V)
+}
+
+' ====== Clase DiccionarioOrdenado ======
+class DiccionarioOrdenado<C,V> {
+    - Nodo raiz
+    - Comparador comparador
+    - int cantidadDatos
+
+    + DiccionarioOrdenado(comparador : Comparador)
+    + DiccionarioOrdenado(diccionario : DiccionarioOrdenado)
+
+    + V agregar(clave : C, valor : V)
+    + V eliminar(clave : C)
+    + V obtenerValor(clave : C)
+
+    + Lista inorder()
+    + Lista preorder()
+    + Lista postorder()
+    + Lista ancho()
+
+    + int tamanio()
+    + boolean vacio()
+
+    -- Métodos privados --
+    - Nodo obtenerSucesorInmediato(nodo : Nodo)
+    - void inorderRecorrer(nodo : Nodo, lista : Lista)
+    - void preorderRecorrer(nodo : Nodo, lista : Lista)
+    - void postorderRecorrer(nodo : Nodo, lista : Lista)
+    - Nodo clonarSubArbol(nodo : Nodo)
+    - int cmp(clave1 : C, clave2 : C)
+    - Nodo buscarNodo(clave : C, raiz : Nodo)
+    - int cantHijos(nodo : Nodo)
+    - void borrarNodoConUnHijo(nodo : Nodo, padre : Nodo)
+}
+
+' ====== Relaciones ======
+
+' El diccionario tiene una raíz (composición)
+DiccionarioOrdenado *-- Nodo : raiz
+
+' Cada nodo tiene referencias a sus hijos
+Nodo --> Nodo : hijoIzquierdo
+Nodo --> Nodo : hijoDerecho
+Nodo --> Nodo : padre
+
+DiccionarioOrdenado --> Comparador : usa
+DiccionarioOrdenado --> Lista : retorna listas
+DiccionarioOrdenado --> Tupla : elementos (C,V)
+DiccionarioOrdenado --> Cola : recorrido en ancho
+
+@enduml
+
+
+--------------------

@@ -5,7 +5,7 @@ public abstract class Vehiculo {
     protected String nombre;
     protected TipoVehiculo tipo;
     protected int precio;
-    protected int capacidadGasolina;   // capacidad máxima del tanque
+    protected int capacidadGasolina;   // cap máxima del tanque
     protected int gasolinaActual;      // litros actuales
     protected int kilometraje;         // en km
     protected int velocidadMaxima;     // en km/h
@@ -41,7 +41,7 @@ public abstract class Vehiculo {
         this.velocidadMaxima = velocidadMaxima;
     }
 
-    // getters básicos
+    // getters basicos
     public String getNombre() { return nombre; }
     public TipoVehiculo getTipo() { return tipo; }
     public int getPrecio() { return precio; }
@@ -55,7 +55,7 @@ public abstract class Vehiculo {
         return this.nombre;
     }
 
-    // cada subclase define cuántas ruedas tiene
+    // cada subclase define cuantas ruedas tiene
     public abstract int ruedas();
 
     // costo por ruedas (por defecto autos/motos)
@@ -77,7 +77,7 @@ public abstract class Vehiculo {
     // calcula el costo de mantenimiento del vehiculo
     public int obtenerCostoPorVehiculo() {
         int costoBaseRuedas = costoRuedas();
-        int costoGasolina = PRECIO_LITRO * capacidadGasolina; // podés ajustar a gasolinaActual si quieren
+        int costoGasolina = PRECIO_LITRO * capacidadGasolina; // podes ajustar a gasolinaActual 
         return costoBaseRuedas + costoGasolina + costoPorKilometraje();
     }
 
@@ -108,7 +108,7 @@ public abstract class Vehiculo {
         return litrosCargados;
     }
 
-    // cargar hasta el máximo, devuelve litros cargados
+    // cargar hasta el max, devuelve litros cargados
     public int cargarAlMaximo() {
         int espacioDisponible = capacidadGasolina - gasolinaActual;
         gasolinaActual = capacidadGasolina;

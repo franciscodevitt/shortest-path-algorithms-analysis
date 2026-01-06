@@ -6,7 +6,7 @@
 //     T desencolar();
 //     T frente();          // opcional
 //     boolean vacia();
-//     int tamanio();       // opcional
+//     int tamaño();       // opcional
 // }
 
 
@@ -44,7 +44,7 @@ public class Garaje {
     // -----------------------------
 
     /**
-     * si hay lugar, entra al garaje. Si no, va a la zona de espera (FIFO) y NO se puede usar.
+     * si hay lugar, entra al garaje. Si no, va a la zona de espera (FIFO) y no se puede usar.
      */
     public void agregarVehiculo(Vehiculo vehiculo) {
         if (vehiculosEnGaraje.tamanio() < capacidad) {
@@ -66,7 +66,7 @@ public class Garaje {
         Vehiculo eliminado = vehiculosEnGaraje.eliminar(idx);
         System.out.println("Eliminado del garaje: " + eliminado.obtenerVehiculo());
 
-     // si se libera un espacio en el garaje, el primer vehiculo en espera entra automaticamente.
+     // si se libera un espacio en el garaje, el primer vehiculo en espera entra automaticamente
      // TODO: cuando haya una Cola real, cambiar eliminar(0) por desencolar()
         if (!zonaDeEspera.vacio() && vehiculosEnGaraje.tamanio() < capacidad) {
             Vehiculo siguiente = zonaDeEspera.eliminar();   // FIFO real
@@ -154,7 +154,7 @@ public class Garaje {
         } else {
             int n = zonaDeEspera.tamanio();
             for (int i = 0; i < n; i++) {
-                Vehiculo v = zonaDeEspera.eliminar();              // saco el primero
+                Vehiculo v = zonaDeEspera.eliminar();              // sale el primero
                 System.out.println("[espera " + (i + 1) + "] " + v.obtenerVehiculo());
                 zonaDeEspera.agregar(v);                            // lo vuelvo a poner al final
             }
@@ -208,7 +208,7 @@ public class Garaje {
     public void importarGaraje() {
         try (BufferedReader reader = new BufferedReader(new FileReader(RUTA))) {
 
-            // ---- 1) Leer la primera línea: meta ----
+            // ---- 1) Leer la primera linea: meta ----
             String linea = reader.readLine();
             if (linea != null) {
                 String[] meta = linea.split(",");
@@ -220,7 +220,7 @@ public class Garaje {
             this.vehiculosEnGaraje = new Vector<>();
             this.zonaDeEspera = new Cola<>(); // tu Cola real
 
-            // ---- 3) Variable para saber en qué sección estamos ----
+            // ---- 3) Variable para saber en que sección estamos ----
             String seccionActual = null;
 
             // ---- 4) Leer el resto del archivo ----
@@ -240,7 +240,7 @@ public class Garaje {
                     continue;
                 }
 
-                // ---- 5) Parsear vehículo (una línea normal) ----
+                // ---- 5) Parsear vehiculo (una linea normal) ----
                 Vehiculo v = parsearVehiculoDesdeCsv(linea);
 
                 // ---- 6) Guardar en la estructura correspondiente ----
@@ -251,7 +251,7 @@ public class Garaje {
                 }
             }
 
-            // ---- 7) Ajustar si había más autos que capacidad ----
+            // ---- 7) Ajustar si habia mas autos que cap ----
             while (vehiculosEnGaraje.tamanio() > capacidad) {
                 Vehiculo v = vehiculosEnGaraje.eliminar(vehiculosEnGaraje.tamanio() - 1);
                 zonaDeEspera.agregar(v);
@@ -277,7 +277,7 @@ public class Garaje {
         int ruedas = Integer.parseInt(parte[3].trim());
         int capacidadGasolina = Integer.parseInt(parte[CAPACIDAD_GASOLINA].trim());
 
-        // por ahora ponemos una velocidad maxima por defecto, se puede ajustar después
+        // por ahora ponemos una velocidad max por defecto, se puede ajustar despues
         int velocidadMaxima = 100;
 
         switch (tipo) {

@@ -1,18 +1,18 @@
 package org.ayed.tda.grafo;
 
 /**
- * Interfaz para una función heurística,
+ * Interfaz para una función heuristica,
  * para el algoritmo A*.
  *
- * @param <T> Tipo de dato del vértice.
+ * @param <T> Tipo de dato del vertice
  */
 public interface Heuristica<T> {
     /**
-     * Calcula el puntaje para ir de origen a destino.
+     * Calcula el puntaje para ir de origen a destino
      *
-     * @param origen  Vértice origen.
-     * @param destino Vértice destino.
-     * @return el puntaje.
+     * @param origen  Vertice origen
+     * @param destino Vertice destino
+     * @return el puntaje
      */
     int calcularPuntaje(T origen, T destino);
 }

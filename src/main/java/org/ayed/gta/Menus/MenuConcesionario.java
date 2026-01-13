@@ -1,7 +1,8 @@
-package org.ayed.gta.concesionario;
+package org.ayed.gta.Menus;
 
 import java.util.Scanner;
 
+import org.ayed.gta.Concesionario;
 import org.ayed.gta.Vehiculo;
 
 public class MenuConcesionario {

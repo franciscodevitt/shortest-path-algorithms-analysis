@@ -1,6 +1,5 @@
-package org.ayed.gta.concesionario;
+package org.ayed.gta;
 
-import org.ayed.gta.Vehiculo;
 import org.ayed.tda.vector.Vector;
 
 public class Concesionario {

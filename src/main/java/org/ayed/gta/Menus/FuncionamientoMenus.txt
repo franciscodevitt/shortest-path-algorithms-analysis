@@ -1,0 +1,18 @@
+MenuInicio -> MenuPrincipal
+MenuInicio inicializa Garaje (Garaje va a tener la plata y creditos del jugador) y Consecionario 
+MenuInicio Opciones:
+1_ Nueva Partida (introduce nombre de partida (Se va a crear carpeta en guardados con el nombre de la partida))
+2_ Cargar Partida (Introduce el nombre de la carpeta/partida guardada (se mostrara el listado de carpetas por consola))
+3_ Creditos
+4_ Salir del juego
+
+MenuPrincipal -> MenuGaraje
+              -> MenuConsecionario
+              -> MenuMisiones
+
+MenuPrincipal(Garaje Consecionario) Opciones:
+1_ Garaje
+2_ Consecionario
+3_ Empezar Mision
+4_ Guardar Partida
+5_ Salir de la partida (Preguntar si quiere guardar antes)

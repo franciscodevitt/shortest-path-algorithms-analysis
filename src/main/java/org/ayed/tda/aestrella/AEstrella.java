@@ -16,12 +16,13 @@ import java.util.Map;
  */
 public class AEstrella<T> {
     
-    private Grafo<T> mapa;
-    private Heuristica<T> heuristica;
-    private Comparador<CostosVertice<T>> comparadorCostos;
+    private final Grafo<T> grafo;
+    private final Heuristica<T> heuristica;
+    private final Comparador<CostosVertice<T>> comparadorCostos;
     private ColaPrioridad<CostosVertice<T>> setAbierto;
     private Conjunto<T> setCerrado;
-    private Diccionario<T, CostosVertice<T>> costos;
+    private Diccionario<T, CostosVertice<T>> costos;     //Estructura auxiliar para trabajar con los costos de los vertices.
+    private T destino; 
 
 
     /**
@@ -31,12 +32,13 @@ public class AEstrella<T> {
      * @param heuristica Heurística utilizada para estimar la distancia al destino.
      */
     public AEstrella(Grafo<T> grafo, Heuristica<T> heuristica) {
-        this.mapa = grafo;
+        this.grafo = grafo;
         this.heuristica = heuristica;
         this.comparadorCostos = new ComparadorVertice<T>(); 
         this.setAbierto = new ColaPrioridad<CostosVertice<T>>(this.comparadorCostos);
         this.setCerrado = new Conjunto<T>(100);            
-        this.costos = new Diccionario<T, CostosVertice<T>>(100);   //Falta ver dimensiones del grafo/mapa
+        this.costos = new Diccionario<T, CostosVertice<T>>(100);   //Falta ver dimensiones del grafo
+        this.destino = null;
     }
 
     /**
@@ -45,20 +47,18 @@ public class AEstrella<T> {
      * 
      * @param origen    Vértice inicial.
      * @param destino   Vértice objetivo.
-     * @return          Un Objeto tipo pila con los vértices del camino mínimo de origen a destino.
+     * @return          Objeto tipo pila con los vértices del camino mínimo de origen a destino.
      *                  Null si no existe camino.
-     * @throws ExcepcionAEstrella  si los vertices origen o destino no existen.
-     *                             o si no existe un camino minimo entre ellos.
+     * @throws ExcepcionAEstrella  si los vertices origen o destino no existen o son invalidos.
+     *                             si no existe un camino minimo entre ellos.
      */
     public Pila<T> buscarCaminoMinimo (T origen, T destino){
 
-        if (origen == null || destino == null) {
-            throw new ExcepcionAEstrella("Origen o destino inválido.");
+        if (origen == null || destino == null || !grafo.tieneVertice(origen) || !grafo.tieneVertice(destino)) {
+            throw new ExcepcionAEstrella("Origen y/o destino inválidos.");
         }
 
         inicializarBusqueda(origen, destino);
-
-        Pila<T> caminoMinimo = new Pila<T>();
         boolean destinoEncontrado = false;
         
         while (!setAbierto.vacio() && !destinoEncontrado) {
@@ -72,12 +72,11 @@ public class AEstrella<T> {
             else if (!setCerrado.contiene(verticePrometedor)) {               
 
                 setCerrado.agregar(verticePrometedor); 
-                explorarVecinos(verticePrometedor, costoActual, destino);
+                explorarVecinos(verticePrometedor, costoActual);
             }
         }
         if (destinoEncontrado) {
-            caminoMinimo = reconstruirCamino(destino);
-            return caminoMinimo;
+            return reconstruirCamino();
         } else {
             throw new ExcepcionAEstrella("No existe camino entre origen y destino.");
         }
@@ -88,20 +87,19 @@ public class AEstrella<T> {
      * Recorre los vecinos de un vértice y actualiza los costos
      * correspondientes en caso de encontrar rutas más económicas.
      *
-     * @param vertice      Vértice actualmente expandido.
-     * @param costoActual  Costos asociados al vértice expandido.
-     * @param destino      Vértice objetivo de la búsqueda.
+     * @param vertice      Vértice actualmente explorado.
+     * @param costoActual  Costos asociados al vértice explorado.
      */
-    private void explorarVecinos(T vertice, CostosVertice<T> costoActual, T destino) {
-        
-        Map<T, Integer> adyacentes = mapa.obtenerAdyacentes(vertice);
+    private void explorarVecinos(T vertice, CostosVertice<T> costoActual) {
+       
         int costoReal = costoActual.obtenerCostoReal();
+        Map<T, Integer> vecinos = grafo.obtenerAdyacentes(vertice);
 
-        for (T vecino : adyacentes.keySet()) {
+        for (T vecino : vecinos.keySet()) {
             if (!setCerrado.contiene(vecino)) {
-                int pesoArista = adyacentes.get(vecino);
+                int pesoArista = grafo.obtenerArista(vertice, vecino); 
                 int nuevoCostoReal = costoReal + pesoArista;
-                actualizarVecino(vecino, vertice, nuevoCostoReal, destino);
+                procesarVecino(vecino, vertice, nuevoCostoReal);
             }
         }
     }
@@ -112,33 +110,33 @@ public class AEstrella<T> {
     * @param vecino         Vértice vecino a actualizar.
     * @param padre          Vértice padre desde el que se llega al vecino.
     * @param nuevoCostoReal Costo real acumulado hasta este vecino.
-    * @param destino        Vértice objetivo de la búsqueda.
     */
-    private void actualizarVecino(T vecino, T padre, int nuevoCostoReal, T destino) {
+    private void procesarVecino(T vecino, T padre, int nuevoCostoReal) {
         
-        CostosVertice<T> costoExistente = costos.obtenerValor(vecino);
-        if (costoExistente == null || nuevoCostoReal < costoExistente.obtenerCostoReal()) {
+        CostosVertice<T> costoVecino = costos.obtenerValor(vecino);
+        if (costoVecino == null || nuevoCostoReal < costoVecino.obtenerCostoReal()) {
             int costoHeuristica = heuristica.calcularPuntaje(vecino, destino);
             int nuevoCostoTotal = nuevoCostoReal + costoHeuristica;
 
-            if (costoExistente == null) {
-                CostosVertice<T> nuevoCosto = new CostosVertice<>(vecino, nuevoCostoReal, nuevoCostoTotal, padre);
+            if (costoVecino == null) {
+                CostosVertice<T> nuevoCosto = new CostosVertice<T>(vecino, nuevoCostoReal, nuevoCostoTotal, padre);
                 costos.agregar(vecino, nuevoCosto);
                 setAbierto.agregar(nuevoCosto);
             } else {
-                costoExistente.actualizar(nuevoCostoReal, nuevoCostoTotal, padre);
-                setAbierto.agregar(costoExistente);
+                costoVecino.actualizar(nuevoCostoReal, nuevoCostoTotal, padre);
+                setAbierto.agregar(costoVecino);
             }
         }
     }
 
     /**
-     * Inicializa las estructuras para comenzar la búsqueda A*.
+     * Inicializa las estructuras para comenzar la búsqueda A*: 
+     *      - Resetea las 2 estructuras principales (Set abierto y cerrado)
+     *      - Resetea la estructura auxiliar costos.
+     *      - Agrega el origen al set abierto.
      * 
-     * NOTA:  la clase AEstrella se instancia una sola vez por GPS (Clase que la usa) debido
-     *        a que la busqueda se realiza constantemente y es muy costoso crear nuevas instancias
-     *        cada vez.
-     *        Por este motivo elegi "resetear" los sets cerrado y abierto y el diccionario de costos
+     * NOTA:  la clase AEstrella se instancia una sola vez por GPS (Clase que la usa).
+     *        Elegi "resetear" los sets cerrado y abierto, y el diccionario de costos
      *        mediante este metodo, para que en cada llamado de la busqueda no se arrastre 
      *        datos anteriores, sin la necesidad de crear el objeto AEstrella desde cero. 
      *
@@ -147,6 +145,7 @@ public class AEstrella<T> {
      */
     private void inicializarBusqueda(T origen, T destino) {
 
+        this.destino = destino;
         this.costos = new Diccionario<T, CostosVertice<T>>(100);
         this.setCerrado = new Conjunto<T>(100);
         this.setAbierto = new ColaPrioridad<CostosVertice<T>>(this.comparadorCostos);
@@ -161,23 +160,17 @@ public class AEstrella<T> {
     /**
      * Reconstruye el camino mínimo desde el destino hasta el origen utilizando
      * los padres registrados en el diccionario de costos. 
-     * Utiliza una pila para conservar el orden real de recorrido
+     * Utiliza una pila para conservar el orden real de recorrido.
      *
-     * @param destino  Vértice donde termina el camino.
-     * @return         Pila de vértices que representan el camino mínimo de origen a destino.
+     * @return  Pila de vértices que representan el camino mínimo de origen a destino.
      */
-    private Pila<T> reconstruirCamino(T destino) {
+    private Pila<T> reconstruirCamino() {
         
         Pila<T> camino = new Pila<T>();
         T actual = destino;
         while (actual != null) {
             camino.agregar(actual);
-            CostosVertice<T> datos = costos.obtenerValor(actual);
-            if (datos != null) {
-                actual = datos.obtenerPadre();
-            } else {
-                actual = null;
-            }       
+            actual = costos.obtenerValor(actual).obtenerPadre(); 
         }
         return camino;
     }

@@ -3,7 +3,7 @@ package org.ayed.gta.mapa;
 import java.util.Objects;
 
 /**
- * Clase que representa las posiciones dentro de a una grilla.
+ * Clase que representa las posiciones dentro de una grilla.
  */
 public class Coordenada {
     

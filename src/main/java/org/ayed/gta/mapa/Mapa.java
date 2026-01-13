@@ -3,15 +3,15 @@ package org.ayed.gta.mapa;
 import org.ayed.tda.matriz.*;
 import org.ayed.tda.grafo.*;
 import org.ayed.tda.vector.*;
-import org.ayed.gta.GestorArchivos;
+import java.io.*;
 
 /*
  * Clase que crea y carga el mapa de la ciudad para jugar la misión.
  */
 public class Mapa {
     
-    private final Matriz<Celda> ciudad;
-    private final Grafo<Celda> grafoCiudad;
+    private final Matriz<Nodo> ciudad;
+    private final Grafo<Nodo> grafoCiudad;
     private int ancho;
     private int altura;
 
@@ -41,22 +41,45 @@ public class Mapa {
      */
     public Mapa(String ciudadElegida) {
         
-        Vector<String> lineas = GestorArchivos.leerArchivo(RUTA_MAPAS + ciudadElegida);
+        Vector<String> lineas = leerArchivo(RUTA_MAPAS + ciudadElegida);
         if (lineas.tamanio() < 2) {
             throw new ExcepcionMapa("El archivo de mapa es inválido o está vacío.");
         }
         
         this.procesarDimensiones(lineas.dato(0));
-        
-        this.ciudad = new Matriz<Celda>(this.altura, this.ancho);
+        this.ciudad = new Matriz<Nodo>(this.altura, this.ancho);
         procesarCiudad(lineas);
+
         inicializarEntradaSalida();
         this.recompensaExtra = coordenadaAleatoria();
         this.recompensaExtraRecogida = false;
-        
-        this.grafoCiudad = new Grafo<Celda>();
+
+        this.grafoCiudad = new Grafo<Nodo>();
         generarGrafo();
     }    
+
+    /**
+     * Lee el archivo y devuelve su contenido línea por línea en un Vector.
+     * Maneja el cierre del archivo usando try-with-resources.
+     * 
+     * @param rutaCompleta La ruta del archivo a leer.
+     * @return Un Vector de Strings con cada línea del archivo.
+     */
+    public static Vector<String> leerArchivo(String rutaCompleta) {
+
+        Vector<String> lineas = new Vector<>(); 
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(rutaCompleta))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {  
+                lineas.agregar(linea); 
+            }
+        } catch (IOException e) {
+            System.err.println("Error de lectura: No se pudo abrir el archivo " + rutaCompleta + ". Mensaje: " + e.getMessage());
+        }
+        
+        return lineas;
+    }
 
     /**
      * Parsea la primer linea del archivo para obtener la altura y el ancho de la ciudad.
@@ -95,11 +118,11 @@ public class Mapa {
     
     /**
      * Metodo que recibe y parsea todas las lineas del archivo del mapa creando y cargando 
-     * cada celda de la matriz.
+     * cada nodo de la matriz.
      * 
-     * @param lineas         Vector donde cada elemento es un string representando una fila del mapa. 
+     * @param  lineas        Vector donde cada elemento es un string representando una fila del mapa. 
      * @throws ExcepcionMapa si el formato del mapa es incorrecto o le faltan datos.
-     *                       si hay errores con las celdas o la matriz.
+     *                       si hay errores con los nodos o la matriz.
      */
     private void procesarCiudad (Vector<String> lineas) {
 
@@ -109,22 +132,22 @@ public class Mapa {
             }
             for (int i = 1; i < lineas.tamanio(); i++) {
                 int f = i - 1;
-                String[] celdas = lineas.dato(i).trim().split("\\s+");
+                String[] nodos = lineas.dato(i).trim().split("\\s+");
                 
-                if (celdas.length != ancho) {
+                if (nodos.length != ancho) {
                     throw new Exception("El número de columnas de la fila " + f + " no coincide con la dimensión declarada.");
                 }
                 for (int c = 0; c < ancho; c++) {
-                    String terreno = celdas[c].trim();   
+                    String terreno = nodos[c].trim();   
                     if (terreno.isEmpty()) {
-                        throw new Exception("Celda vacía en (" + f + "," + c + ").");
+                        throw new Exception("Nodo vacía en (" + f + "," + c + ").");
                     } else if (!esTerrenoValido(terreno)) {
                         throw new Exception("Tipo de terreno invalido en (" + f + "," + c + ").");
                     }
                     
                     boolean tieneTrafico = generarTrafico(terreno);
-                    Celda celda = new Celda(new Coordenada(f, c), terreno, tieneTrafico);
-                    this.ciudad.agregarEntrada(f, c, celda); 
+                    Nodo nodo = new Nodo(new Coordenada(f, c), terreno, tieneTrafico);
+                    this.ciudad.agregarEntrada(f, c, nodo); 
                 }
             } 
         }
@@ -149,9 +172,9 @@ public class Mapa {
             
             int f = (int)(Math.random() * altura);
             int c = (int)(Math.random() * ancho);
-            Celda celda = ciudad.obtenerEntrada(f, c);
+            Nodo nodo = ciudad.obtenerEntrada(f, c);
 
-            if (esTransitable(celda) && !celda.obtenerTerreno().equals(PARQUE)) {
+            if (esTransitable(nodo) && !nodo.obtenerTerreno().equals(PARQUE)) {
                encontrado = true;
                candidata = new Coordenada(f, c);
             }  
@@ -204,7 +227,7 @@ public class Mapa {
     }
 
     /**
-     * Determina si terreno representa un tipo permitido para la celda.
+     * Determina si terreno representa un tipo permitido para el nodo.
      * 
      * @param  terreno  String del tipo de terreno que se quiere procesar.
      * @return          True si es un terreno valido (CALLE, PARQUE o EDIFICIO).
@@ -216,55 +239,55 @@ public class Mapa {
     }
 
     /**
-     * Determina si la Celda es transitable.
+     * Determina si el Nodo es transitable.
      * 
-     * @param  celda   Celda que se quiere consultar.
+     * @param  nodo   Nodo que se quiere consultar.
      * @return         True si es transitable (CALLE o PARQUE).
      *                 False si no lo es (EDIFICIO, AGUA).
      */
-    private boolean esTransitable(Celda celda) {
-        return celda.obtenerTerreno().equals(CALLE) || celda.obtenerTerreno().equals(PARQUE);
+    private boolean esTransitable(Nodo nodo) {
+        return nodo.obtenerTerreno().equals(CALLE) || nodo.obtenerTerreno().equals(PARQUE);
     }
 
     /**
-    * Calcula el costo de una celda según su tipo de terreno.
-    * Si la celda tiene tráfico, el costo del terreno se multiplica por COSTO_TRAFICO.
+    * Calcula el costo de un nodo según su tipo de terreno.
+    * Si el nodo tiene tráfico, el costo del terreno se multiplica por COSTO_TRAFICO.
     *
-    * @param celda   Celda para la cual se desea calcular el costo.
+    * @param nodo   Nodo para el cual se desea calcular el costo.
     * @return        El costo calculado.
     */
-    private int calcularCosto(Celda celda) {
+    private int calcularCosto(Nodo nodo) {
         
-        String terreno = celda.obtenerTerreno();
+        String terreno = nodo.obtenerTerreno();
         int costo = 0;
         if (terreno.equals(CALLE)) {
             costo = COSTO_CALLE;
         } else if (terreno.equals(PARQUE)) {
             costo = COSTO_PARQUE;
         }
-        if (celda.tieneTrafico()){
+        if (nodo.tieneTrafico()){
             costo *= COSTO_TRAFICO;
         }  
         return costo;
     }
 
     /**
-    * Agrega la arista entre la celda actual y la celda vecino cuyas fila y columna se pasaron como parametro.
-    * La arista se agrega solamente si celda vecino tiene coordenadas validas, existe y es transitable.
-    * El peso de la arista se calcula como el máximo entre los costos de ambas celdas.
+    * Agrega la arista entre el nodo actual y el nodo vecino cuyas fila y columna se pasaron como parametro.
+    * La arista se agrega solamente si el nodo vecino tiene coordenadas validas, existe y es transitable.
+    * El peso de la arista se calcula como el máximo entre los costos de ambos nodos.
     *
-    * @param actual      Celda origen desde la cual se quiere conectar.
-    * @param filaVecino  Fila de la celda vecino izquierda o superior.
-    * @param colVecino   Columna de la celda vecino izquierda o superior.
+    * @param actual      Nodo origen desde la cual se quiere conectar.
+    * @param filaVecino  Fila de la nodo vecino izquierda o superior.
+    * @param colVecino   Columna de la nodo vecino izquierda o superior.
     */
-    private void conectarVecino(Celda actual, int filaVecino, int colVecino) {
+    private void conectarVecino(Nodo actual, int filaVecino, int colVecino) {
 
         boolean filaValida = filaVecino >= 0 && filaVecino < altura;
         boolean colValida = colVecino >= 0 && colVecino < ancho;
 
         if (filaValida && colValida) {
 
-            Celda vecino = ciudad.obtenerEntrada(filaVecino, colVecino);
+            Nodo vecino = ciudad.obtenerEntrada(filaVecino, colVecino);
             if (vecino != null && esTransitable(vecino)) {
                 
                 int costoActual = calcularCosto(actual);
@@ -278,10 +301,10 @@ public class Mapa {
     /**
     * Carga el grafo de la ciudad a partir de la matriz ciudad.
     * Recorre la matriz de arriba hacia abajo y de izquierda a derecha. 
-    * Agrega las celdas transitables como vértice y los conecta con el vecino izquierdo 
-    * y el vecino derecho (si existen y son transitables).
+    * Agrega los nodos transitables como vértice y los conecta con el vecino izquierdo 
+    * y el vecino superior (si existen y son transitables).
     * 
-    * Nota: solo conecta con los vecinos izquierdo y derecho porque agregarArista de clase Grafo 
+    * Nota: solo conecta con los vecinos izquierdo y superior porque agregarArista de clase Grafo 
     *       necesita que el vertice ya exista en el grafo ciudad. De todas formas al terminar de recorrer 
     *       la matriz, todos las aristas van a terminar correctamente conectadas.
     */
@@ -290,7 +313,7 @@ public class Mapa {
         for (int f = 0; f < altura; f++) {
             for (int c = 0; c < ancho; c++) {
 
-                Celda actual = ciudad.obtenerEntrada(f, c);
+                Nodo actual = ciudad.obtenerEntrada(f, c);
                 if (actual != null && esTransitable(actual)) {
                     grafoCiudad.agregarVertice(actual);
                     conectarVecino(actual, f, c - 1);
@@ -310,8 +333,8 @@ public class Mapa {
      *
      *  @return la copia del grafo. 
      */
-    public Grafo<Celda> obtenerGrafo() {
-        Grafo<Celda> copia = new Grafo<Celda>(this.grafoCiudad);
+    public Grafo<Nodo> obtenerGrafo() {
+        Grafo<Nodo> copia = new Grafo<Nodo>(this.grafoCiudad);
 
         return copia;
     }
@@ -325,8 +348,8 @@ public class Mapa {
      */
     public void actualizarJugador(Coordenada nuevaCoordenada) {
 
-        Celda nuevaCelda = ciudad.obtenerEntrada(nuevaCoordenada.obtenerY(), nuevaCoordenada.obtenerX());
-        if (nuevaCelda == null || !esTransitable(nuevaCelda)) {
+        Nodo nuevoNodo = ciudad.obtenerEntrada(nuevaCoordenada.obtenerY(), nuevaCoordenada.obtenerX());
+        if (nuevoNodo == null || !esTransitable(nuevoNodo)) {
             throw new ExcepcionMapa("Coordenada invalida, no es transitable");
         }
     

@@ -2,10 +2,12 @@ package org.ayed.gta;
 
 import java.util.Scanner;
 
+import org.ayed.gta.Menus.MenuGaraje;
+
 public class Partida {
 
     private Garaje garaje;
-    private Menu menu;
+    private MenuGaraje menu;
 
     public static final int AGREGAR_VEHICULO = 1;
     public static final int MOSTRAR_VEHICULOS = 2;
@@ -23,7 +25,7 @@ public class Partida {
      */
     public Partida() {
         this.garaje = new Garaje();
-        this.menu = new Menu();
+        this.menu = new MenuGaraje();
     }
     /**
      *incia partida

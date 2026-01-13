@@ -1,13 +1,13 @@
-package org.ayed.gta;
+package org.ayed.gta.Menus;
 
 import java.util.Scanner;
 
-public class Menu {
+public class MenuGaraje {
     private Scanner scanner;
     /**
      * cosntructo del menu
      */
-    public Menu(){
+    public MenuGaraje(){
         this.scanner = new Scanner(System.in);
 
     }

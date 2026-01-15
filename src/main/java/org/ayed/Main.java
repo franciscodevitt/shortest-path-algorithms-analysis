@@ -1,10 +1,10 @@
 package org.ayed;
 
-import org.ayed.gta.Partida;
+import org.ayed.gta.Menus.MenuInicio;
 
 public class Main {
     public static void main(String[] args) {
-        Partida partida = new Partida();
-        partida.iniciarPartida();
+        MenuInicio menuInicio = new MenuInicio();
+        menuInicio.iniciar();
     }
 }

@@ -1,5 +1,4 @@
 package org.ayed;
-
 import org.ayed.gta.Menus.MenuInicio;
 
 public class Main {

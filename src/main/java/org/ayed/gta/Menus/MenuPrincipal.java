@@ -9,6 +9,7 @@ public class MenuPrincipal {
 
     private Garaje garaje;
     private Concesionario concesionario;
+    private String ruta;
     private Scanner scanner;
 
     // Opciones del menú
@@ -18,10 +19,11 @@ public class MenuPrincipal {
     private static final int GUARDAR_PARTIDA = 4;
     private static final int SALIR_PARTIDA = 5;
 
-    public MenuPrincipal(Garaje garaje, Concesionario concesionario) {
+    public MenuPrincipal(Garaje garaje, Concesionario concesionario, String ruta) {
         this.garaje = garaje;
         this.concesionario = concesionario;
         this.scanner = new Scanner(System.in);
+        this.ruta = ruta;
     }
 
     /* ===================== LOOP PRINCIPAL ===================== */

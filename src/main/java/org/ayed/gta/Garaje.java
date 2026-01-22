@@ -13,7 +13,6 @@
 //TODO: Cargar todos los vehiculos con gasolina
 // Cargar un vehiculo X cantidad de gasolina
 // Cargar por completo un vehiculo.
-// Ajustar metodo nuevoVehiculo en clase partida para el nuevo sistema de herencia (se instancia el tipo que elija)
 
 
 package org.ayed.gta;
@@ -28,20 +27,23 @@ public class Garaje {
     private Vector<Vehiculo> vehiculosEnGaraje;  // vehículos utilizables (adentro)
     private Cola<Vehiculo> zonaDeEspera;         // cola FIFO real de vehículos que no entraron
 
-    private static final String RUTA = "garaje.csv";
+    private int dinero;
 
     
-    // NOMBRE, PRECIO, TIPO, CANTIDAD_RUEDAS, CAPACIDAD_GASOLINA
+    // NOMBRE, PRECIO, TIPO, CANTIDAD_RUEDAS, CAPACIDAD_GASOLINA, GASOLINA_ACTUAL, KILOMETRAJE
     public static final int NOMBRE = 0;
     public static final int PRECIO = 1;
     public static final int TIPO_VEHICULO = 2;
     public static final int CAPACIDAD_GASOLINA = 4;
+    public static final int GASOLINA_ACTUAL = 5;
+    public static final int KILOMETRAJE = 6;
 
     public Garaje() {
         this.capacidad = 5;
         this.creditos = 0;
         this.vehiculosEnGaraje = new Vector<>();
         this.zonaDeEspera = new Cola<>();
+        this.dinero = 0;
 
     }
 
@@ -63,23 +65,63 @@ public class Garaje {
     }
 
     /**
-     * elimina por nombre desde el GARAGE (no de la espera).
+     * vende un vehículo por su nombre, agrega el dinero al garaje.
      * si hay en espera, ingresa automaticamente el primero (FIFO).
      */
-    public void eliminarVehiculo(String nombre) {
+    public void venderVehiculo(String nombre) {
         int idx = buscarVehiculoEnGaraje(nombre);
         if (idx < 0) throw new ExcepcionGaraje("Vehículo inexistente en el garaje.");
-        Vehiculo eliminado = vehiculosEnGaraje.eliminar(idx);
-        System.out.println("Eliminado del garaje: " + eliminado.obtenerVehiculo());
+        Vehiculo vendido = vehiculosEnGaraje.eliminar(idx);
+        int precioVenta = vendido.obtenerPrecioPorVehiculo();
+        this.dinero += precioVenta;
+        System.out.println("Vehículo vendido: " + vendido.obtenerVehiculo() + " por $" + precioVenta);
 
      // si se libera un espacio en el garaje, el primer vehiculo en espera entra automaticamente.
-     // TODO: cuando haya una Cola real, cambiar eliminar(0) por desencolar()
         if (!zonaDeEspera.vacio() && vehiculosEnGaraje.tamanio() < capacidad) {
             Vehiculo siguiente = zonaDeEspera.eliminar();   // FIFO real
             vehiculosEnGaraje.agregar(siguiente);
             System.out.println("Ingresó desde zona de espera: " + siguiente.obtenerVehiculo());
         }
+    }
 
+    /**
+     * carga gasolina a todos los vehículos en el GARAGE hasta su capacidad máxima.
+     */
+    public void cargarTodosLosVehiculos() {
+        if (vehiculosEnGaraje.vacio()) {
+            System.out.println("No hay vehículos en el garaje para cargar.");
+            return;
+        }
+        
+        for (int i = 0; i < vehiculosEnGaraje.tamanio(); i++) {
+            Vehiculo v = vehiculosEnGaraje.dato(i);
+            int litrosCargados = v.cargarAlMaximo();
+            System.out.println(v.obtenerVehiculo() + " cargado: +" + litrosCargados + " litros");
+        }
+    }
+
+    /**
+     * carga una cantidad específica de gasolina a un vehículo en el GARAGE.
+     */
+    public void cargarVehiculo(String nombre, int litros) {
+        int idx = buscarVehiculoEnGaraje(nombre);
+        if (idx < 0) throw new ExcepcionGaraje("Vehículo inexistente en el garaje.");
+        
+        Vehiculo v = vehiculosEnGaraje.dato(idx);
+        int litrosCargados = v.cargarCombustible(litros);
+        System.out.println(v.obtenerVehiculo() + " cargado: +" + litrosCargados + " litros");
+    }
+
+    /**
+     * carga un vehículo al máximo de su capacidad.
+     */
+    public void cargarVehiculoAlMaximo(String nombre) {
+        int idx = buscarVehiculoEnGaraje(nombre);
+        if (idx < 0) throw new ExcepcionGaraje("Vehículo inexistente en el garaje.");
+        
+        Vehiculo v = vehiculosEnGaraje.dato(idx);
+        int litrosCargados = v.cargarAlMaximo();
+        System.out.println(v.obtenerVehiculo() + " cargado al máximo: +" + litrosCargados + " litros");
     }
 
     /**
@@ -186,10 +228,10 @@ public class Garaje {
      *   NOMBRE,PRECIO,TIPO,CANTIDAD_RUEDAS,CAPACIDAD_GASOLINA
      *   ...
      */
-    public void exportarGaraje() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(RUTA))) {
+    public void exportarGaraje(String ruta) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(ruta))) {
             // meta
-            writer.println(capacidad + "," + creditos);
+            writer.println(capacidad + "," + creditos + "," + dinero);
 
             // garaje
             writer.println("#GARAJE");
@@ -211,8 +253,8 @@ public class Garaje {
     }
 
 
-    public void importarGaraje() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(RUTA))) {
+    public void importarGaraje(String ruta) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(ruta))) {
 
             // ---- 1) Leer la primera línea: meta ----
             String linea = reader.readLine();
@@ -220,6 +262,7 @@ public class Garaje {
                 String[] meta = linea.split(",");
                 this.capacidad = Integer.parseInt(meta[0].trim());
                 this.creditos  = Integer.parseInt(meta[1].trim());
+                this.dinero    = Integer.parseInt(meta[2].trim());
             }
 
             // ---- 2) Reiniciar estructuras ----
@@ -274,7 +317,7 @@ public class Garaje {
 
     
     private Vehiculo parsearVehiculoDesdeCsv(String linea) {
-        // formato: nombre, precio, tipo, ruedas, capacidadGasolina
+        // formato: nombre, precio, tipo, ruedas, capacidadGasolina, gasolinaActual, kilometraje
         String[] parte = linea.split(",");
 
         String nombre = parte[NOMBRE].trim();
@@ -282,20 +325,31 @@ public class Garaje {
         TipoVehiculo tipo = TipoVehiculo.valueOf(parte[TIPO_VEHICULO].trim().toUpperCase());
         int ruedas = Integer.parseInt(parte[3].trim());
         int capacidadGasolina = Integer.parseInt(parte[CAPACIDAD_GASOLINA].trim());
+        int gasolinaActual = Integer.parseInt(parte[GASOLINA_ACTUAL].trim());
+        int kilometraje = Integer.parseInt(parte[KILOMETRAJE].trim());
 
         // por ahora ponemos una velocidad maxima por defecto, se puede ajustar después
         int velocidadMaxima = 100;
 
+        Vehiculo vehiculo;
         switch (tipo) {
             case AUTO:
-                return new Auto(nombre, precio, capacidadGasolina, velocidadMaxima);
+                vehiculo = new Auto(nombre, precio, capacidadGasolina, velocidadMaxima);
+                break;
             case MOTO:
-                return new Moto(nombre, precio, capacidadGasolina, velocidadMaxima);
+                vehiculo = new Moto(nombre, precio, capacidadGasolina, velocidadMaxima);
+                break;
             case EXOTICO:
-                return new Exotico(nombre, precio, capacidadGasolina, velocidadMaxima, ruedas);
+                vehiculo = new Exotico(nombre, precio, capacidadGasolina, velocidadMaxima, ruedas);
+                break;
             default:
                 throw new ExcepcionGaraje("Tipo de vehiculo desconocido: " + tipo);
         }
+        
+        // restaurar estado
+        vehiculo.cargarCombustible(gasolinaActual);
+        vehiculo.sumarKilometros(kilometraje);
+        return vehiculo;
     }
 
 }

@@ -3,9 +3,6 @@ package org.ayed.gta.Menus;
 import java.util.Scanner;
 
 import org.ayed.gta.Garaje;
-import org.ayed.gta.Moto;
-import org.ayed.gta.TipoVehiculo;
-import org.ayed.gta.Vehiculo;
 
 public class MenuGaraje {
 
@@ -13,15 +10,15 @@ public class MenuGaraje {
     private Scanner scanner;
 
     // Opciones del menú
-    private static final int AGREGAR_VEHICULO = 1;
-    private static final int MOSTRAR_VEHICULOS = 2;
-    private static final int ELIMINAR_VEHICULO = 3;
-    private static final int MEJORAR_GARAJE = 4;
-    private static final int AGREGAR_CREDITOS = 5;
-    private static final int MOSTRAR_VALOR = 6;
-    private static final int MOSTRAR_COSTO = 7;
-    private static final int EXPORTAR_GARAJE = 8;
-    private static final int IMPORTAR_GARAJE = 9;
+    private static final int MOSTRAR_VEHICULOS = 1;
+    private static final int VENDER_VEHICULO = 2;
+    private static final int MEJORAR_GARAJE = 3;
+    private static final int AGREGAR_CREDITOS = 4;
+    private static final int MOSTRAR_VALOR = 5;
+    private static final int MOSTRAR_COSTO = 6;
+    private static final int CARGAR_TODOS_VEHICULOS = 7;
+    private static final int CARGAR_VEHICULO = 8;
+    private static final int CARGAR_VEHICULO_AL_MAXIMO = 9;
     private static final int SALIR = 0;
 
     public MenuGaraje(Garaje garaje) {
@@ -46,14 +43,11 @@ public class MenuGaraje {
 
     private void ejecutarOpcion(int opcion) {
         switch (opcion) {
-            case AGREGAR_VEHICULO:
-                garaje.agregarVehiculo(nuevoVehiculo());
-                break;
             case MOSTRAR_VEHICULOS:
                 garaje.listarVehiculos();
                 break;
-            case ELIMINAR_VEHICULO:
-                garaje.eliminarVehiculo(ingresarNombre());
+            case VENDER_VEHICULO:
+                garaje.venderVehiculo(ingresarNombre());
                 break;
             case MEJORAR_GARAJE:
                 garaje.mejorarGaraje();
@@ -67,11 +61,14 @@ public class MenuGaraje {
             case MOSTRAR_COSTO:
                 System.out.println("Costo de mantenimiento: $" + garaje.obtenerCostoMantenimiento());
                 break;
-            case EXPORTAR_GARAJE:
-                garaje.exportarGaraje();
+            case CARGAR_TODOS_VEHICULOS:
+                garaje.cargarTodosLosVehiculos();
                 break;
-            case IMPORTAR_GARAJE:
-                garaje.importarGaraje();
+            case CARGAR_VEHICULO:
+                garaje.cargarVehiculo(ingresarNombre(), ingresarLitros());
+                break;
+            case CARGAR_VEHICULO_AL_MAXIMO:
+                garaje.cargarVehiculoAlMaximo(ingresarNombre());
                 break;
             case SALIR:
                 System.out.println("Saliendo del programa...");
@@ -88,15 +85,15 @@ public class MenuGaraje {
         System.out.println("╔══════════════════════════════════════╗");
         System.out.println("║          MENÚ GARAJE                 ║");
         System.out.println("╠══════════════════════════════════════╣");
-        System.out.println("║ 1. Agregar vehículo                  ║");
-        System.out.println("║ 2. Mostrar vehículos                 ║");
-        System.out.println("║ 3. Eliminar vehículo                 ║");
-        System.out.println("║ 4. Mejorar garaje                    ║");
-        System.out.println("║ 5. Agregar créditos                  ║");
-        System.out.println("║ 6. Mostrar valor total               ║");
-        System.out.println("║ 7. Mostrar costo mantenimiento       ║");
-        System.out.println("║ 8. Exportar garaje                   ║");
-        System.out.println("║ 9. Importar garaje                   ║");
+        System.out.println("║ 1. Mostrar vehículos                 ║");
+        System.out.println("║ 2. Vender vehículo                   ║");
+        System.out.println("║ 3. Mejorar garaje                    ║");
+        System.out.println("║ 4. Agregar créditos                  ║");
+        System.out.println("║ 5. Mostrar valor total               ║");
+        System.out.println("║ 6. Mostrar costo mantenimiento       ║");
+        System.out.println("║ 7. Cargar todos los vehículos        ║");
+        System.out.println("║ 8. Cargar combustible a vehículo     ║");
+        System.out.println("║ 9. Cargar vehículo al máximo         ║");
         System.out.println("║ 0. Salir                             ║");
         System.out.println("╚══════════════════════════════════════╝");
         System.out.print("Seleccione una opción: ");
@@ -112,39 +109,17 @@ public class MenuGaraje {
 
     /* ===================== INPUT USUARIO ===================== */
 
-    private Vehiculo nuevoVehiculo() {
-        String nombre = ingresarNombre();
-        TipoVehiculo tipo = TipoVehiculo.valueOf(ingresarTipoVehiculo());
-        int precio = ingresarPrecio();
-        int capacidad = ingresarCapacidadGasolina();
-
-        return new Moto(nombre, 12, precio, capacidad);
-    }
-
     private String ingresarNombre() {
         System.out.print("Ingrese nombre del vehículo: ");
         return scanner.nextLine();
     }
 
-    private String ingresarTipoVehiculo() {
-        String tipo;
-        do {
-            System.out.print("Ingrese tipo (AUTO/MOTO): ");
-            tipo = scanner.nextLine().toUpperCase();
-        } while (!tipo.equals("AUTO") && !tipo.equals("MOTO"));
-        return tipo;
-    }
-
-    private int ingresarPrecio() {
-        return ingresarEntero("Ingrese el precio: ");
-    }
-
-    private int ingresarCapacidadGasolina() {
-        return ingresarEntero("Ingrese capacidad de gasolina: ");
-    }
-
     private int ingresarCreditos() {
         return ingresarEntero("Ingrese cantidad de créditos: ");
+    }
+
+    private int ingresarLitros() {
+        return ingresarEntero("Ingrese cantidad de litros: ");
     }
 
     private int ingresarEntero(String mensaje) {

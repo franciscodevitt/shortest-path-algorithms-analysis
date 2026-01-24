@@ -88,7 +88,7 @@ public abstract class Vehiculo {
 
     // devuelve una version corta para mostrar en consola
     public String obtenerVehiculo() {
-        return tipo + ": " + nombre;
+        return tipo + ": " + nombre + " (Precio: $" + precio + ", Gasolina: " + gasolinaActual + "/" + capacidadGasolina + "L, Km: " + kilometraje + ")";
     }
 
     // devuelve una linea lista para exportar al csv

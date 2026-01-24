@@ -27,7 +27,7 @@ public class Concesionario {
         for (int i = 0; i < max; i++) {
             Vehiculo v = vehiculos.dato(i);
             if (v.obtenerNombreVehiculo().toLowerCase().contains(filtro)) {
-                System.out.println(v.obtenerNombreVehiculo() + ", Precio: $" + v.obtenerPrecioPorVehiculo());
+                System.out.println(v.obtenerVehiculo());
                 encontrado = true;
             }
         }
@@ -45,23 +45,41 @@ public class Concesionario {
         buscar(marca);
     }
 
-    public Vehiculo comprarVehiculo(String nombreExacto) {
+    public void comprarVehiculo(String nombreExacto, Garaje garaje) {
         int max = vehiculos.tamanio();
+        int i = 0;
+        boolean encontrado = false;
 
-        for (int i = 0; i < max; i++) {
+        while (i < max && !encontrado) {
             Vehiculo v = vehiculos.dato(i);
             if (v.obtenerNombreVehiculo().equals(nombreExacto)) {
-                return vehiculos.eliminar(i); // se compra → se elimina del concesionario
+                encontrado = true;
+                if (garaje.getDinero() >= v.obtenerPrecioPorVehiculo()) {
+                    System.out.println("Vehículo comprado: " + v.getNombre() + ", Precio: $" + v.getPrecio());
+                    garaje.agregarVehiculo(v); // se compra → se elimina del concesionario
+                    vehiculos.eliminar(i);
+                } else {
+                    throw new IllegalArgumentException("No tienes suficiente dinero para comprar el vehículo: " + nombreExacto);
+                }
             }
+            i++;
+        }
+        if (!encontrado) {
+            throw new IllegalArgumentException("No se encontró el vehículo con nombre exacto: " + nombreExacto);
         }
 
-        throw new IllegalArgumentException("No existe un vehículo con nombre: " + nombreExacto);
     }
 
-    // -------- MÉTODOS DE GETTER --------
+    public void listarVehiculos() {
+        System.out.println("===== Vehículos en CONCESIONARIO (" + vehiculos.tamanio() + ") =====");
+        if (vehiculos.vacio()) System.out.println("(vacío)");
+        for (int i = 0; i < vehiculos.tamanio(); i++) {
+            System.out.println(vehiculos.dato(i).obtenerVehiculo());
+        }
+    }
 
-    public Vector<Vehiculo> getVehiculos() {
-        return vehiculos;
+    public void agregarVehiculo(Vehiculo vehiculo) {
+        vehiculos.agregar(vehiculo);
     }
 
     // -------- MÉTODOS DE EXPORT/IMPORT --------

@@ -88,37 +88,33 @@ public class MenuPrincipal {
     /* ===================== SUBMENÚS ===================== */
 
     private void abrirMenuGaraje() {
-        MenuGaraje menuGaraje = new MenuGaraje(garaje);
+        MenuGaraje menuGaraje = new MenuGaraje(garaje, concesionario);
         menuGaraje.iniciar();
     }
 
     private void abrirMenuConcesionario() {
-        // TODO: crear MenuConcesionario cuando exista
-        // MenuConcesionario menu = new MenuConcesionario(concesionario, garaje);
-        // menu.iniciar();
-
-        System.out.println("Menú concesionario (pendiente)");
+        MenuConcesionario menu = new MenuConcesionario(concesionario, garaje);
+        menu.iniciarConcesionario();
         pausar();
     }
 
     private void abrirMenuMisiones() {
-        // TODO: crear MenuMisiones cuando exista
-        // MenuMisiones menu = new MenuMisiones(garaje);
-        // menu.iniciar();
-
-        System.out.println("Menú misiones (pendiente)");
+        MenuMisiones menu = new MenuMisiones(garaje);
+        menu.iniciar();
         pausar();
     }
 
     /* ===================== PARTIDA ===================== */
 
     private void guardarPartida() {
-        // TODO:
-        // 1. Guardar Garaje
-        // 2. Guardar Concesionario
-        // 3. Guardar estado general de la partida
+        try {
+            garaje.exportarGaraje(ruta + "/garaje.csv");
+            concesionario.exportarConcesionario(ruta + "/concesionario.csv");
 
-        System.out.println("Partida guardada correctamente (pendiente)");
+            System.out.println("Partida guardada correctamente");
+        } catch (Exception e) {
+            System.out.println("Error al guardar la partida: " + e.getMessage());
+        }
         pausar();
     }
 

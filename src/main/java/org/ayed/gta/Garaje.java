@@ -62,18 +62,20 @@ public class Garaje {
             zonaDeEspera.agregar(vehiculo); // FIFO real de tu Cola
             System.out.println("Garaje lleno. Agregado a zona de espera: " + vehiculo.obtenerVehiculo());
         }
+        dinero -= vehiculo.obtenerPrecioPorVehiculo();
     }
 
     /**
      * vende un vehículo por su nombre, agrega el dinero al garaje.
      * si hay en espera, ingresa automaticamente el primero (FIFO).
      */
-    public void venderVehiculo(String nombre) {
+    public void venderVehiculo(String nombre, Concesionario concesionario) {
         int idx = buscarVehiculoEnGaraje(nombre);
         if (idx < 0) throw new ExcepcionGaraje("Vehículo inexistente en el garaje.");
         Vehiculo vendido = vehiculosEnGaraje.eliminar(idx);
         int precioVenta = vendido.obtenerPrecioPorVehiculo();
         this.dinero += precioVenta;
+        concesionario.agregarVehiculo(vendido);
         System.out.println("Vehículo vendido: " + vendido.obtenerVehiculo() + " por $" + precioVenta);
 
      // si se libera un espacio en el garaje, el primer vehiculo en espera entra automaticamente.
@@ -102,9 +104,10 @@ public class Garaje {
 
     /**
      * carga una cantidad específica de gasolina a un vehículo en el GARAGE.
+     * Si hay múltiples vehículos con el mismo nombre, busca el que NO esté al máximo.
      */
     public void cargarVehiculo(String nombre, int litros) {
-        int idx = buscarVehiculoEnGaraje(nombre);
+        int idx = buscarVehiculoEnGarajeParaCargar(nombre);
         if (idx < 0) throw new ExcepcionGaraje("Vehículo inexistente en el garaje.");
         
         Vehiculo v = vehiculosEnGaraje.dato(idx);
@@ -114,9 +117,10 @@ public class Garaje {
 
     /**
      * carga un vehículo al máximo de su capacidad.
+     * Si hay múltiples vehículos con el mismo nombre, busca el que NO esté al máximo.
      */
     public void cargarVehiculoAlMaximo(String nombre) {
-        int idx = buscarVehiculoEnGaraje(nombre);
+        int idx = buscarVehiculoEnGarajeParaCargar(nombre);
         if (idx < 0) throw new ExcepcionGaraje("Vehículo inexistente en el garaje.");
         
         Vehiculo v = vehiculosEnGaraje.dato(idx);
@@ -187,6 +191,32 @@ public class Garaje {
     }
 
     /**
+     * busca por nombre un vehículo que NO esté cargado al máximo.
+     * Si encuentra varios, retorna el primero que no está al 100%.
+     * Si todos están al máximo, retorna el primero encontrado.
+     * Si no existe, retorna -1.
+     */
+    public int buscarVehiculoEnGarajeParaCargar(String nombre) {
+        int primerEncontrado = -1;
+        
+        for (int i = 0; i < vehiculosEnGaraje.tamanio(); i++) {
+            Vehiculo v = vehiculosEnGaraje.dato(i);
+            if (v.obtenerNombreVehiculo().equalsIgnoreCase(nombre)) {
+                if (primerEncontrado == -1) {
+                    primerEncontrado = i;  // guardar el primero encontrado
+                }
+                // Si no está al máximo, retornarlo inmediatamente
+                if (v.getGasolinaActual() < v.getCapacidadGasolina()) {
+                    return i;
+                }
+            }
+        }
+        
+        // Si llegamos aquí, todos están al máximo, retornamos el primero
+        return primerEncontrado;
+    }
+
+    /**
      * muestra vehículos del garaje y de la espera por separado.
      */
     public void listarVehiculos() {
@@ -200,11 +230,11 @@ public class Garaje {
         if (zonaDeEspera.vacio()) {
             System.out.println("(sin espera)");
         } else {
-            int n = zonaDeEspera.tamanio();
+            Cola<Vehiculo> temp = new Cola<>(zonaDeEspera);  // Copia de la Cola
+            int n = temp.tamanio();
             for (int i = 0; i < n; i++) {
-                Vehiculo v = zonaDeEspera.eliminar();              // saco el primero
+                Vehiculo v = temp.eliminar();  // Eliminar de la copia
                 System.out.println("[espera " + (i + 1) + "] " + v.obtenerVehiculo());
-                zonaDeEspera.agregar(v);                            // lo vuelvo a poner al final
             }
         }
     }
@@ -213,6 +243,7 @@ public class Garaje {
     public int getCapacidad() { return this.capacidad; }
     public Vector<Vehiculo> getVehiculosEnGaraje() { return vehiculosEnGaraje; }
     public Cola<Vehiculo> getZonaDeEspera() { return zonaDeEspera; }
+    public int getDinero() { return this.dinero; }
 
     // -----------------------------
     // CSV con dos secciones

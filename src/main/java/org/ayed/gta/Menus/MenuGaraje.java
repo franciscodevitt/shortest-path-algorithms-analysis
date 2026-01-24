@@ -2,11 +2,13 @@ package org.ayed.gta.Menus;
 
 import java.util.Scanner;
 
+import org.ayed.gta.Concesionario;
 import org.ayed.gta.Garaje;
 
 public class MenuGaraje {
 
     private Garaje garaje;
+    private Concesionario concesionario;
     private Scanner scanner;
 
     // Opciones del menú
@@ -21,8 +23,9 @@ public class MenuGaraje {
     private static final int CARGAR_VEHICULO_AL_MAXIMO = 9;
     private static final int SALIR = 0;
 
-    public MenuGaraje(Garaje garaje) {
+    public MenuGaraje(Garaje garaje, Concesionario concesionario) {
         this.garaje = garaje;
+        this.concesionario = concesionario;
         this.scanner = new Scanner(System.in);
     }
 
@@ -47,7 +50,7 @@ public class MenuGaraje {
                 garaje.listarVehiculos();
                 break;
             case VENDER_VEHICULO:
-                garaje.venderVehiculo(ingresarNombre());
+                garaje.venderVehiculo(ingresarNombre(), concesionario);
                 break;
             case MEJORAR_GARAJE:
                 garaje.mejorarGaraje();
@@ -95,6 +98,9 @@ public class MenuGaraje {
         System.out.println("║ 8. Cargar combustible a vehículo     ║");
         System.out.println("║ 9. Cargar vehículo al máximo         ║");
         System.out.println("║ 0. Salir                             ║");
+        System.out.println("╠══════════════════════════════════════╣");
+        System.out.println("║ " + String.format("%-35s", "Dinero: $" + garaje.getDinero()) + "  ║");
+        System.out.println("║ " + String.format("%-35s", "Créditos: " + garaje.getCreditos()) + "  ║");
         System.out.println("╚══════════════════════════════════════╝");
         System.out.print("Seleccione una opción: ");
 

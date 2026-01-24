@@ -3,15 +3,17 @@ package org.ayed.gta.Menus;
 import java.util.Scanner;
 
 import org.ayed.gta.Concesionario;
-import org.ayed.gta.Vehiculo;
+import org.ayed.gta.Garaje;
 
 public class MenuConcesionario {
     private Scanner scanner;
     private Concesionario concesionario;
+    private Garaje garaje;
 
-    public MenuConcesionario(Concesionario concesionario) {
+    public MenuConcesionario(Concesionario concesionario, Garaje garaje) {
         this.scanner = new Scanner(System.in);
         this.concesionario = concesionario;
+        this.garaje = garaje;
     }
     
     /**
@@ -25,7 +27,8 @@ public class MenuConcesionario {
         System.out.println("╠═══════════════════════════════════════════════════════╣");
         System.out.println("║     1. Buscar vehículos por nombre.                   ║");
         System.out.println("║     2. Buscar vehículos por marca.                    ║");
-        System.out.println("║     3. Comprar un vehículo (por nombre exacto).       ║");
+        System.out.println("║     3. Listar todos los vehículos disponibles.        ║");
+        System.out.println("║     4. Comprar un vehículo (por nombre exacto).       ║");
         System.out.println("║     0. Volver al menú principal.                      ║");
         System.out.println("╚═══════════════════════════════════════════════════════╝");
         System.out.print("Seleccione una opción: ");
@@ -43,7 +46,8 @@ public class MenuConcesionario {
 
     private static final int BUSCAR_VEHICULOS_NOMBRE = 1;
     private static final int BUSCAR_VEHICULOS_MARCA  = 2;
-    private static final int COMPRAR_VEHICULO        = 3;
+    private static final int LISTAR_VEHICULOS        = 3;
+    private static final int COMPRAR_VEHICULO        = 4;
     private static final int VOLVER                  = 0;
 
     /**
@@ -68,10 +72,13 @@ public class MenuConcesionario {
                         concesionario.buscarPorMarca(marca);
                         break;
 
+                    case LISTAR_VEHICULOS:
+                        concesionario.listarVehiculos();
+                        break;
                     case COMPRAR_VEHICULO:
                         String nombreExacto = ingresarNombreExacto();
-                        Vehiculo vehiculo = concesionario.comprarVehiculo(nombreExacto);
-                        System.out.println("Vehículo comprado: " + vehiculo.getNombre() + ", Precio: $" + vehiculo.getPrecio());
+                        concesionario.comprarVehiculo(nombreExacto, garaje);
+                        System.out.println("Vehículo comprado.");
                         break;
 
                     case VOLVER:

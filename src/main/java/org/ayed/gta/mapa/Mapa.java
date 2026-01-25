@@ -380,4 +380,73 @@ public class Mapa {
     public boolean seConsiguioRecompensaExtra() {
         return recompensaExtraRecogida;
     }
+
+    // ==================== GETTERS PARA LA INTERFAZ GRÁFICA ====================
+
+    /**
+     * Obtiene la posición actual del jugador.
+     */
+    public Coordenada obtenerPosicionJugador() {
+        return jugador;
+    }
+
+    /**
+     * Obtiene la coordenada destino.
+     */
+    public Coordenada obtenerDestino() {
+        return destino;
+    }
+
+    /**
+     * Obtiene el ancho del mapa.
+     */
+    public int obtenerAncho() {
+        return ancho;
+    }
+
+    /**
+     * Obtiene la altura del mapa.
+     */
+    public int obtenerAltura() {
+        return altura;
+    }
+
+    /**
+     * Obtiene el tipo de terreno en una posición específica.
+     */
+    public String obtenerCelda(int fila, int columna) {
+        Nodo nodo = ciudad.obtenerEntrada(fila, columna);
+        if (nodo != null) {
+            return nodo.obtenerTerreno();
+        }
+        return "#"; // Retorna edificio si el nodo es nulo
+    }
+
+    /**
+     * Verifica si una coordenada es caminable.
+     */
+    public boolean esCaminable(int x, int y) {
+        if (x < 0 || x >= ancho || y < 0 || y >= altura) {
+            return false;
+        }
+        Nodo nodo = ciudad.obtenerEntrada(y, x);
+        return nodo != null && esTransitable(nodo);
+    }
+
+    /**
+     * Mueve el jugador a una nueva posición.
+     */
+    public void moverJugador(int x, int y) {
+        actualizarJugador(new Coordenada(y, x));
+    }
+    
+    /**
+     * Reinicia el mapa generando nuevas posiciones de entrada, salida y recompensa.
+     * sirve para reintentar la misión.
+     */
+    public void reiniciarMapa() {
+        inicializarEntradaSalida();
+        this.recompensaExtra = coordenadaAleatoria();
+        this.recompensaExtraRecogida = false;
+    }
 }

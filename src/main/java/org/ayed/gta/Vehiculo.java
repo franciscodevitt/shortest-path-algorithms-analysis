@@ -123,6 +123,18 @@ public abstract class Vehiculo {
         }
         this.kilometraje += km;
     }
+
+    // consume gasolina del vehículo
+    public boolean consumirGasolina(int litros) {
+        if (litros < 0) {
+            throw new IllegalArgumentException("no se pueden consumir litros negativos");
+        }
+        if (gasolinaActual >= litros) {
+            gasolinaActual -= litros;
+            return true;
+        }
+        return false;
+    }
     
     @Override
     public String toString() {

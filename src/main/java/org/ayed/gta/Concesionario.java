@@ -90,6 +90,7 @@ public class Concesionario {
      * NOMBRE,PRECIO,TIPO,CANTIDAD_RUEDAS,CAPACIDAD_GASOLINA,GASOLINA_ACTUAL,KILOMETRAJE
      * ...
      */
+
     public void exportarConcesionario(String ruta) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(ruta))) {
             writer.println("#CONCESIONARIO");
@@ -97,6 +98,7 @@ public class Concesionario {
                 writer.println(vehiculos.dato(i).obtenerVehiculoParaExportar());
             }
         } catch (IOException e) {
+
             throw new ExcepcionGaraje("No se pudo exportar el concesionario: " + e.getMessage());
         }
     }
@@ -183,5 +185,25 @@ public class Concesionario {
         vehiculo.cargarCombustible(gasolinaActual);
         vehiculo.sumarKilometros(kilometraje);
         return vehiculo;
+
     }
+
+    // ---- GETTERS ----
+    public Vector<Vehiculo> getVehiculos() {
+        return vehiculos;
+    }
+    
+    public int getCantidadVehiculos() {
+        return vehiculos.tamanio();
+    }
+    
+    public Vehiculo getVehiculo(int indice) {
+        return vehiculos.dato(indice);
+    }
+    
+    // ---- SETTERS ----
+    public void setVehiculos(Vector<Vehiculo> vehiculos) {
+        this.vehiculos = vehiculos;
+    }
+
 }

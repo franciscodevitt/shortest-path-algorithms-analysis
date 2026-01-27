@@ -88,13 +88,13 @@ public abstract class Vehiculo {
 
     // devuelve una version corta para mostrar en consola
     public String obtenerVehiculo() {
-        return tipo + ": " + nombre;
+        return tipo + ": " + nombre + " (Precio: $" + precio + ", Gasolina: " + gasolinaActual + "/" + capacidadGasolina + "L, Km: " + kilometraje + ")";
     }
 
     // devuelve una linea lista para exportar al csv
-    // formato: nombre,precio,tipo,ruedas,capacidadGasolina
+    // formato: nombre,precio,tipo,ruedas,capacidadGasolina,gasolinaActual,kilometraje
     public String obtenerVehiculoParaExportar() {
-        return nombre + "," + precio + "," + tipo + "," + ruedas() + "," + capacidadGasolina;
+        return nombre + "," + precio + "," + tipo + "," + ruedas() + "," + capacidadGasolina + "," + gasolinaActual + "," + kilometraje;
     }
 
     // cargar una cantidad específica de combustible, devuelve litros realmente cargados
@@ -122,6 +122,18 @@ public abstract class Vehiculo {
             throw new IllegalArgumentException("no se pueden restar kilometros");
         }
         this.kilometraje += km;
+    }
+
+    // consume gasolina del vehículo
+    public boolean consumirGasolina(int litros) {
+        if (litros < 0) {
+            throw new IllegalArgumentException("no se pueden consumir litros negativos");
+        }
+        if (gasolinaActual >= litros) {
+            gasolinaActual -= litros;
+            return true;
+        }
+        return false;
     }
     
     @Override

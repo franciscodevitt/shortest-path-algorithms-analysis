@@ -8,7 +8,7 @@ import java.util.Scanner;
 /**
  * Clase simple para probar la interfaz gráfica de misiones.
  */
-public class main {
+public class Main {
 
     public static void main(String[] args) {
         MenuInicio menuInicio = new MenuInicio();

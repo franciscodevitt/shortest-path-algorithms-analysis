@@ -28,6 +28,7 @@ public class Garaje {
     private Cola<Vehiculo> zonaDeEspera;         // cola FIFO real de vehículos que no entraron
 
     private int dinero;
+    private int dia;
 
     
     // NOMBRE, PRECIO, TIPO, CANTIDAD_RUEDAS, CAPACIDAD_GASOLINA, GASOLINA_ACTUAL, KILOMETRAJE
@@ -44,6 +45,7 @@ public class Garaje {
         this.vehiculosEnGaraje = new Vector<>();
         this.zonaDeEspera = new Cola<>();
         this.dinero = 0;
+        this.dia = 1;
 
     }
 
@@ -88,17 +90,39 @@ public class Garaje {
 
     /**
      * carga gasolina a todos los vehículos en el GARAGE hasta su capacidad máxima.
+     * cobra $1 por litro. Si el dinero se agota, se detiene.
      */
     public void cargarTodosLosVehiculos() {
         if (vehiculosEnGaraje.vacio()) {
             System.out.println("No hay vehículos en el garaje para cargar.");
             return;
         }
-        
-        for (int i = 0; i < vehiculosEnGaraje.tamanio(); i++) {
+        boolean completado = true;
+        for (int i = 0; i < vehiculosEnGaraje.tamanio() && completado; i++) {
             Vehiculo v = vehiculosEnGaraje.dato(i);
-            int litrosCargados = v.cargarAlMaximo();
-            System.out.println(v.obtenerVehiculo() + " cargado: +" + litrosCargados + " litros");
+            int litrosFaltantes = v.getCapacidadGasolina() - v.getGasolinaActual();
+            if (litrosFaltantes <= 0) {
+                System.out.println(v.obtenerVehiculo() + " ya está lleno.");
+                continue;
+            }
+
+            if (dinero <= 0) {
+                System.out.println("No hay suficiente dinero para cargar más vehículos.");
+                completado = false;
+            } else if (dinero >= litrosFaltantes) {
+                int litrosCargados = v.cargarAlMaximo();
+                System.out.println(v.obtenerVehiculo() + " cargado: +" + litrosCargados + " litros");
+                dinero -= litrosCargados;
+            } else {
+                int litrosCargados = v.cargarCombustible(dinero); // cargará hasta agotar el dinero
+                System.out.println(v.obtenerVehiculo() + " cargado: +" + litrosCargados + " litros (fondos agotados)");
+                dinero -= litrosCargados;
+                System.out.println("No hay suficiente dinero para cargar más vehículos.");
+                completado = false;
+            }
+        }
+        if (completado) {
+            System.out.println("Todos los vehículos han sido cargados.");
         }
     }
 
@@ -107,12 +131,18 @@ public class Garaje {
      * Si hay múltiples vehículos con el mismo nombre, busca el que NO esté al máximo.
      */
     public void cargarVehiculo(String nombre, int litros) {
-        int idx = buscarVehiculoEnGarajeParaCargar(nombre);
-        if (idx < 0) throw new ExcepcionGaraje("Vehículo inexistente en el garaje.");
-        
-        Vehiculo v = vehiculosEnGaraje.dato(idx);
-        int litrosCargados = v.cargarCombustible(litros);
-        System.out.println(v.obtenerVehiculo() + " cargado: +" + litrosCargados + " litros");
+        if(dinero >= litros){
+            int idx = buscarVehiculoEnGarajeParaCargar(nombre);
+            if (idx < 0) throw new ExcepcionGaraje("Vehículo inexistente en el garaje.");
+            
+            Vehiculo v = vehiculosEnGaraje.dato(idx);
+            int litrosCargados = v.cargarCombustible(litros);
+            System.out.println(v.obtenerVehiculo() + " cargado: +" + litrosCargados + " litros");
+            dinero -= litrosCargados;
+        }
+        else{
+            System.out.println("No hay suficiente dinero para cargar el vehículo.");
+        }
     }
 
     /**
@@ -124,8 +154,15 @@ public class Garaje {
         if (idx < 0) throw new ExcepcionGaraje("Vehículo inexistente en el garaje.");
         
         Vehiculo v = vehiculosEnGaraje.dato(idx);
-        int litrosCargados = v.cargarAlMaximo();
-        System.out.println(v.obtenerVehiculo() + " cargado al máximo: +" + litrosCargados + " litros");
+        int litrosFaltantes = v.getCapacidadGasolina() - v.getGasolinaActual();
+        if(dinero >= litrosFaltantes){
+            int litrosCargados = v.cargarAlMaximo();
+            System.out.println(v.obtenerVehiculo() + " cargado al máximo: +" + litrosCargados + " litros");
+            dinero -= litrosCargados;
+        }
+        else{
+            System.out.println("No hay suficiente dinero para cargar el vehículo al máximo.");
+        }
     }
 
     /**
@@ -239,11 +276,20 @@ public class Garaje {
         }
     }
 
+    public void avanzarDia() {
+         this.dia++;
+         dinero -= obtenerCostoMantenimiento();
+         if(dinero < 0){
+            System.out.println("Perdiste! Te quedaste sin dinero.");
+         } 
+        }
+
     public int getCreditos() { return this.creditos; }
     public int getCapacidad() { return this.capacidad; }
     public Vector<Vehiculo> getVehiculosEnGaraje() { return vehiculosEnGaraje; }
     public Cola<Vehiculo> getZonaDeEspera() { return zonaDeEspera; }
     public int getDinero() { return this.dinero; }
+    public int getDia() { return this.dia; }
 
     // -----------------------------
     // CSV con dos secciones

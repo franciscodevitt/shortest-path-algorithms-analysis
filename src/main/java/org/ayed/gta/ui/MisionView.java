@@ -26,8 +26,7 @@ public class MisionView extends Application {
     private static Vehiculo vehiculoEstatico;
     private static Image imagenVehiculoEstatica;
     
-    private static int tiempoLimiteEstatico;
-    private int tiempoLimite;
+    private static double tiempoLimiteEstatico;
 
     private MisionController controller;
     private GridPane gridMapa;
@@ -46,7 +45,7 @@ public class MisionView extends Application {
      * Inicializa la misión con mapa y vehículo.
      * La imagen se obtiene automáticamente según el tipo de vehículo.
      */
-    public static void iniciarMision(Mapa mapa, Vehiculo vehiculo, int tiempoLimite) {
+    public static void iniciarMision(Mapa mapa, Vehiculo vehiculo, double tiempoLimite) {
         mapaEstatico = mapa;
         vehiculoEstatico = vehiculo;
         tiempoLimiteEstatico=tiempoLimite;
@@ -87,9 +86,6 @@ public class MisionView extends Application {
                 System.out.println("✗ No se pudo obtener imagen por tipo, usando ícono");
             }
         }
-        
-        // Inicializar tiempo limite
-        this.tiempoLimite = tiempoLimiteEstatico;
 
         // Crear interfaz
         BorderPane root = crearInterfazPrincipal();
@@ -278,11 +274,11 @@ public class MisionView extends Application {
         int combustible = vehiculoEstatico.getGasolinaActual();
         var posicion = mapaEstatico.obtenerPosicionJugador();
         var destino = mapaEstatico.obtenerDestino();
-        float tiempoRestante = controller.getTiempoRestante();
-        
+        double tiempoRestante = controller.getTiempoRestante();
+
         lblCombustible.setText(String.format("Combustible: %d L", combustible));
 
-        lblTiempo.setText(String.format("Tiempo Restante: %.2f Seg", tiempoRestante));
+        lblTiempo.setText(String.format("Tiempo Restante: %.1f Seg", tiempoRestante));
         
         if (posicion != null) {
             lblPosicion.setText(String.format("Posición: (%d, %d)", 

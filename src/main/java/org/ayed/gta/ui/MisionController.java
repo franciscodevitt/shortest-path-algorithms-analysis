@@ -18,18 +18,19 @@ public class MisionController {
     private int velocidadMovimiento = 1; // células por movimiento
     private boolean enMision = true;
 
-    private float tiempoRestante;
-    private float tiempoPorCelda;
+    private double tiempoRestante;
+    private double tiempoPorCelda;
     private static final int TASA_DE_DEMORA_TRAFICO = 5; // Factor de demora por tráfico
     
     /**
      * Inicializa el controlador con un mapa y un vehículo.
      */
-    public MisionController(Mapa mapa, Vehiculo vehiculoActual, int tiempoLimite) {
+    public MisionController(Mapa mapa, Vehiculo vehiculoActual, double tiempoLimite) {
         this.mapa = mapa;
         this.vehiculoActual = vehiculoActual;
         this.tiempoRestante = tiempoLimite;
-        this.tiempoPorCelda = vehiculoActual.getVelocidadMaxima(); //tiempo en hacer 100m [segundos]
+        // REVISAR LO DEL TIEMPO POR CELDA
+        this.tiempoPorCelda = 100.0/(vehiculoActual.getVelocidadMaxima()*0.08); //tiempo en hacer 100m [segundos]. aprox de 10-15 seg/cuadra segun la velocidad maxima
     }
     
     /**
@@ -101,8 +102,8 @@ public class MisionController {
         }else{
             tiempoRestante -= tiempoPorCelda;
         }
-        
-        if (tiempoRestante <= 0) {
+
+        if (tiempoRestante <= 0.01) { //si es menor a 0.01 se considera 0 ya que el panel de informacion muestra hasta 2 decimales.
             tiempoRestante = 0;
             enMision = false; // Fin de la misión por tiempo agotado
         }
@@ -132,7 +133,7 @@ public class MisionController {
     /**
      * Obtiene el tiempo límite restante en segundos.
      */
-    public float getTiempoRestante() {
+    public double getTiempoRestante() {
         return tiempoRestante;
     }
 

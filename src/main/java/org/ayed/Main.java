@@ -66,7 +66,7 @@ public class Main {
             System.out.println("\n");
             
             // Lanzar la interfaz gráfica
-            int tiempoLimite=5000;
+            int tiempoLimite=500;
             MisionView.iniciarMision(mapa, vehiculo, tiempoLimite);
             
             System.out.println("\n¡Interfaz cerrada!");

@@ -433,6 +433,14 @@ public class Mapa {
         return nodo != null && esTransitable(nodo);
     }
 
+    public boolean tieneTrafico(int x, int y) {
+        if (x < 0 || x >= ancho || y < 0 || y >= altura) {
+            return false;
+        }
+        Nodo nodo = ciudad.obtenerEntrada(y, x);
+        return nodo != null && nodo.tieneTrafico();
+    }
+
     /**
      * Mueve el jugador a una nueva posición.
      */

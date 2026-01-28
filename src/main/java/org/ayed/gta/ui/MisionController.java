@@ -17,13 +17,19 @@ public class MisionController {
     private Vehiculo vehiculoActual;
     private int velocidadMovimiento = 1; // células por movimiento
     private boolean enMision = true;
+
+    private float tiempoRestante;
+    private float tiempoPorCelda;
+    private static final int TASA_DE_DEMORA_TRAFICO = 5; // Factor de demora por tráfico
     
     /**
      * Inicializa el controlador con un mapa y un vehículo.
      */
-    public MisionController(Mapa mapa, Vehiculo vehiculoActual) {
+    public MisionController(Mapa mapa, Vehiculo vehiculoActual, int tiempoLimite) {
         this.mapa = mapa;
         this.vehiculoActual = vehiculoActual;
+        this.tiempoRestante = tiempoLimite;
+        this.tiempoPorCelda = vehiculoActual.getVelocidadMaxima(); //tiempo en hacer 100m [segundos]
     }
     
     /**
@@ -71,6 +77,7 @@ public class MisionController {
             mapa.moverJugador(nuevaX, nuevaY);
             // Consumir gasolina al moverse
             consumirGasolina();
+            reducirTiempoLimite(nuevaX, nuevaY);
         }
     }
     
@@ -84,6 +91,20 @@ public class MisionController {
             vehiculoActual.consumirGasolina(1);
         } else {
             enMision = false; // Fin de la misión sin gasolina
+        }
+    }
+
+    private void reducirTiempoLimite(int x, int y) {
+        // Reducir tiempo limite
+        if (mapa.tieneTrafico(x, y)){
+            tiempoRestante-= tiempoPorCelda*TASA_DE_DEMORA_TRAFICO;
+        }else{
+            tiempoRestante -= tiempoPorCelda;
+        }
+        
+        if (tiempoRestante <= 0) {
+            tiempoRestante = 0;
+            enMision = false; // Fin de la misión por tiempo agotado
         }
     }
     
@@ -109,6 +130,13 @@ public class MisionController {
     }
     
     /**
+     * Obtiene el tiempo límite restante en segundos.
+     */
+    public float getTiempoRestante() {
+        return tiempoRestante;
+    }
+
+    /**
      * Verifica si la misión sigue en curso.
      */
     public boolean isEnMision() {
@@ -129,6 +157,7 @@ public class MisionController {
         if (vehiculoActual != null) {
             vehiculoActual.cargarAlMaximo();
         }
+        tiempoRestante = 5000;
         mapa.reiniciarMapa();
         enMision = true;
     }

@@ -26,10 +26,14 @@ public class MisionView extends Application {
     private static Vehiculo vehiculoEstatico;
     private static Image imagenVehiculoEstatica;
     
+    private static int tiempoLimiteEstatico;
+    private int tiempoLimite;
+
     private MisionController controller;
     private GridPane gridMapa;
     private CeldaMapa[][] celdas;
     private Label lblCombustible;
+    private Label lblTiempo;
     private Label lblPosicion;
     private Label lblDestino;
     private VBox mensajeOverlay;
@@ -42,9 +46,10 @@ public class MisionView extends Application {
      * Inicializa la misión con mapa y vehículo.
      * La imagen se obtiene automáticamente según el tipo de vehículo.
      */
-    public static void iniciarMision(Mapa mapa, Vehiculo vehiculo) {
+    public static void iniciarMision(Mapa mapa, Vehiculo vehiculo, int tiempoLimite) {
         mapaEstatico = mapa;
         vehiculoEstatico = vehiculo;
+        tiempoLimiteEstatico=tiempoLimite;
         imagenVehiculoEstatica = null;  // Se determinará por el tipo
         launch();
     }
@@ -52,9 +57,10 @@ public class MisionView extends Application {
     /**
      * Inicializa la misión con mapa, vehículo e imagen personalizada.
      */
-    public static void iniciarMision(Mapa mapa, Vehiculo vehiculo, Image imagen) {
+    public static void iniciarMision(Mapa mapa, Vehiculo vehiculo, int tiempoLimite,Image imagen) {
         mapaEstatico = mapa;
         vehiculoEstatico = vehiculo;
+        tiempoLimiteEstatico=tiempoLimite;
         imagenVehiculoEstatica = imagen;
         launch();
     }
@@ -63,7 +69,7 @@ public class MisionView extends Application {
     public void start(Stage stage) {
         this.primaryStage = stage;
         
-        controller = new MisionController(mapaEstatico, vehiculoEstatico);
+        controller = new MisionController(mapaEstatico, vehiculoEstatico, tiempoLimiteEstatico);
         
         // Obtener imagen del vehículo
         if (imagenVehiculoEstatica != null) {
@@ -82,6 +88,9 @@ public class MisionView extends Application {
             }
         }
         
+        // Inicializar tiempo limite
+        this.tiempoLimite = tiempoLimiteEstatico;
+
         // Crear interfaz
         BorderPane root = crearInterfazPrincipal();
         Scene scene = new Scene(root, 900, 700);
@@ -163,6 +172,11 @@ public class MisionView extends Application {
         lblCombustible = new Label("Combustible: -- L");
         lblCombustible.setStyle("-fx-font-size: 12; -fx-text-fill: #ffffff;");
         lblCombustible.setWrapText(true);
+
+        // Tiempo restante
+        lblTiempo = new Label("Tiempo Restante: -- Seg");
+        lblTiempo.setStyle("-fx-font-size: 12; -fx-text-fill: #ffffff;");
+        lblTiempo.setWrapText(true);
         
         // Posición
         lblPosicion = new Label("Posición: (-, -)");
@@ -187,6 +201,7 @@ public class MisionView extends Application {
         panel.getChildren().addAll(
             titulo,
             lblCombustible,
+            lblTiempo,
             lblPosicion,
             lblDestino,
             instrucciones,
@@ -263,8 +278,11 @@ public class MisionView extends Application {
         int combustible = vehiculoEstatico.getGasolinaActual();
         var posicion = mapaEstatico.obtenerPosicionJugador();
         var destino = mapaEstatico.obtenerDestino();
+        float tiempoRestante = controller.getTiempoRestante();
         
         lblCombustible.setText(String.format("Combustible: %d L", combustible));
+
+        lblTiempo.setText(String.format("Tiempo Restante: %.2f Seg", tiempoRestante));
         
         if (posicion != null) {
             lblPosicion.setText(String.format("Posición: (%d, %d)", 
@@ -284,6 +302,9 @@ public class MisionView extends Application {
             } else if (combustible <= 0) {
                 misionTerminada = true;
                 mostrarMensajeFin("¡SIN COMBUSTIBLE!", Color.RED);
+            } else if (tiempoRestante <= 0){
+                misionTerminada = true;
+                mostrarMensajeFin("¡TIEMPO AGOTADO!", Color.RED);
             }
         }
     }

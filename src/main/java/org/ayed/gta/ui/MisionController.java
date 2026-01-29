@@ -20,7 +20,6 @@ public class MisionController {
 
     private double tiempoRestante;
     private double tiempoPorCelda;
-    private static final int TASA_DE_DEMORA_TRAFICO = 5; // Factor de demora por tráfico
     
     /**
      * Inicializa el controlador con un mapa y un vehículo.
@@ -97,11 +96,7 @@ public class MisionController {
 
     private void reducirTiempoLimite(int x, int y) {
         // Reducir tiempo limite
-        if (mapa.tieneTrafico(x, y)){
-            tiempoRestante-= tiempoPorCelda*TASA_DE_DEMORA_TRAFICO;
-        }else{
-            tiempoRestante -= tiempoPorCelda;
-        }
+        tiempoRestante-= tiempoPorCelda*mapa.costoDeCelda(x, y);
 
         if (tiempoRestante <= 0.01) { //si es menor a 0.01 se considera 0 ya que el panel de informacion muestra hasta 2 decimales.
             tiempoRestante = 0;

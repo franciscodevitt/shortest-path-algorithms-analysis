@@ -89,13 +89,15 @@ public class MisionView extends Application {
 
         // Crear interfaz
         BorderPane root = crearInterfazPrincipal();
-        Scene scene = new Scene(root, 900, 700);
+        Scene scene = new Scene(root, 1200, 900);
+        
         
         // Manejar eventos de teclado
         scene.setOnKeyPressed(this::manejarTeclaPresionada);
         
         stage.setTitle("MISIÓN - Grafosaurios");
         stage.setScene(scene);
+        stage.setFullScreen(true);
         stage.show();
         
         // Centrar ventana
@@ -127,9 +129,8 @@ public class MisionView extends Application {
         for (int fila = 0; fila < altura; fila++) {
             for (int col = 0; col < ancho; col++) {
                 CeldaMapa celda = new CeldaMapa(fila, col);
-                String terreno = String.valueOf(mapaEstatico.obtenerCelda(fila, col));
-                celda.setTerreno(terreno);
-                
+                String terreno = mapaEstatico.obtenerTipoTerreno(fila, col);
+                celda.setTerreno(terreno); // Establecer color según terreno
                 celdas[fila][col] = celda;
                 gridMapa.add(celda, col, fila);
             }
@@ -235,11 +236,17 @@ public class MisionView extends Application {
         int altura = mapaEstatico.obtenerAltura();
         int ancho = mapaEstatico.obtenerAncho();
         
-        // Limpiar todas las celdas
+        // Limpia todas las celdas
         for (int fila = 0; fila < altura; fila++) {
             for (int col = 0; col < ancho; col++) {
                 celdas[fila][col].ocultarVehiculo();
                 celdas[fila][col].quitarResaltado();
+                if (mapaEstatico.tieneTrafico(col,fila)){ 
+                    celdas[fila][col].mostrarIcono("+", Color.RED); // Mostrar ícono de tráfico
+                }
+                // Establecer color y textura según terreno
+                String terreno = mapaEstatico.obtenerTipoTerreno(fila, col);
+                celdas[fila][col].setTerreno(terreno); 
             }
         }
         
@@ -248,7 +255,7 @@ public class MisionView extends Application {
         if (destino != null) {
             int filaDestino = destino.obtenerY();
             int colDestino = destino.obtenerX();
-            celdas[filaDestino][colDestino].mostrarIcono("■");
+            celdas[filaDestino][colDestino].mostrarIcono("■", Color.LIME);
             celdas[filaDestino][colDestino].resaltar(Color.LIME);
         }
         
@@ -261,12 +268,25 @@ public class MisionView extends Application {
             if (imagenVehiculo != null) {
                 celdas[filaJugador][colJugador].mostrarVehiculo(imagenVehiculo);
             } else {
-                celdas[filaJugador][colJugador].mostrarIcono("●");
+                celdas[filaJugador][colJugador].mostrarIcono("●", Color.BLUE);
             }
             celdas[filaJugador][colJugador].resaltar(Color.RED);
         }
+
+        // Mostrar recompensa extra si no ha sido recogida
+        if (!mapaEstatico.seConsiguioRecompensaExtra()) {
+            var recompensa = mapaEstatico.obtenerCoordenadaRecompensaExtra();
+            if (recompensa != null) {
+                int filaRecompensa = recompensa.obtenerY();
+                int colRecompensa = recompensa.obtenerX();
+                celdas[filaRecompensa][colRecompensa].mostrarIcono("⭐", Color.GOLD);
+                celdas[filaRecompensa][colRecompensa].resaltar(Color.GOLD);
+            }
+        }
+
     }
     
+
     /**
      * Actualiza la información mostrada.
      */

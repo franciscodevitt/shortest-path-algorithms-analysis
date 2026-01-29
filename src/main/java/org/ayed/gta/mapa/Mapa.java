@@ -29,7 +29,7 @@ public class Mapa {
     private static final double TASA_TRAFICO = 0.1;
     private static final double TASA_DISTANCIA_MINIMA = 0.3;
     private static final int COSTO_CALLE = 1;
-    private static final int COSTO_PARQUE = 99;
+    private static final int COSTO_PARQUE = 15;
     private static final int COSTO_TRAFICO = 5;
 
     /**
@@ -259,15 +259,19 @@ public class Mapa {
     private int calcularCosto(Nodo nodo) {
         
         String terreno = nodo.obtenerTerreno();
-        int costo = 0;
-        if (terreno.equals(CALLE)) {
-            costo = COSTO_CALLE;
-        } else if (terreno.equals(PARQUE)) {
-            costo = COSTO_PARQUE;
+        int costo = Integer.MAX_VALUE;
+        
+        if (esTransitable(nodo)){
+        
+            if (terreno.equals(CALLE)) {
+                costo = COSTO_CALLE;
+            } else if (terreno.equals(PARQUE)) {
+                costo = COSTO_PARQUE;
+            }
+            if (nodo.tieneTrafico()){
+                costo *= COSTO_TRAFICO;
+            }  
         }
-        if (nodo.tieneTrafico()){
-            costo *= COSTO_TRAFICO;
-        }  
         return costo;
     }
 
@@ -322,7 +326,9 @@ public class Mapa {
             }
         }
     }
-
+    
+    // ==================== GETTERS PARA LA INTERFAZ GRÁFICA ====================
+    
     /**
      * Metodo que devuelve una copia del grafo ciudad.
      *
@@ -381,7 +387,6 @@ public class Mapa {
         return recompensaExtraRecogida;
     }
 
-    // ==================== GETTERS PARA LA INTERFAZ GRÁFICA ====================
 
     /**
      * Obtiene la posición actual del jugador.
@@ -414,12 +419,16 @@ public class Mapa {
     /**
      * Obtiene el tipo de terreno en una posición específica.
      */
-    public String obtenerCelda(int fila, int columna) {
+    public String obtenerTipoTerreno(int fila, int columna) {
         Nodo nodo = ciudad.obtenerEntrada(fila, columna);
         if (nodo != null) {
             return nodo.obtenerTerreno();
         }
         return "#"; // Retorna edificio si el nodo es nulo
+    }
+
+    public Coordenada obtenerCoordenadaRecompensaExtra() {
+        return recompensaExtra;
     }
 
     /**
@@ -431,6 +440,18 @@ public class Mapa {
         }
         Nodo nodo = ciudad.obtenerEntrada(y, x);
         return nodo != null && esTransitable(nodo);
+    }
+
+
+    public int costoDeCelda(int x, int y) {
+        if (x < 0 || x >= ancho || y < 0 || y >= altura) {
+            return Integer.MAX_VALUE;
+        }
+        Nodo nodo = ciudad.obtenerEntrada(y, x);
+        if (nodo != null) {
+            return calcularCosto(nodo);
+        }
+        return Integer.MAX_VALUE;
     }
 
     public boolean tieneTrafico(int x, int y) {

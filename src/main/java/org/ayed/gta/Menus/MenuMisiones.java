@@ -1,9 +1,12 @@
 package org.ayed.gta.Menus;
 
+import java.io.File;
 import java.util.Scanner;
 
 import org.ayed.gta.Garaje;
 import org.ayed.gta.Vehiculo;
+import org.ayed.gta.mapa.Mapa;
+import org.ayed.gta.ui.MisionView;
 import org.ayed.gta.Exotico;
 
 // Menu misiones
@@ -212,9 +215,37 @@ public class MenuMisiones {
             }
         }
         // Lógica para iniciar la misión según el vehículo seleccionado y la dificultad
-        System.out.println("Iniciando misión con el vehículo: " + vehiculoSeleccionado.obtenerVehiculo());
         // Iniciar la misión...
+        String rutaMapa = mapaAleatorio();
+        try{
+            Mapa mapa = new Mapa(rutaMapa);
+            System.out.println("\n¡Iniciando interfaz gráfica!");
+            System.out.println("Mapa: " + rutaMapa);
+            System.out.println("Vehículo: " + vehiculoSeleccionado.getNombre());
+            System.out.println("Gasolina: " + vehiculoSeleccionado.getGasolinaActual() + " litros");
+            System.out.println("\nControles:");
+            System.out.println("- Flechas o WASD para mover");
+            System.out.println("- ESC para salir");
+            System.out.println("\n");
+            MisionView.iniciarMision(mapa, vehiculoSeleccionado);
+            System.out.println("\n¡Interfaz cerrada!");
+        }catch(Exception e){
+            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
         pausar();
+    }
+
+    private String mapaAleatorio(){
+        String rutaMapas = "data/ciudades/";
+        File carpeta = new File(rutaMapas);
+        File[] archivos = carpeta.listFiles();
+        if (archivos != null && archivos.length > 0) {
+            int indiceAleatorio = (int) (Math.random() * archivos.length);
+            return archivos[indiceAleatorio].getName();
+        }
+        return rutaMapas +"mapa1.txt";
     }
 
 

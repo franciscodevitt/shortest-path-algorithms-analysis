@@ -126,16 +126,6 @@ public class CeldaMapa extends StackPane {
     public void ocultarImagen() {
         imagenCelda.setImage(null);
     }
-
-    /**
-     * Muestra una imagen del vehículo en la celda.
-     */
-    public void mostrarVehiculo(Image imagen) {
-        if (imagen != null) {
-            imagenCelda.setImage(imagen);
-            iconoTexto.setText("");  // Limpiar si hay texto
-        }
-    }
     
     /**
      * Muestra un ícono de texto (emoji o carácter).
@@ -148,13 +138,9 @@ public class CeldaMapa extends StackPane {
             iconoTexto.setFill(Color.WHITE); // Color por defecto
         }
     }
-    
-    /**
-     * Oculta el vehículo/ícono de la celda.
-     */
-    public void ocultarVehiculo() {    // HAY QUE MOSTRAR LO QUE HABIA ANTES
-        imagenCelda.setImage(null);
-        //iconoTexto.setText("");
+
+    public void ocultarIcono() {
+        iconoTexto.setText("");
     }
     
     /**

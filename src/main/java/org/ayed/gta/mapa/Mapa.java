@@ -3,6 +3,8 @@ package org.ayed.gta.mapa;
 import org.ayed.tda.matriz.*;
 import org.ayed.tda.grafo.*;
 import org.ayed.tda.vector.*;
+import org.ayed.tda.aestrella.*;
+import org.ayed.tda.lista.Pila;
 import java.io.*;
 
 /*
@@ -15,10 +17,12 @@ public class Mapa {
     private int ancho;
     private int altura;
 
-    private Coordenada jugador;
+    private Coordenada posicionJugador;
+    private Coordenada posicionAnteriorJugador;
     private Coordenada destino;
     private Coordenada recompensaExtra;
     private boolean recompensaExtraRecogida;
+    private AEstrella<Nodo> aEstrella;
 
     private static final String RUTA_MAPAS = "data/ciudades/";  //ver bien esto
 
@@ -56,6 +60,9 @@ public class Mapa {
 
         this.grafoCiudad = new Grafo<Nodo>();
         generarGrafo();
+
+        this.posicionAnteriorJugador = null;
+        this.aEstrella = new AEstrella<Nodo>(this.grafoCiudad, new Manhattan());
     }    
 
     /**
@@ -222,7 +229,7 @@ public class Mapa {
             intentos++;
         } while (!cumplenDistanciaMinima (entrada, salida) && intentos < ancho*altura*100);
 
-        this.jugador = entrada;
+        this.posicionJugador = entrada;
         this.destino = salida;
     }
 
@@ -276,13 +283,17 @@ public class Mapa {
     }
 
     /**
-    * Agrega la arista entre el nodo actual y el nodo vecino cuyas fila y columna se pasaron como parametro.
-    * La arista se agrega solamente si el nodo vecino tiene coordenadas validas, existe y es transitable.
-    * El peso de la arista se calcula como el máximo entre los costos de ambos nodos.
+    * Agrega aristas dirigidas entre el nodo actual y el nodo vecino.
+    * Las aristas son dirigidas porque el costo depende del nodo al que se ENTRA:
+    *   - actual → vecino: costo de entrar al vecino
+    *   - vecino → actual: costo de entrar al actual
+    * 
+    * Las aristas se agregan manualmente en ambas direcciones para simular un grafo dirigido,
+    * ya que la clase Grafo por defecto es no dirigida.
     *
-    * @param actual      Nodo origen desde la cual se quiere conectar.
-    * @param filaVecino  Fila de la nodo vecino izquierda o superior.
-    * @param colVecino   Columna de la nodo vecino izquierda o superior.
+    * @param actual      Nodo origen desde el cual se quiere conectar.
+    * @param filaVecino  Fila del nodo vecino.
+    * @param colVecino   Columna del nodo vecino.
     */
     private void conectarVecino(Nodo actual, int filaVecino, int colVecino) {
 
@@ -294,10 +305,14 @@ public class Mapa {
             Nodo vecino = ciudad.obtenerEntrada(filaVecino, colVecino);
             if (vecino != null && esTransitable(vecino)) {
                 
-                int costoActual = calcularCosto(actual);
-                int costoVecino = calcularCosto(vecino);
-                int costo = Math.max(costoActual, costoVecino);
-                grafoCiudad.agregarArista(actual, vecino, costo);
+                // Agregar aristas dirigidas manualmente
+                // actual → vecino: costo de entrar al vecino
+                int costoAlVecino = calcularCosto(vecino);
+                grafoCiudad.obtenerAdyacentes(actual).put(vecino, costoAlVecino);
+                
+                // vecino → actual: costo de entrar al actual
+                int costoAlActual = calcularCosto(actual);
+                grafoCiudad.obtenerAdyacentes(vecino).put(actual, costoAlActual);
             }
         }   
     }
@@ -358,10 +373,11 @@ public class Mapa {
         if (nuevoNodo == null || !esTransitable(nuevoNodo)) {
             throw new ExcepcionMapa("Coordenada invalida, no es transitable");
         }
-    
-        this.jugador = nuevaCoordenada;
+        
+        this.posicionAnteriorJugador = this.posicionJugador;
+        this.posicionJugador = nuevaCoordenada;
 
-        if (this.recompensaExtra != null && this.jugador.equals(this.recompensaExtra)) {
+        if (this.recompensaExtra != null && this.posicionJugador.equals(this.recompensaExtra)) {
             this.recompensaExtra = null;
             this.recompensaExtraRecogida = true;
         }
@@ -374,7 +390,7 @@ public class Mapa {
      *           False en el caso contrario.
      */
     public boolean llegoDestino() {
-        return this.jugador.equals(destino);
+        return this.posicionJugador.equals(destino);
     }
 
     /**
@@ -392,7 +408,14 @@ public class Mapa {
      * Obtiene la posición actual del jugador.
      */
     public Coordenada obtenerPosicionJugador() {
-        return jugador;
+        return posicionJugador;
+    }
+
+     /**
+     * Obtiene la posición anterior del jugador.
+     */
+    public Coordenada obtenerPosicionAnteriorJugador() {
+        return posicionAnteriorJugador;
     }
 
     /**
@@ -477,5 +500,12 @@ public class Mapa {
         inicializarEntradaSalida();
         this.recompensaExtra = coordenadaAleatoria();
         this.recompensaExtraRecogida = false;
+    }
+
+    public Pila<Nodo> obtenerRutaOptima(Coordenada origen, Coordenada destino) {
+        aEstrella = new AEstrella<Nodo>(this.obtenerGrafo(), new Manhattan());
+        Nodo nodoOrigen = this.ciudad.obtenerEntrada(origen.obtenerY(), origen.obtenerX());
+        Nodo nodoDestinoNodo = this.ciudad.obtenerEntrada(destino.obtenerY(), destino.obtenerX());
+        return aEstrella.buscarCaminoMinimo(nodoOrigen, nodoDestinoNodo);
     }
 }

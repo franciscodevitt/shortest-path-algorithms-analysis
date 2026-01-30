@@ -106,6 +106,7 @@ public class AEstrella<T> {
 
     /**
     * Actualiza los costos y el padre de un vecino si se encuentra un camino más económico.
+    * Crea un NUEVO objeto CostosVertice cada vez para evitar problemas con el heap.
     *
     * @param vecino         Vértice vecino a actualizar.
     * @param padre          Vértice padre desde el que se llega al vecino.
@@ -114,18 +115,16 @@ public class AEstrella<T> {
     private void procesarVecino(T vecino, T padre, int nuevoCostoReal) {
         
         CostosVertice<T> costoVecino = costos.obtenerValor(vecino);
+        
+        // Solo procesamos si es un camino nuevo o mejor que el anterior
         if (costoVecino == null || nuevoCostoReal < costoVecino.obtenerCostoReal()) {
             int costoHeuristica = heuristica.calcularPuntaje(vecino, destino);
             int nuevoCostoTotal = nuevoCostoReal + costoHeuristica;
 
-            if (costoVecino == null) {
-                CostosVertice<T> nuevoCosto = new CostosVertice<T>(vecino, nuevoCostoReal, nuevoCostoTotal, padre);
-                costos.agregar(vecino, nuevoCosto);
-                setAbierto.agregar(nuevoCosto);
-            } else {
-                costoVecino.actualizar(nuevoCostoReal, nuevoCostoTotal, padre);
-                setAbierto.agregar(costoVecino);
-            }
+            // SIEMPRE crear un nuevo objeto para evitar problemas con el heap
+            CostosVertice<T> nuevoCosto = new CostosVertice<T>(vecino, nuevoCostoReal, nuevoCostoTotal, padre);
+            costos.agregar(vecino, nuevoCosto);  // Actualiza el diccionario
+            setAbierto.agregar(nuevoCosto);       // Agrega a la cola (puede haber duplicados)
         }
     }
 

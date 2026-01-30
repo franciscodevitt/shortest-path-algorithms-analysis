@@ -14,9 +14,11 @@ import javafx.scene.image.Image;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import org.ayed.gta.mapa.Mapa;
+
 import org.ayed.gta.mapa.Nodo;
 import org.ayed.gta.Vehiculo;
 import org.ayed.gta.mapa.Coordenada;
+
 
 /**
  * Interfaz gráfica para la misión usando GridPane.
@@ -48,6 +50,7 @@ public class MisionView extends Application {
      * La imagen se obtiene automáticamente según el tipo de vehículo.
      */
     public static void iniciarMision(Mapa mapa, Vehiculo vehiculo, double tiempoLimite) {
+
         mapaEstatico = mapa;
         vehiculoEstatico = vehiculo;
         tiempoLimiteEstatico=tiempoLimite;
@@ -59,6 +62,7 @@ public class MisionView extends Application {
      * Inicializa la misión con mapa, vehículo e imagen personalizada.
      */
     public static void iniciarMision(Mapa mapa, Vehiculo vehiculo, int tiempoLimite,Image imagen) {
+
         mapaEstatico = mapa;
         vehiculoEstatico = vehiculo;
         tiempoLimiteEstatico=tiempoLimite;

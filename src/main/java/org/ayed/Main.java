@@ -4,6 +4,8 @@ import org.ayed.gta.ui.MisionView;
 //import org.ayed.gta.Menus.MenuInicio;
 import org.ayed.gta.mapa.Mapa;
 import org.ayed.gta.Auto;
+import org.ayed.gta.Menus.MenuInicio;
+
 import java.util.Scanner;
 
 /**
@@ -11,11 +13,11 @@ import java.util.Scanner;
  */
 public class Main {
 
-    /* public static void main(String[] args) {
+     public static void main(String[] args) {
         MenuInicio menuInicio = new MenuInicio();
         menuInicio.iniciar();
-    } */
-
+    } 
+    /* 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         
@@ -75,6 +77,6 @@ public class Main {
             System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
-    }
+    }*/
     
 }

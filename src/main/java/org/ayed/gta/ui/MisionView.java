@@ -399,7 +399,6 @@ public class MisionView extends Application {
         
         if (event.getCode() == KeyCode.ESCAPE) {
             primaryStage.close();
-            System.exit(0);
         }
         
         if (misionTerminada) {

@@ -227,7 +227,7 @@ public class MenuMisiones {
             System.out.println("- Flechas o WASD para mover");
             System.out.println("- ESC para salir");
             System.out.println("\n");
-            MisionView.iniciarMision(mapa, vehiculoSeleccionado);
+            MisionView.iniciarMision(mapa, vehiculoSeleccionado, 500); // falta agregar el tiempo limite al llamar al metodo
             System.out.println("\n¡Interfaz cerrada!");
         }catch(Exception e){
             System.out.println("Error: " + e.getMessage());

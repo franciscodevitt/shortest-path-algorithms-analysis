@@ -66,12 +66,16 @@ public class AEstrella<T> {
             CostosVertice<T> costoActual = setAbierto.eliminar();
             T verticePrometedor = costoActual.obtenerVertice();
             
+            // Ignorar si ya fue procesado (puede haber duplicados en la cola)
+            if (setCerrado.contiene(verticePrometedor)) {
+                continue;
+            }
+            
+            setCerrado.agregar(verticePrometedor);
+            
             if (verticePrometedor.equals(destino)) {
                 destinoEncontrado = true;
-            }
-            else if (!setCerrado.contiene(verticePrometedor)) {               
-
-                setCerrado.agregar(verticePrometedor); 
+            } else {
                 explorarVecinos(verticePrometedor, costoActual);
             }
         }

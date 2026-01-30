@@ -6,7 +6,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.input.KeyEvent;
@@ -15,8 +14,11 @@ import javafx.scene.image.Image;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import org.ayed.gta.mapa.Mapa;
-import org.ayed.gta.Auto;
+
+import org.ayed.gta.mapa.Nodo;
 import org.ayed.gta.Vehiculo;
+import org.ayed.gta.mapa.Coordenada;
+
 
 /**
  * Interfaz gráfica para la misión usando GridPane.
@@ -27,10 +29,13 @@ public class MisionView extends Application {
     private static Vehiculo vehiculoEstatico;
     private static Image imagenVehiculoEstatica;
     
+    private static double tiempoLimiteEstatico;
+
     private MisionController controller;
     private GridPane gridMapa;
     private CeldaMapa[][] celdas;
     private Label lblCombustible;
+    private Label lblTiempo;
     private Label lblPosicion;
     private Label lblDestino;
     private VBox mensajeOverlay;
@@ -38,14 +43,17 @@ public class MisionView extends Application {
     private Stage primaryStage;
     private boolean misionTerminada = false;
     private Image imagenVehiculo;
+
     
     /**
      * Inicializa la misión con mapa y vehículo.
      * La imagen se obtiene automáticamente según el tipo de vehículo.
      */
-    public static void iniciarMision(Mapa mapa, Vehiculo vehiculo) {
+    public static void iniciarMision(Mapa mapa, Vehiculo vehiculo, double tiempoLimite) {
+
         mapaEstatico = mapa;
         vehiculoEstatico = vehiculo;
+        tiempoLimiteEstatico=tiempoLimite;
         imagenVehiculoEstatica = null;  // Se determinará por el tipo
         launch();
     }
@@ -53,9 +61,11 @@ public class MisionView extends Application {
     /**
      * Inicializa la misión con mapa, vehículo e imagen personalizada.
      */
-    public static void iniciarMision(Mapa mapa, Vehiculo vehiculo, Image imagen) {
+    public static void iniciarMision(Mapa mapa, Vehiculo vehiculo, int tiempoLimite,Image imagen) {
+
         mapaEstatico = mapa;
         vehiculoEstatico = vehiculo;
+        tiempoLimiteEstatico=tiempoLimite;
         imagenVehiculoEstatica = imagen;
         launch();
     }
@@ -64,8 +74,8 @@ public class MisionView extends Application {
     public void start(Stage stage) {
         this.primaryStage = stage;
         
-        controller = new MisionController(mapaEstatico, vehiculoEstatico);
-        
+        controller = new MisionController(mapaEstatico, vehiculoEstatico, tiempoLimiteEstatico);
+
         // Obtener imagen del vehículo
         if (imagenVehiculoEstatica != null) {
             this.imagenVehiculo = imagenVehiculoEstatica;
@@ -82,16 +92,18 @@ public class MisionView extends Application {
                 System.out.println("✗ No se pudo obtener imagen por tipo, usando ícono");
             }
         }
-        
+
         // Crear interfaz
         BorderPane root = crearInterfazPrincipal();
-        Scene scene = new Scene(root, 900, 700);
+        Scene scene = new Scene(root, 1200, 900);
+        
         
         // Manejar eventos de teclado
         scene.setOnKeyPressed(this::manejarTeclaPresionada);
         
         stage.setTitle("MISIÓN - Grafosaurios");
         stage.setScene(scene);
+        stage.setFullScreen(true);
         stage.show();
         
         // Centrar ventana
@@ -118,14 +130,18 @@ public class MisionView extends Application {
         // Crear celdas del mapa
         int altura = mapaEstatico.obtenerAltura();
         int ancho = mapaEstatico.obtenerAncho();
+        
         celdas = new CeldaMapa[altura][ancho];
         
+        //procesa las celdas
         for (int fila = 0; fila < altura; fila++) {
             for (int col = 0; col < ancho; col++) {
                 CeldaMapa celda = new CeldaMapa(fila, col);
-                String terreno = String.valueOf(mapaEstatico.obtenerCelda(fila, col));
-                celda.setTerreno(terreno);
                 
+                //procesar celda y le añane las texturas e iconos necesarios
+                procesarCelda(celda);
+                
+                //agregar celda al arreglo y al gridpane
                 celdas[fila][col] = celda;
                 gridMapa.add(celda, col, fila);
             }
@@ -164,6 +180,11 @@ public class MisionView extends Application {
         lblCombustible = new Label("Combustible: -- L");
         lblCombustible.setStyle("-fx-font-size: 12; -fx-text-fill: #ffffff;");
         lblCombustible.setWrapText(true);
+
+        // Tiempo restante
+        lblTiempo = new Label("Tiempo Restante: -- Seg");
+        lblTiempo.setStyle("-fx-font-size: 12; -fx-text-fill: #ffffff;");
+        lblTiempo.setWrapText(true);
         
         // Posición
         lblPosicion = new Label("Posición: (-, -)");
@@ -188,6 +209,7 @@ public class MisionView extends Application {
         panel.getChildren().addAll(
             titulo,
             lblCombustible,
+            lblTiempo,
             lblPosicion,
             lblDestino,
             instrucciones,
@@ -221,15 +243,21 @@ public class MisionView extends Application {
     /**
      * Renderiza el mapa en las celdas.
      */
-    private void renderizarMapa() {
+    /* private void renderizarMapa() {
         int altura = mapaEstatico.obtenerAltura();
         int ancho = mapaEstatico.obtenerAncho();
         
-        // Limpiar todas las celdas
+        // Limpia todas las celdas
         for (int fila = 0; fila < altura; fila++) {
             for (int col = 0; col < ancho; col++) {
                 celdas[fila][col].ocultarVehiculo();
                 celdas[fila][col].quitarResaltado();
+                if (mapaEstatico.tieneTrafico(col,fila)){ 
+                    celdas[fila][col].mostrarIcono("+", Color.RED); // Mostrar ícono de tráfico
+                }
+                // Establecer color y textura según terreno
+                String terreno = mapaEstatico.obtenerTipoTerreno(fila, col);
+                celdas[fila][col].setTerreno(terreno); 
             }
         }
         
@@ -238,7 +266,7 @@ public class MisionView extends Application {
         if (destino != null) {
             int filaDestino = destino.obtenerY();
             int colDestino = destino.obtenerX();
-            celdas[filaDestino][colDestino].mostrarIcono("■");
+            celdas[filaDestino][colDestino].mostrarIcono("■", Color.LIME);
             celdas[filaDestino][colDestino].resaltar(Color.LIME);
         }
         
@@ -251,12 +279,77 @@ public class MisionView extends Application {
             if (imagenVehiculo != null) {
                 celdas[filaJugador][colJugador].mostrarVehiculo(imagenVehiculo);
             } else {
-                celdas[filaJugador][colJugador].mostrarIcono("●");
+                celdas[filaJugador][colJugador].mostrarIcono("●", Color.BLUE);
             }
             celdas[filaJugador][colJugador].resaltar(Color.RED);
         }
+
+        // Mostrar recompensa extra si no ha sido recogida
+        if (!mapaEstatico.seConsiguioRecompensaExtra()) {
+            var recompensa = mapaEstatico.obtenerCoordenadaRecompensaExtra();
+            if (recompensa != null) {
+                int filaRecompensa = recompensa.obtenerY();
+                int colRecompensa = recompensa.obtenerX();
+                celdas[filaRecompensa][colRecompensa].mostrarIcono("⭐", Color.GOLD);
+                celdas[filaRecompensa][colRecompensa].resaltar(Color.GOLD);
+            }
+        }
+
+    } */
+
+    public void renderizarMapa() {
+        
+        //obtengo la coordenada actual y la anterior del jugador
+        Coordenada posicionAnteriorJugador = mapaEstatico.obtenerPosicionAnteriorJugador();
+        Coordenada posicionActualJugador = mapaEstatico.obtenerPosicionJugador();
+        Coordenada destino = mapaEstatico.obtenerDestino();
+
+        if(posicionAnteriorJugador != null){
+
+            //Quitar resaltado de la ruta optima anterior
+            var rutaOptimaAnterior = mapaEstatico.obtenerRutaOptima(posicionAnteriorJugador, destino);
+            while (!rutaOptimaAnterior.vacio()) {
+                Nodo nodo = rutaOptimaAnterior.eliminar();
+                Coordenada coord = nodo.obtenerCoordenada();
+                int fila = coord.obtenerY();
+                int col = coord.obtenerX();
+                celdas[fila][col].quitarResaltado();
+            }
+
+            //limpio y vuelvo a procesar la celda anterior
+            int filAnterior = posicionAnteriorJugador.obtenerY();
+            int colAnterior = posicionAnteriorJugador.obtenerX();
+            celdas[filAnterior][colAnterior].ocultarImagen();
+            celdas[filAnterior][colAnterior].ocultarIcono();
+            celdas[filAnterior][colAnterior].quitarResaltado();
+            procesarCelda(celdas[filAnterior][colAnterior]);
+        }
+        if(posicionActualJugador != null){
+
+            //resaltar la ruta optima
+            var rutaOptimaActual = mapaEstatico.obtenerRutaOptima(posicionActualJugador, destino);
+            while (!rutaOptimaActual.vacio()) {
+                Nodo nodo = rutaOptimaActual.eliminar();
+                Coordenada coord = nodo.obtenerCoordenada();
+                int fila = coord.obtenerY();
+                int col = coord.obtenerX();
+                celdas[fila][col].resaltar(Color.CYAN);
+                
+            }
+
+            //analizo y proceso la celda actual
+            int filActual = posicionActualJugador.obtenerY();
+            int colActual = posicionActualJugador.obtenerX();
+            procesarCelda(celdas[filActual][colActual]);
+        }
+
+        
+        
+
+    
     }
     
+
     /**
      * Actualiza la información mostrada.
      */
@@ -264,8 +357,11 @@ public class MisionView extends Application {
         int combustible = vehiculoEstatico.getGasolinaActual();
         var posicion = mapaEstatico.obtenerPosicionJugador();
         var destino = mapaEstatico.obtenerDestino();
-        
+        double tiempoRestante = controller.getTiempoRestante();
+
         lblCombustible.setText(String.format("Combustible: %d L", combustible));
+
+        lblTiempo.setText(String.format("Tiempo Restante: %.1f Seg", tiempoRestante));
         
         if (posicion != null) {
             lblPosicion.setText(String.format("Posición: (%d, %d)", 
@@ -285,6 +381,9 @@ public class MisionView extends Application {
             } else if (combustible <= 0) {
                 misionTerminada = true;
                 mostrarMensajeFin("¡SIN COMBUSTIBLE!", Color.RED);
+            } else if (tiempoRestante <= 0){
+                misionTerminada = true;
+                mostrarMensajeFin("¡TIEMPO AGOTADO!", Color.RED);
             }
         }
     }
@@ -330,5 +429,48 @@ public class MisionView extends Application {
         controller.reiniciarMision();
         renderizarMapa();
         actualizarInformacion();
+    }
+
+    private void procesarCelda(CeldaMapa celda){
+        Coordenada posicionJugador = mapaEstatico.obtenerPosicionJugador();
+        Coordenada destino = mapaEstatico.obtenerDestino();
+        Coordenada recompensaExtra = mapaEstatico.obtenerCoordenadaRecompensaExtra();
+        
+        int fila = celda.getFila();
+        int col = celda.getColumna();
+
+        //carga las texturas de la celda según el terreno
+        String terreno = mapaEstatico.obtenerTipoTerreno(fila, col);
+        celda.setTerreno(terreno); // Establecer color según terreno
+
+        //mostrar recompensa extra
+        if (!mapaEstatico.seConsiguioRecompensaExtra() && recompensaExtra.obtenerX() == col && recompensaExtra.obtenerY() == fila){
+            celda.mostrarIcono("⭐", Color.GOLD);
+            celda.resaltar(Color.GOLD);
+        }
+
+        // Mostrar tráfico si existe
+        if (mapaEstatico.tieneTrafico(col,fila)){ 
+            celda.mostrarIcono("⛔", Color.RED); // Mostrar ícono de tráfico
+        }
+
+        // Mostrar destino (cuadrado verde)
+        if (destino.obtenerX() == col && destino.obtenerY() == fila){
+            celda.mostrarIcono("■", Color.LIME);
+            celda.resaltar(Color.LIME);
+        }
+
+        // Mostrar jugador
+        if (posicionJugador.obtenerX() == col && posicionJugador.obtenerY() == fila){
+            if (imagenVehiculo != null) {
+                celda.ocultarIcono();
+                celda.mostrarImagen(imagenVehiculo);
+            } else {
+                celda.ocultarIcono();
+                celda .mostrarIcono("●", Color.BLUE);
+            }
+            celda.resaltar(Color.RED);
+        }
+
     }
 }

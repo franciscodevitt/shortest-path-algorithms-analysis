@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import java.net.URL;
 
 /**
  * Representa una celda individual del mapa.
@@ -18,10 +19,10 @@ public class CeldaMapa extends StackPane {
     private String terreno;
     
     private Rectangle fondoTerreno;
-    private ImageView vehiculoView;
+    private ImageView imagenCelda;
     private Text iconoTexto;
     
-    private static final int CELL_SIZE = 20;
+    private static final int CELDA_TAMAÑO = 38;
     
     /**
      * Constructor de la celda del mapa.
@@ -31,28 +32,28 @@ public class CeldaMapa extends StackPane {
         this.columna = columna;
         
         // Fondo - rectángulo para el terreno
-        fondoTerreno = new Rectangle(CELL_SIZE, CELL_SIZE);
+        fondoTerreno = new Rectangle(CELDA_TAMAÑO, CELDA_TAMAÑO);
         fondoTerreno.setFill(Color.BLACK);
         fondoTerreno.setStroke(Color.web("#444444"));
         fondoTerreno.setStrokeWidth(0.5);
         
         // ImageView para mostrar imágenes (vehículos, objetos, etc.)
-        vehiculoView = new ImageView();
-        vehiculoView.setFitHeight(CELL_SIZE - 4);
-        vehiculoView.setFitWidth(CELL_SIZE - 4);
-        vehiculoView.setPreserveRatio(true);
+        imagenCelda = new ImageView();
+        imagenCelda.setFitHeight(CELDA_TAMAÑO - 4);
+        imagenCelda.setFitWidth(CELDA_TAMAÑO - 4);
+        imagenCelda.setPreserveRatio(true);
         
         // Texto para iconos o caracteres (como emojis)
         iconoTexto = new Text();
         iconoTexto.setFont(new Font(16));
         
         // StackPane permite superponer elementos
-        this.getChildren().addAll(fondoTerreno, vehiculoView, iconoTexto);
+        this.getChildren().addAll(fondoTerreno, imagenCelda, iconoTexto);
         
         // Forzar tamaño exacto para evitar variaciones
-        this.setPrefSize(CELL_SIZE, CELL_SIZE);
-        this.setMinSize(CELL_SIZE, CELL_SIZE);
-        this.setMaxSize(CELL_SIZE, CELL_SIZE);
+        this.setPrefSize(CELDA_TAMAÑO, CELDA_TAMAÑO);
+        this.setMinSize(CELDA_TAMAÑO, CELDA_TAMAÑO);
+        this.setMaxSize(CELDA_TAMAÑO, CELDA_TAMAÑO);
     }
     
     /**
@@ -62,6 +63,8 @@ public class CeldaMapa extends StackPane {
         this.terreno = tipo;
         Color color = obtenerColorTerreno(tipo);
         fondoTerreno.setFill(color);
+        Image textura = obtenerTexturaTerreno(tipo);
+        mostrarImagen(textura);
     }
     
     /**
@@ -81,31 +84,62 @@ public class CeldaMapa extends StackPane {
                 return Color.BLACK;
         }
     }
+
+       /**
+     * Obtiene el color correspondiente al tipo de terreno.
+     */
+    private Image obtenerTexturaTerreno(String tipo) {
+        String rutaImagen;
+        switch (tipo) {
+            case "+":  // Calle
+                rutaImagen = "/images/texturas/asfalto.png";
+                break;
+            case "#":  // Edificio
+                rutaImagen = "/images/texturas/edificio2.png";
+                break;
+            case "-":  // Parque
+                rutaImagen = "/images/texturas/cesped.png";
+                break;
+            case "~":  // Agua
+                rutaImagen = "/images/texturas/agua2.png";
+                break;
+            default:
+                rutaImagen = null;
+        }
+
+        if (rutaImagen != null) {
+            URL url = getClass().getResource(rutaImagen);
+            return new Image(url.toExternalForm());
+        }
+        return null;
+    }
     
     /**
-     * Muestra una imagen del vehículo en la celda.
+     * Muestra una imagen genérica en la celda.
      */
-    public void mostrarVehiculo(Image imagen) {
+    public void mostrarImagen(Image imagen) {
         if (imagen != null) {
-            vehiculoView.setImage(imagen);
-            iconoTexto.setText("");  // Limpiar si hay texto
+            imagenCelda.setImage(imagen);
         }
+    }
+
+    public void ocultarImagen() {
+        imagenCelda.setImage(null);
     }
     
     /**
      * Muestra un ícono de texto (emoji o carácter).
      */
-    public void mostrarIcono(String icono) {
+    public void mostrarIcono(String icono, Color color) {
         iconoTexto.setText(icono);
-        iconoTexto.setFill(Color.WHITE);
-        vehiculoView.setImage(null);  // Limpiar si hay imagen
+        if (color != null) {
+            iconoTexto.setFill(color);
+        } else {
+            iconoTexto.setFill(Color.WHITE); // Color por defecto
+        }
     }
-    
-    /**
-     * Oculta el vehículo/ícono de la celda.
-     */
-    public void ocultarVehiculo() {
-        vehiculoView.setImage(null);
+
+    public void ocultarIcono() {
         iconoTexto.setText("");
     }
     

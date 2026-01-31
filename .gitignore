@@ -41,5 +41,4 @@ build/
 .idea/
 
 ### Archivos ###
-*.csv
 /bin/

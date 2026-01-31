@@ -1,12 +1,18 @@
 package org.ayed.gta.Menus;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
 import org.ayed.gta.Garaje;
+import org.ayed.gta.TipoVehiculo;
 import org.ayed.gta.Vehiculo;
 import org.ayed.gta.mapa.Mapa;
 import org.ayed.gta.ui.MisionView;
+import org.ayed.tda.vector.Vector;
+import org.ayed.gta.ExcepcionGaraje;
 import org.ayed.gta.Exotico;
 
 // Menu misiones
@@ -227,8 +233,9 @@ public class MenuMisiones {
             System.out.println("- Flechas o WASD para mover");
             System.out.println("- ESC para salir");
             System.out.println("\n");
-            MisionView.iniciarMision(mapa, vehiculoSeleccionado, 500); // falta agregar el tiempo limite al llamar al metodo
+            MisionView.iniciarMision(mapa, vehiculoSeleccionado, obtenerTiempoLimite(dificultad));
             System.out.println("\n¡Interfaz cerrada!");
+            terminoPartida(dificultad, mapa);
         }catch(Exception e){
             System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
@@ -246,6 +253,129 @@ public class MenuMisiones {
             return archivos[indiceAleatorio].getName();
         }
         return rutaMapas +"mapa1.txt";
+    }
+
+    private double obtenerTiempoLimite(int dificultad) {
+        switch (dificultad) {
+            case FACIL:
+                return 1000.0;
+            case NORMAL:
+                return 500.0;
+            case DIFICIL:
+                return 250.0;
+            default:
+                throw new IllegalArgumentException("Dificultad inválida.");
+        }
+    }
+
+    private void terminoPartida(int dificultad, Mapa mapa){
+        System.out.println("--- RESULTADOS DE LA MISIÓN ---");
+        System.out.println("¿Llegó al destino? " + (mapa.llegoDestino() ? "Sí" : "No"));
+        System.out.println("Recompensa:");
+        if(mapa.llegoDestino() && mapa.seConsiguioRecompensaExtra()){
+            obtenerRecompensa(dificultad);
+            System.out.println("Recompensa extra obtenida:");
+            int chance = (int)(Math.random() * 100) + 1; // Genera un número entre 1 y 100
+            if(chance <= 20){
+                Vehiculo exotico = obtenerExotico();
+                garaje.agregarExotico(exotico);
+                System.out.println("¡Felicidades! Has obtenido un vehículo exótico como recompensa extra: " + exotico.obtenerVehiculo());
+            }else if(chance <= 55){
+                int creditosExtra = obtenerCreditos();
+                garaje.agregarCreditos(creditosExtra);
+                System.out.println("Créditos extra obtenidos: " + creditosExtra);
+            }else{
+                int dineroExtra = obtenerDinero();
+                garaje.agregarDinero(dineroExtra);
+                System.out.println("Dinero extra obtenido: $" + dineroExtra);
+            }
+        }else if(mapa.llegoDestino()){
+            obtenerRecompensa(dificultad);
+        }else{
+            System.out.println("No se obtuvo la recompensa por no llegar al destino.");
+        }
+        garaje.avanzarDia();
+        garaje.cobrarMantenimientoDiario();
+        System.out.println("Avanzando al día " + garaje.getDia() + ". Mantenimiento diario cobrado: $" + garaje.obtenerCostoMantenimiento());
+        System.out.println("Dinero actual: $" + garaje.getDinero());
+        pausar();
+    }
+
+    private void obtenerRecompensa(int dificultad){
+        int dinero;
+        int creditos;
+        switch (dificultad) {
+            case FACIL:
+                creditos = 10;
+                dinero = 1000;
+                garaje.agregarCreditos(creditos);
+                garaje.agregarDinero(dinero);
+                break;
+            case NORMAL:
+                creditos = 20;
+                dinero = 2500;
+                garaje.agregarCreditos(creditos);
+                garaje.agregarDinero(dinero);
+                break;
+            case DIFICIL:
+                creditos = 50;
+                dinero = 7500;
+                garaje.agregarCreditos(creditos);
+                garaje.agregarDinero(dinero);
+                break;
+            default:
+                throw new IllegalArgumentException("Dificultad inválida.");
+        }
+        System.out.println("Créditos obtenidos: " + creditos);
+        System.out.println("Dinero obtenido: $" + dinero);
+    }
+
+    private int obtenerCreditos(){
+        return (int)(Math.random() * 21) + 20; // Genera un número entre 20 y 40
+    }
+
+    private int obtenerDinero(){
+        return (int)(Math.random() * 251) + 500; // Genera un número entre 500 y 750
+    }
+
+    private Vehiculo obtenerExotico(){
+        String ruta = "data/vehiculos/exoticos.csv";
+        Vector <Vehiculo> exoticos = new Vector<>();
+        try(BufferedReader reader = new BufferedReader(new FileReader(ruta))){
+            String linea;
+            while ((linea = reader.readLine()) != null){
+                linea = linea.trim();
+                if (linea.isEmpty()) continue;
+                Vehiculo v = parsearExotico(linea);
+                exoticos.agregar(v);
+            }
+            int chance = (int)(Math.random() * exoticos.tamanio()); // Genera un número entre 0 y el tamaño de exoticos
+            return exoticos.dato(chance);
+        }catch (IOException e) {
+            throw new ExcepcionGaraje("No se pudo leer el garaje: " + e.getMessage());
+        } catch (RuntimeException e) {
+            throw new ExcepcionGaraje("Formato inválido en CSV: " + e.getMessage());
+        }
+
+    }
+
+    Vehiculo parsearExotico(String linea){
+        // formato: nombre, precio, tipo, ruedas, capacidadGasolina, gasolinaActual, kilometraje
+        String[] parte = linea.split(",");
+
+        String nombre = parte[garaje.NOMBRE].trim();
+        int precio = Integer.parseInt(parte[garaje.PRECIO].trim());
+        TipoVehiculo tipo = TipoVehiculo.valueOf(parte[garaje.TIPO_VEHICULO].trim().toUpperCase());
+        int ruedas = Integer.parseInt(parte[garaje.RUEDAS].trim());
+        int capacidadGasolina = Integer.parseInt(parte[garaje.CAPACIDAD_GASOLINA].trim());
+        int gasolinaActual = Integer.parseInt(parte[garaje.GASOLINA_ACTUAL].trim());
+        int kilometraje = Integer.parseInt(parte[garaje.KILOMETRAJE].trim());
+        int velocidadMaxima = Integer.parseInt(parte[garaje.VELOCIDAD_MAXIMA].trim());
+
+        Vehiculo exotico = new Exotico(nombre, precio, capacidadGasolina, velocidadMaxima, ruedas);
+        exotico.cargarCombustible(gasolinaActual);
+        exotico.sumarKilometros(kilometraje);
+        return exotico;
     }
 
 

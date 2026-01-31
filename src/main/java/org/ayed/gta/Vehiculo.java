@@ -88,13 +88,13 @@ public abstract class Vehiculo {
 
     // devuelve una version corta para mostrar en consola
     public String obtenerVehiculo() {
-        return tipo + ": " + nombre + " (Precio: $" + precio + ", Gasolina: " + gasolinaActual + "/" + capacidadGasolina + "L, Km: " + kilometraje + ")";
+        return tipo + ": " + nombre + " (Precio: $" + precio + ", Gasolina: " + gasolinaActual + "/" + capacidadGasolina + "L, Km: " + kilometraje + ", Velocidad Maxima: " + velocidadMaxima + "Km/h)";
     }
 
     // devuelve una linea lista para exportar al csv
     // formato: nombre,precio,tipo,ruedas,capacidadGasolina,gasolinaActual,kilometraje
     public String obtenerVehiculoParaExportar() {
-        return nombre + "," + precio + "," + tipo + "," + ruedas() + "," + capacidadGasolina + "," + gasolinaActual + "," + kilometraje;
+        return nombre + "," + precio + "," + tipo + "," + ruedas() + "," + capacidadGasolina + "," + gasolinaActual + "," + kilometraje + "," + velocidadMaxima;
     }
 
     // cargar una cantidad específica de combustible, devuelve litros realmente cargados

@@ -14,6 +14,7 @@ public class Concesionario {
     public static final int CAPACIDAD_GASOLINA = 4;
     public static final int GASOLINA_ACTUAL = 5;
     public static final int KILOMETRAJE = 6;
+    public static final int VELOCIDAD_MAXIMA = 7;
 
     public Concesionario() {
         this.vehiculos = new Vector<>();
@@ -162,9 +163,7 @@ public class Concesionario {
         int capacidadGasolina = Integer.parseInt(parte[CAPACIDAD_GASOLINA].trim());
         int gasolinaActual = Integer.parseInt(parte[GASOLINA_ACTUAL].trim());
         int kilometraje = Integer.parseInt(parte[KILOMETRAJE].trim());
-
-        // por defecto, velocidad máxima de 100
-        int velocidadMaxima = 100;
+        int velocidadMaxima = Integer.parseInt(parte[VELOCIDAD_MAXIMA].trim());
 
         Vehiculo vehiculo;
         switch (tipo) {

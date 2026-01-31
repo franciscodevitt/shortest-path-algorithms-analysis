@@ -30,6 +30,10 @@ public class MenuConcesionario {
         System.out.println("║     3. Listar todos los vehículos disponibles.        ║");
         System.out.println("║     4. Comprar un vehículo (por nombre exacto).       ║");
         System.out.println("║     0. Volver al menú principal.                      ║");
+        System.out.println("╠═══════════════════════════════════════════════════════╣");
+        System.out.println("║ " + String.format("%-35s", "Dinero: $" + garaje.getDinero()) + "                   ║");
+        System.out.println("║ " + String.format("%-35s", "Créditos: " + garaje.getCreditos()) + "                   ║");
+        System.out.println("║ " + String.format("%-35s", "Día: " + garaje.getDia()) + "                   ║");
         System.out.println("╚═══════════════════════════════════════════════════════╝");
         System.out.print("Seleccione una opción: ");
 

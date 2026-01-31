@@ -15,7 +15,7 @@ public class MenuGaraje {
     private static final int MOSTRAR_VEHICULOS = 1;
     private static final int VENDER_VEHICULO = 2;
     private static final int MEJORAR_GARAJE = 3;
-    private static final int AGREGAR_CREDITOS = 4;
+    private static final int COMPRAR_CREDITOS = 4;
     private static final int MOSTRAR_VALOR = 5;
     private static final int MOSTRAR_COSTO = 6;
     private static final int CARGAR_TODOS_VEHICULOS = 7;
@@ -55,8 +55,8 @@ public class MenuGaraje {
             case MEJORAR_GARAJE:
                 garaje.mejorarGaraje();
                 break;
-            case AGREGAR_CREDITOS:
-                garaje.agregarCreditos(ingresarCreditos());
+            case COMPRAR_CREDITOS:
+                garaje.comprarCreditos(ingresarCreditos());
                 break;
             case MOSTRAR_VALOR:
                 System.out.println("Valor total del garaje: $" + garaje.obtenerValorTotal());
@@ -91,7 +91,7 @@ public class MenuGaraje {
         System.out.println("║ 1. Mostrar vehículos                 ║");
         System.out.println("║ 2. Vender vehículo                   ║");
         System.out.println("║ 3. Mejorar garaje                    ║");
-        System.out.println("║ 4. Agregar créditos                  ║");
+        System.out.println("║ 4. Comprar créditos                  ║");
         System.out.println("║ 5. Mostrar valor total               ║");
         System.out.println("║ 6. Mostrar costo mantenimiento       ║");
         System.out.println("║ 7. Cargar todos los vehículos        ║");
@@ -101,6 +101,7 @@ public class MenuGaraje {
         System.out.println("╠══════════════════════════════════════╣");
         System.out.println("║ " + String.format("%-35s", "Dinero: $" + garaje.getDinero()) + "  ║");
         System.out.println("║ " + String.format("%-35s", "Créditos: " + garaje.getCreditos()) + "  ║");
+        System.out.println("║ " + String.format("%-35s", "Día: " + garaje.getDia()) + "  ║");
         System.out.println("╚══════════════════════════════════════╝");
         System.out.print("Seleccione una opción: ");
 

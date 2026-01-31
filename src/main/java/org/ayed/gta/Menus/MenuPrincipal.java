@@ -48,6 +48,10 @@ public class MenuPrincipal {
         System.out.println("║ 3. Empezar misión                    ║");
         System.out.println("║ 4. Guardar partida                   ║");
         System.out.println("║ 5. Salir de la partida               ║");
+        System.out.println("╠══════════════════════════════════════╣");
+        System.out.println("║ " + String.format("%-35s", "Dinero: $" + garaje.getDinero()) + "  ║");
+        System.out.println("║ " + String.format("%-35s", "Créditos: " + garaje.getCreditos()) + "  ║");
+        System.out.println("║ " + String.format("%-35s", "Día: " + garaje.getDia()) + "  ║");
         System.out.println("╚══════════════════════════════════════╝");
         System.out.print("Seleccione una opción: ");
 

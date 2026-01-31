@@ -35,9 +35,11 @@ public class Garaje {
     public static final int NOMBRE = 0;
     public static final int PRECIO = 1;
     public static final int TIPO_VEHICULO = 2;
+    public static final int RUEDAS = 3;
     public static final int CAPACIDAD_GASOLINA = 4;
     public static final int GASOLINA_ACTUAL = 5;
     public static final int KILOMETRAJE = 6;
+    public static final int VELOCIDAD_MAXIMA = 7;
 
     public Garaje() {
         this.capacidad = 5;
@@ -65,6 +67,16 @@ public class Garaje {
             System.out.println("Garaje lleno. Agregado a zona de espera: " + vehiculo.obtenerVehiculo());
         }
         dinero -= vehiculo.obtenerPrecioPorVehiculo();
+    }
+
+    public void agregarExotico(Vehiculo vehiculo) {
+        if (vehiculosEnGaraje.tamanio() < capacidad) {
+            vehiculosEnGaraje.agregar(vehiculo);
+            System.out.println("Ingresó al garaje: " + vehiculo.obtenerVehiculo());
+        } else {
+            zonaDeEspera.agregar(vehiculo); // FIFO real de tu Cola
+            System.out.println("Garaje lleno. Agregado a zona de espera: " + vehiculo.obtenerVehiculo());
+        }
     }
 
     /**
@@ -172,6 +184,17 @@ public class Garaje {
         if (creditos < 0) throw new ExcepcionGaraje("No se pueden agregar créditos negativos.");
         this.creditos += creditos;
     }
+    public void comprarCreditos(int creditos){
+        if (creditos < 0) throw new ExcepcionGaraje("No se pueden agregar créditos negativos.");
+        this.creditos += creditos;
+        this.dinero -= creditos; // cada credito cuesta $1
+    }
+
+    public void agregarDinero(int dinero){
+        if (dinero < 0) throw new ExcepcionGaraje("No se puede agregar dinero negativo.");
+        this.dinero += dinero;
+    }
+    
 
     /**
      * cuesta 50 creditos, +1 capacidad, y sube los primeros de la espera hasta llenar.
@@ -276,13 +299,16 @@ public class Garaje {
         }
     }
 
-    public void avanzarDia() {
-         this.dia++;
-         dinero -= obtenerCostoMantenimiento();
-         if(dinero < 0){
+    public void avanzarDia() { this.dia++;}
+
+    public int cobrarMantenimientoDiario() {
+        int costo = obtenerCostoMantenimiento();
+        dinero -= costo;
+        if(dinero < 0){
             System.out.println("Perdiste! Te quedaste sin dinero.");
          } 
-        }
+        return costo;
+    }
 
     public int getCreditos() { return this.creditos; }
     public int getCapacidad() { return this.capacidad; }
@@ -308,7 +334,7 @@ public class Garaje {
     public void exportarGaraje(String ruta) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(ruta))) {
             // meta
-            writer.println(capacidad + "," + creditos + "," + dinero);
+            writer.println(capacidad + "," + creditos + "," + dinero + "," + dia);
 
             // garaje
             writer.println("#GARAJE");
@@ -340,6 +366,7 @@ public class Garaje {
                 this.capacidad = Integer.parseInt(meta[0].trim());
                 this.creditos  = Integer.parseInt(meta[1].trim());
                 this.dinero    = Integer.parseInt(meta[2].trim());
+                this.dia       = Integer.parseInt(meta[3].trim());
             }
 
             // ---- 2) Reiniciar estructuras ----
@@ -400,13 +427,11 @@ public class Garaje {
         String nombre = parte[NOMBRE].trim();
         int precio = Integer.parseInt(parte[PRECIO].trim());
         TipoVehiculo tipo = TipoVehiculo.valueOf(parte[TIPO_VEHICULO].trim().toUpperCase());
-        int ruedas = Integer.parseInt(parte[3].trim());
+        int ruedas = Integer.parseInt(parte[RUEDAS].trim());
         int capacidadGasolina = Integer.parseInt(parte[CAPACIDAD_GASOLINA].trim());
         int gasolinaActual = Integer.parseInt(parte[GASOLINA_ACTUAL].trim());
         int kilometraje = Integer.parseInt(parte[KILOMETRAJE].trim());
-
-        // por ahora ponemos una velocidad maxima por defecto, se puede ajustar después
-        int velocidadMaxima = 100;
+        int velocidadMaxima = Integer.parseInt(parte[VELOCIDAD_MAXIMA].trim());
 
         Vehiculo vehiculo;
         switch (tipo) {

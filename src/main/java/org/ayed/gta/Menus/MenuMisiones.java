@@ -220,8 +220,8 @@ public class MenuMisiones {
                 return;
             }
         }
-        // Lógica para iniciar la misión según el vehículo seleccionado y la dificultad
-        // Iniciar la misión...
+        
+        // Preparar la misión
         String rutaMapa = mapaAleatorio();
         try{
             Mapa mapa = new Mapa(rutaMapa);
@@ -233,8 +233,27 @@ public class MenuMisiones {
             System.out.println("- Flechas o WASD para mover");
             System.out.println("- ESC para salir");
             System.out.println("\n");
-            MisionView.iniciarMision(mapa, vehiculoSeleccionado, obtenerTiempoLimite(dificultad));
+            
+            // Crear la vista de la misión
+            MisionView vista = new MisionView(mapa, vehiculoSeleccionado, obtenerTiempoLimite(dificultad));
+            
+            // Mostrar la ventana en el hilo de JavaFX
+            javafx.application.Platform.runLater(() -> {
+                vista.mostrarVentana();
+            });
+
+
+            
+            // ESPERAR a que el usuario cierre la ventana
+            try {
+                Thread.sleep(5000); // 5 segundos
+            } catch (InterruptedException e) {
+                // no pasa nada
+            }
+            pausar();
             System.out.println("\n¡Interfaz cerrada!");
+            
+            // Procesar resultados de la misión
             terminoPartida(dificultad, mapa);
         }catch(Exception e){
             System.out.println("Error: " + e.getMessage());
@@ -359,7 +378,7 @@ public class MenuMisiones {
 
     }
 
-    Vehiculo parsearExotico(String linea){
+    private Vehiculo parsearExotico(String linea){
         // formato: nombre, precio, tipo, ruedas, capacidadGasolina, gasolinaActual, kilometraje
         String[] parte = linea.split(",");
 

@@ -22,7 +22,7 @@ public class Mapa {
     private Coordenada destino;
     private Coordenada recompensaExtra;
     private boolean recompensaExtraRecogida;
-    private AEstrella<Nodo> aEstrella;
+    private AEstrella<Nodo> gps;
 
     private static final String RUTA_MAPAS = "data/ciudades/";  //ver bien esto
 
@@ -62,7 +62,7 @@ public class Mapa {
         generarGrafo();
 
         this.posicionAnteriorJugador = null;
-        this.aEstrella = new AEstrella<Nodo>(this.grafoCiudad, new Manhattan());
+        this.gps = new AEstrella<Nodo>(this.grafoCiudad, new Manhattan());
     }    
 
     /**
@@ -503,9 +503,8 @@ public class Mapa {
     }
 
     public Pila<Nodo> obtenerRutaOptima(Coordenada origen, Coordenada destino) {
-        aEstrella = new AEstrella<Nodo>(this.obtenerGrafo(), new Manhattan());
         Nodo nodoOrigen = this.ciudad.obtenerEntrada(origen.obtenerY(), origen.obtenerX());
         Nodo nodoDestinoNodo = this.ciudad.obtenerEntrada(destino.obtenerY(), destino.obtenerX());
-        return aEstrella.buscarCaminoMinimo(nodoOrigen, nodoDestinoNodo);
+        return gps.buscarCaminoMinimo(nodoOrigen, nodoDestinoNodo);
     }
 }

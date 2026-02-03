@@ -382,8 +382,7 @@ public class MisionView {
 
         // Mostrar destino (cuadrado verde)
         if (destino.obtenerX() == col && destino.obtenerY() == fila){
-            celda.mostrarIcono("■", Color.LIME);
-            celda.resaltar(Color.LIME);
+            celda.setDestino();
         }
 
         // Mostrar jugador

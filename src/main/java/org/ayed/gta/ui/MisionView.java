@@ -16,6 +16,7 @@ import org.ayed.gta.mapa.Mapa;
 import org.ayed.gta.mapa.Nodo;
 import org.ayed.gta.Vehiculo;
 import org.ayed.gta.mapa.Coordenada;
+import javafx.scene.media.MediaPlayer;
 
 
 /**
@@ -44,6 +45,8 @@ public class MisionView {
     
     // Ventana de la misión
     private Stage stage;
+    // Música de fondo
+    private MediaPlayer musicaFondo;
 
     /**
      * Constructor: recibe los datos de la misión.
@@ -99,6 +102,9 @@ public class MisionView {
         stage.centerOnScreen();
         stage.requestFocus();
         scene.getRoot().requestFocus();
+
+        // Iniciar música de fondo
+        this.musicaFondo = GestorSonido.reproducirMusica("GTA-Theme");
         
         // Cuando se cierre la ventana, marcar como cerrada
         stage.setOnCloseRequest(e -> {
@@ -318,12 +324,18 @@ public class MisionView {
             if (controller.isMisionCompletada()) {
                 misionCompleta = true;
                 mostrarMensajeFin("¡MISIÓN COMPLETADA!", Color.LIME);
+                musicaFondo.stop();
+                GestorSonido.reproducirEfecto("mission-passed");
             } else if (combustible <= 0) {
                 misionCompleta = true;
                 mostrarMensajeFin("¡SIN COMBUSTIBLE!", Color.RED);
+                musicaFondo.stop();
+                GestorSonido.reproducirEfecto("ah-shit-here-we-go-again");
             } else if (tiempoRestante <= 0){
                 misionCompleta = true;
                 mostrarMensajeFin("¡TIEMPO AGOTADO!", Color.RED);
+                musicaFondo.stop();
+                GestorSonido.reproducirEfecto("ah-shit-here-we-go-again");
             }
         }
     }
@@ -335,6 +347,7 @@ public class MisionView {
         
         // ESC cierra la ventana
         if (event.getCode() == KeyCode.ESCAPE) {
+            musicaFondo.stop();
             stage.close();
         }
         

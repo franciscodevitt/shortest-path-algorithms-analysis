@@ -170,43 +170,53 @@ public class MisionView {
      */
     private VBox crearPanelInformacion() {
         VBox panel = new VBox(15);
-        panel.setStyle("-fx-background-color: #2a2a2a; -fx-padding: 15;");
-        panel.setPrefWidth(250);
-        panel.setStyle("-fx-text-fill: #ffffff; -fx-border-color: #444444; -fx-border-width: 0 0 0 1;");
+        panel.setPrefWidth(500);
+        panel.setStyle(
+            "-fx-text-fill: #ffffff;" +
+            "-fx-border-color: #444444;" +
+            "-fx-border-width: 0 0 0 1;" +
+            "-fx-background-color: #2a2a2a;" + 
+            "-fx-padding: 80 20;"
+        );
         
         // Título
         Label titulo = new Label("INFORMACIÓN");
-        titulo.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #00ff00;");
+        titulo.setStyle("-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #00ff00;");
         
         // Combustible
         lblCombustible = new Label("Combustible: -- L");
-        lblCombustible.setStyle("-fx-font-size: 12; -fx-text-fill: #ffffff;");
+        lblCombustible.setStyle("-fx-font-size: 22; -fx-text-fill: #ffffff;");
         lblCombustible.setWrapText(true);
 
         // Tiempo restante
         lblTiempo = new Label("Tiempo Restante: -- Seg");
-        lblTiempo.setStyle("-fx-font-size: 12; -fx-text-fill: #ffffff;");
+        lblTiempo.setStyle("-fx-font-size: 22; -fx-text-fill: #ffffff;");
         lblTiempo.setWrapText(true);
         
         // Posición
         lblPosicion = new Label("Posición: (-, -)");
-        lblPosicion.setStyle("-fx-font-size: 12; -fx-text-fill: #ffffff;");
+        lblPosicion.setStyle("-fx-font-size: 22; -fx-text-fill: #ffffff;");
         lblPosicion.setWrapText(true);
         
         // Destino
         lblDestino = new Label("Destino: (-, -)");
-        lblDestino.setStyle("-fx-font-size: 12; -fx-text-fill: #ffff00;");
+        lblDestino.setStyle("-fx-font-size: 22; -fx-text-fill: #ffff00;");
         lblDestino.setWrapText(true);
         
         // Instrucciones
-        Label instrucciones = new Label("\n▼ CONTROLES ▼\n\n↑ ↓ ← → o W A S D\nMover\n\nR: Reintentar\nESC: Salir");
-        instrucciones.setStyle("-fx-font-size: 11; -fx-text-fill: #cccccc; -fx-padding: 10; -fx-border-color: #444444; -fx-border-width: 1;");
+        Label instrucciones = new Label(
+            "\n▼ CONTROLES ▼\n\n"+
+            "↑ ↓ ← → o W A S D\n"+
+            "Mover\n\n"+
+            "ESC: Salir\n\n"+
+            "REFERENCIAS:\n"+
+            "⭐ = Recompensa extra (aleatoria)\n"+
+            "⛔ = Congestion\n"
+        );
+        instrucciones.setStyle("-fx-font-size: 22; -fx-text-fill: #cccccc; -fx-padding: 10; -fx-border-color: #444444; -fx-border-width: 1;");
         instrucciones.setWrapText(true);
         
-        // Estado
-        Label estado = new Label("\n⬤ ROJO = Jugador\n■ VERDE = Destino\n+ = Calle\n# = Edificio\n- = Parque\n~ = Agua");
-        estado.setStyle("-fx-font-size: 10; -fx-text-fill: #aaaaaa; -fx-padding: 10; -fx-border-color: #444444; -fx-border-width: 1;");
-        estado.setWrapText(true);
+        
         
         panel.getChildren().addAll(
             titulo,
@@ -214,8 +224,7 @@ public class MisionView {
             lblTiempo,
             lblPosicion,
             lblDestino,
-            instrucciones,
-            estado
+            instrucciones
         );
         
         VBox.setVgrow(panel, javafx.scene.layout.Priority.ALWAYS);
@@ -228,13 +237,13 @@ public class MisionView {
     private VBox crearOverlayMensaje() {
         VBox overlay = new VBox();
         overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.85);");
-        overlay.setPrefHeight(80);
+        overlay.setPrefHeight(100);
         overlay.setAlignment(Pos.CENTER);
         overlay.setPadding(new Insets(10));
         overlay.setVisible(false);
         
         mensajeLabel = new Label("");
-        mensajeLabel.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #ffffff;");
+        mensajeLabel.setStyle("-fx-font-size: 40; -fx-font-weight: bold; -fx-text-fill: #ffffff; -fx-font-family: 'Impact', 'Arial Black', sans-serif;");
         mensajeLabel.setWrapText(true);
         
         overlay.getChildren().add(mensajeLabel);
@@ -323,12 +332,12 @@ public class MisionView {
         if (!misionCompleta) {
             if (controller.isMisionCompletada()) {
                 misionCompleta = true;
-                mostrarMensajeFin("¡MISIÓN COMPLETADA!", Color.LIME);
+                mostrarMensajeFin("MISSION PASSED!\n RESPECT+", Color.LIME);
                 musicaFondo.stop();
                 GestorSonido.reproducirEfecto("mission-passed");
-            } else if (combustible <= 0) {
+            } else if (combustible <= 0 || tiempoRestante <= 0) {
                 misionCompleta = true;
-                mostrarMensajeFin("¡SIN COMBUSTIBLE!", Color.RED);
+                mostrarMensajeFin("MISSION FAILED!", Color.RED);
                 musicaFondo.stop();
                 GestorSonido.reproducirEfecto("ah-shit-here-we-go-again");
             } else if (tiempoRestante <= 0){

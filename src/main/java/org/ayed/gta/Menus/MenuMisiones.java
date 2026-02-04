@@ -260,7 +260,6 @@ public class MenuMisiones {
             e.printStackTrace();
         }
         
-        pausar();
     }
 
     private String mapaAleatorio(){
@@ -317,7 +316,6 @@ public class MenuMisiones {
         garaje.cobrarMantenimientoDiario();
         System.out.println("Avanzando al día " + garaje.getDia() + ". Mantenimiento diario cobrado: $" + garaje.obtenerCostoMantenimiento());
         System.out.println("Dinero actual: $" + garaje.getDinero());
-        pausar();
     }
 
     private void obtenerRecompensa(int dificultad){

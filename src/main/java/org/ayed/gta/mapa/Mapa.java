@@ -54,12 +54,13 @@ public class Mapa {
         this.ciudad = new Matriz<Nodo>(this.altura, this.ancho);
         procesarCiudad(lineas);
 
-        inicializarEntradaSalida();
-        this.recompensaExtra = coordenadaAleatoria();
-        this.recompensaExtraRecogida = false;
-
+        
         this.grafoCiudad = new Grafo<Nodo>();
         generarGrafo();
+        
+        inicializarEntradaSalida();
+        inicializarRecompensaExtra();
+        this.recompensaExtraRecogida = false;
 
         this.posicionAnteriorJugador = null;
         this.gps = new AEstrella<Nodo>(this.grafoCiudad, new Manhattan());
@@ -232,6 +233,21 @@ public class Mapa {
         this.posicionJugador = entrada;
         this.destino = salida;
     }
+
+    private void inicializarRecompensaExtra() {
+        Coordenada recompensa = null;
+        int fil;
+        int col;
+        int intentos = 0;
+        do {
+            recompensa = coordenadaAleatoria();
+            intentos++;
+            fil = recompensa.obtenerY();
+            col = recompensa.obtenerX();
+        } while ((recompensa.equals(this.posicionJugador) || recompensa.equals(this.destino) || ciudad.obtenerEntrada(fil, col).tieneTrafico() ) && intentos < ancho*altura*100); //si es la posicion del jugador, del destino o si tiene trafico, busco otra.
+        this.recompensaExtra = recompensa;
+    }
+    
 
     /**
      * Determina si terreno representa un tipo permitido para el nodo.
@@ -492,16 +508,10 @@ public class Mapa {
         actualizarJugador(new Coordenada(y, x));
     }
     
-    /**
-     * Reinicia el mapa generando nuevas posiciones de entrada, salida y recompensa.
-     * sirve para reintentar la misión.
-     */
-    public void reiniciarMapa() {
-        inicializarEntradaSalida();
-        this.recompensaExtra = coordenadaAleatoria();
-        this.recompensaExtraRecogida = false;
-    }
 
+    /**
+     * Obtiene la ruta óptima entre dos coordenadas usando A*.
+     */
     public Pila<Nodo> obtenerRutaOptima(Coordenada origen, Coordenada destino) {
         Nodo nodoOrigen = this.ciudad.obtenerEntrada(origen.obtenerY(), origen.obtenerX());
         Nodo nodoDestinoNodo = this.ciudad.obtenerEntrada(destino.obtenerY(), destino.obtenerX());

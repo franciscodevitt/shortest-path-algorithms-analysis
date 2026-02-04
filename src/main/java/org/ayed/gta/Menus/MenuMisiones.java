@@ -380,14 +380,14 @@ public class MenuMisiones {
         // formato: nombre, precio, tipo, ruedas, capacidadGasolina, gasolinaActual, kilometraje
         String[] parte = linea.split(",");
 
-        String nombre = parte[garaje.NOMBRE].trim();
-        int precio = Integer.parseInt(parte[garaje.PRECIO].trim());
-        TipoVehiculo tipo = TipoVehiculo.valueOf(parte[garaje.TIPO_VEHICULO].trim().toUpperCase());
-        int ruedas = Integer.parseInt(parte[garaje.RUEDAS].trim());
-        int capacidadGasolina = Integer.parseInt(parte[garaje.CAPACIDAD_GASOLINA].trim());
-        int gasolinaActual = Integer.parseInt(parte[garaje.GASOLINA_ACTUAL].trim());
-        int kilometraje = Integer.parseInt(parte[garaje.KILOMETRAJE].trim());
-        int velocidadMaxima = Integer.parseInt(parte[garaje.VELOCIDAD_MAXIMA].trim());
+        String nombre = parte[Garaje.NOMBRE].trim();
+        int precio = Integer.parseInt(parte[Garaje.PRECIO].trim());
+        TipoVehiculo tipo = TipoVehiculo.valueOf(parte[Garaje.TIPO_VEHICULO].trim().toUpperCase());
+        int ruedas = Integer.parseInt(parte[Garaje.RUEDAS].trim());
+        int capacidadGasolina = Integer.parseInt(parte[Garaje.CAPACIDAD_GASOLINA].trim());
+        int gasolinaActual = Integer.parseInt(parte[Garaje.GASOLINA_ACTUAL].trim());
+        int kilometraje = Integer.parseInt(parte[Garaje.KILOMETRAJE].trim());
+        int velocidadMaxima = Integer.parseInt(parte[Garaje.VELOCIDAD_MAXIMA].trim());
 
         Vehiculo exotico = new Exotico(nombre, precio, capacidadGasolina, velocidadMaxima, ruedas);
         exotico.cargarCombustible(gasolinaActual);

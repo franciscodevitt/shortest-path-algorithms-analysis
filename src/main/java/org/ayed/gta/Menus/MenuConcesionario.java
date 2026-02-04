@@ -10,6 +10,12 @@ public class MenuConcesionario {
     private Concesionario concesionario;
     private Garaje garaje;
 
+    private final int BUSCAR_VEHICULOS_NOMBRE = 1;
+    private final int BUSCAR_VEHICULOS_MARCA  = 2;
+    private final int LISTAR_VEHICULOS        = 3;
+    private final int COMPRAR_VEHICULO        = 4;
+    private final int VOLVER                  = 0;
+
     public MenuConcesionario(Concesionario concesionario, Garaje garaje) {
         this.scanner = new Scanner(System.in);
         this.concesionario = concesionario;
@@ -48,11 +54,7 @@ public class MenuConcesionario {
         return opcion;
     }
 
-    private static final int BUSCAR_VEHICULOS_NOMBRE = 1;
-    private static final int BUSCAR_VEHICULOS_MARCA  = 2;
-    private static final int LISTAR_VEHICULOS        = 3;
-    private static final int COMPRAR_VEHICULO        = 4;
-    private static final int VOLVER                  = 0;
+    
 
     /**
      * Inicia la interacción con el concesionario

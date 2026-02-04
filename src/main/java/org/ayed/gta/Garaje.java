@@ -63,7 +63,7 @@ public class Garaje {
             vehiculosEnGaraje.agregar(vehiculo);
             System.out.println("Ingresó al garaje: " + vehiculo.obtenerVehiculo());
         } else {
-            zonaDeEspera.agregar(vehiculo); // FIFO real de tu Cola
+            zonaDeEspera.agregar(vehiculo);
             System.out.println("Garaje lleno. Agregado a zona de espera: " + vehiculo.obtenerVehiculo());
         }
         dinero -= vehiculo.obtenerPrecioPorVehiculo();
@@ -74,7 +74,7 @@ public class Garaje {
             vehiculosEnGaraje.agregar(vehiculo);
             System.out.println("Ingresó al garaje: " + vehiculo.obtenerVehiculo());
         } else {
-            zonaDeEspera.agregar(vehiculo); // FIFO real de tu Cola
+            zonaDeEspera.agregar(vehiculo);
             System.out.println("Garaje lleno. Agregado a zona de espera: " + vehiculo.obtenerVehiculo());
         }
     }
@@ -186,8 +186,10 @@ public class Garaje {
     }
     public void comprarCreditos(int creditos){
         if (creditos < 0) throw new ExcepcionGaraje("No se pueden agregar créditos negativos.");
+        else if(this.dinero < creditos) throw new ExcepcionGaraje("No hay suficiente dinero para comprar créditos.");
         this.creditos += creditos;
         this.dinero -= creditos; // cada credito cuesta $1
+        System.out.println("Créditos comprados: " + creditos + ". Dinero restante: $" + this.dinero);
     }
 
     public void agregarDinero(int dinero){
@@ -200,9 +202,12 @@ public class Garaje {
      * cuesta 50 creditos, +1 capacidad, y sube los primeros de la espera hasta llenar.
      */
     public void mejorarGaraje() {
-        if (this.creditos < 50) throw new ExcepcionGaraje("Créditos insuficientes para mejorar.");
+        if (this.creditos < 50) throw new ExcepcionGaraje("Créditos insuficientes para mejorar. Cuesta 50 créditos.");
         this.creditos -= 50;
         this.capacidad++;
+        System.out.println("Garaje mejorado! Nueva capacidad: " + this.capacidad);
+
+         // subir vehículos desde la zona de espera hasta llenar la nueva capacidad
 
         while (vehiculosEnGaraje.tamanio() < capacidad && !zonaDeEspera.vacio()) {
             Vehiculo siguiente = zonaDeEspera.eliminar();

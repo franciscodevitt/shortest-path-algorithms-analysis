@@ -41,10 +41,10 @@ public class MenuMisiones {
     private Scanner scanner;
 
     // Opciones del menú
-    private static final int FACIL = 1;
-    private static final int NORMAL = 2;
-    private static final int DIFICIL = 3;
-    private static final int VOLVER_AL_MENU = 0;
+    private final int FACIL = 1;
+    private final int NORMAL = 2;
+    private final int DIFICIL = 3;
+    private final int VOLVER_AL_MENU = 0;
 
     public MenuMisiones(Garaje garaje) {
         this.garaje = garaje;
@@ -314,8 +314,10 @@ public class MenuMisiones {
         }
         garaje.avanzarDia();
         garaje.cobrarMantenimientoDiario();
-        System.out.println("Avanzando al día " + garaje.getDia() + ". Mantenimiento diario cobrado: $" + garaje.obtenerCostoMantenimiento());
-        System.out.println("Dinero actual: $" + garaje.getDinero());
+        if(garaje.getDinero() >= 0){
+            System.out.println("Avanzando al día " + garaje.getDia() + ". Mantenimiento diario cobrado: $" + garaje.obtenerCostoMantenimiento());
+            System.out.println("Dinero actual: $" + garaje.getDinero());
+        }
     }
 
     private void obtenerRecompensa(int dificultad){

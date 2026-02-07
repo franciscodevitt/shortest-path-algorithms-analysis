@@ -34,7 +34,7 @@ public class PruebaComplejidad {
 
         try (PrintWriter escritorCsv = new PrintWriter(new FileWriter(SALIDA_CSV))) {
             
-            escritorCsv.println("Mapa,Tamaño,V,E,Algoritmo,Expansiones,Relajaciones,OperacionesTotales,TiempoMs,Costo");
+            escritorCsv.println("Mapa,Tamaño(V+E),Nodos(V),Aristas(E),Algoritmo,Expansiones,Relajaciones,OperacionesTotales,TiempoMs,Costo");
 
             for (File archivoTxt : listaArchivos) {
                 System.out.println("Procesando mapa: " + archivoTxt.getName());
@@ -150,8 +150,8 @@ public class PruebaComplejidad {
         else if (algoritmo.equals("Dijkstra")) {
             new AEstrellaInforme(grafo, (n1, n2) -> 0).ejecutar(origen, destino, metrica);
         } 
-        /*else if (algoritmo.equals("Bellman-Ford")) {
+        else if (algoritmo.equals("Bellman-Ford")) {
             new BellmanFordInforme().ejecutar(grafo, origen, destino, metrica);
-        }*/
+        }
     }
 }

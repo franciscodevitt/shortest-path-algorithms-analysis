@@ -11,8 +11,14 @@ import org.ayed.informe.programa.*;
 
 import java.util.Map;
 
-/*
- * Versión de A* modificada para uso exclusivo del programa de complejidad algoritmica.
+/**
+ * Implementacion del algoritmo A* para caminos mínimos.
+ * Tiene contadores en las expansiones de nodos,relajaciones de aristas y operaciones
+ * en la cola de prioridad para analizar su eficiencia.
+ * 
+ * La complejidad algoritmica de esta implementacion es O((V+E)LogE).
+ * 
+ * NOTA: Puede utilizarse como algoritmo de Dijkstra si se le inyecta una Heuristica nula.
  */
 public class AEstrellaInforme {
    

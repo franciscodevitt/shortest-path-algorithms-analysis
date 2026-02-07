@@ -37,7 +37,7 @@ public class Metricas {
      * Calcula las operaciones totales de la cola de prioridad.
      */
     public long obtenerOperacionesCola() {
-        return expansiones + inserciones;
+        return extracciones + inserciones;
     }
 
     /**

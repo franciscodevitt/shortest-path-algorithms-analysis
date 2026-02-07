@@ -6,6 +6,7 @@ import org.ayed.tda.vector.*;
 import org.ayed.tda.aestrella.*;
 import org.ayed.tda.lista.Pila;
 import java.io.*;
+import java.util.Random;
 
 /*
  * Clase que crea y carga el mapa de la ciudad para jugar la misión.
@@ -22,9 +23,12 @@ public class Mapa {
     private Coordenada destino;
     private Coordenada recompensaExtra;
     private boolean recompensaExtraRecogida;
-    private AEstrella<Nodo> aEstrella;
+    private AEstrella<Nodo> gps;
 
-    private static final String RUTA_MAPAS = "data/ciudades/";  //ver bien esto
+    private final boolean esModoAnalisis;
+
+    private final Random SEMILLA = new Random(42);  // semilla que garantiza que el tráfico sea siempre igual
+    private static final String RUTA_MAPAS = "data/ciudades/";  
 
     private static final String CALLE = "+"; 
     private static final String EDIFICIO = "#";
@@ -35,16 +39,20 @@ public class Mapa {
     private static final int COSTO_CALLE = 1;
     private static final int COSTO_PARQUE = 15;
     private static final int COSTO_TRAFICO = 5;
-
+   
     /**
      * Constructor de Mapa. 
      * Carga el mapa de la ciudad desde un archivo y lo inicializa completamente.
      * 
      * @param ciudadElegida   Nombre del archivo de la ciudad a cargar.
+     * @param modoAnalisis    True si el mapa será usado para el análisis de complejidad.
+     *                        False si será usado para el juego.
      * @throws ExcepcionMapa  si el archivo correspondiente no tiene formato valido o no existe.
      */
-    public Mapa(String ciudadElegida) {
+    public Mapa(String ciudadElegida, boolean modoAnalisis) {
         
+        this.esModoAnalisis = modoAnalisis;
+
         Vector<String> lineas = leerArchivo(RUTA_MAPAS + ciudadElegida);
         if (lineas.tamanio() < 2) {
             throw new ExcepcionMapa("El archivo de mapa es inválido o está vacío.");
@@ -52,18 +60,28 @@ public class Mapa {
         
         this.procesarDimensiones(lineas.dato(0));
         this.ciudad = new Matriz<Nodo>(this.altura, this.ancho);
-        procesarCiudad(lineas);
-
-        inicializarEntradaSalida();
-        this.recompensaExtra = coordenadaAleatoria();
-        this.recompensaExtraRecogida = false;
-
         this.grafoCiudad = new Grafo<Nodo>();
+        procesarCiudad(lineas);
         generarGrafo();
+        
+        if (!esModoAnalisis) {
+            inicializarEntradaSalida();
+            inicializarRecompensaExtra();
+            this.gps = new AEstrella<Nodo>(this.grafoCiudad, new Manhattan());
+        } else {
+            this.posicionJugador = null;
+            this.destino = null;
+            this.recompensaExtra = null;
+        }
 
+        this.recompensaExtraRecogida = false;
         this.posicionAnteriorJugador = null;
-        this.aEstrella = new AEstrella<Nodo>(this.grafoCiudad, new Manhattan());
     }    
+
+    // Constructor por defecto para el juego
+    public Mapa(String ciudadElegida) {
+        this(ciudadElegida, false);
+    }
 
     /**
      * Lee el archivo y devuelve su contenido línea por línea en un Vector.
@@ -120,7 +138,11 @@ public class Mapa {
      *                False caso contrario.   
      */
     private boolean generarTrafico(String terreno) {
-        return (terreno.equals(CALLE) && (Math.random() < TASA_TRAFICO)); 
+        if (!terreno.equals(CALLE)) return false;
+
+        double probabilidad = this.esModoAnalisis ? SEMILLA.nextDouble() : Math.random();
+    
+        return probabilidad < TASA_TRAFICO;
     }
     
     /**
@@ -232,6 +254,21 @@ public class Mapa {
         this.posicionJugador = entrada;
         this.destino = salida;
     }
+
+    private void inicializarRecompensaExtra() {
+        Coordenada recompensa = null;
+        int fil;
+        int col;
+        int intentos = 0;
+        do {
+            recompensa = coordenadaAleatoria();
+            intentos++;
+            fil = recompensa.obtenerY();
+            col = recompensa.obtenerX();
+        } while ((recompensa.equals(this.posicionJugador) || recompensa.equals(this.destino) || ciudad.obtenerEntrada(fil, col).tieneTrafico() ) && intentos < ancho*altura*100); //si es la posicion del jugador, del destino o si tiene trafico, busco otra.
+        this.recompensaExtra = recompensa;
+    }
+    
 
     /**
      * Determina si terreno representa un tipo permitido para el nodo.
@@ -492,20 +529,13 @@ public class Mapa {
         actualizarJugador(new Coordenada(y, x));
     }
     
-    /**
-     * Reinicia el mapa generando nuevas posiciones de entrada, salida y recompensa.
-     * sirve para reintentar la misión.
-     */
-    public void reiniciarMapa() {
-        inicializarEntradaSalida();
-        this.recompensaExtra = coordenadaAleatoria();
-        this.recompensaExtraRecogida = false;
-    }
 
+    /**
+     * Obtiene la ruta óptima entre dos coordenadas usando A*.
+     */
     public Pila<Nodo> obtenerRutaOptima(Coordenada origen, Coordenada destino) {
-        aEstrella = new AEstrella<Nodo>(this.obtenerGrafo(), new Manhattan());
         Nodo nodoOrigen = this.ciudad.obtenerEntrada(origen.obtenerY(), origen.obtenerX());
         Nodo nodoDestinoNodo = this.ciudad.obtenerEntrada(destino.obtenerY(), destino.obtenerX());
-        return aEstrella.buscarCaminoMinimo(nodoOrigen, nodoDestinoNodo);
+        return gps.buscarCaminoMinimo(nodoOrigen, nodoDestinoNodo);
     }
 }

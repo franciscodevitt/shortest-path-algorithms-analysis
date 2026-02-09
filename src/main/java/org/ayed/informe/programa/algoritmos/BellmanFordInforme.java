@@ -28,14 +28,10 @@ public class BellmanFordInforme {
         distancias.agregar(origen, 0);
 
         long inicio = System.nanoTime();
-        
-        boolean huboCambio = true; // Controlamos la ejecución con esta bandera
-        
-        // El bucle corre mientras i < cantidadNodos Y hubo cambios en la vuelta anterior
+        boolean huboCambio = true;         
         for (int i = 1; i < cantidadNodos && huboCambio; i++) {
             
-            huboCambio = false; // Suponemos que no habrá cambios en esta iteración
-
+            huboCambio = false; 
             for (Nodo u : nodos) {
                 Integer distanciaU = distancias.obtenerValor(u);
                 

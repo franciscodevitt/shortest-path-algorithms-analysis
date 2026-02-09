@@ -17,10 +17,8 @@ public class PruebaComplejidad {
     
     private static final String RUTA_MAPAS = "data/analisisCiudades/";
     private static final String SALIDA_CSV = "src/main/java/org/ayed/informe/resultados/mediciones.csv";
-    //private static final String MEDICIONES = "mediciones.csv";
-    //private static final String COSTOS_CAMINOS = "costosCamino.csv";
     private static final String[] ALGORITMOS = {"A*","Dijkstra","Bellman-Ford"};
-    private static final int RUTAS = 100;
+    private static final int RUTAS = 1000;
     private static final int REPETICIONES = 10;
 
     /**

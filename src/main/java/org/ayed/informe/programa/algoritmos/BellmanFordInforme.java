@@ -28,24 +28,30 @@ public class BellmanFordInforme {
         distancias.agregar(origen, 0);
 
         long inicio = System.nanoTime();
-        for (int i = 1; i < cantidadNodos; i++) {     //son V-1 iteraciones. En cada una se expanden todos los vertices
-                                                      // y se relajan todas las aristas
-            for (Nodo u : nodos) {
+        
+        boolean huboCambio = true; // Controlamos la ejecución con esta bandera
+        
+        // El bucle corre mientras i < cantidadNodos Y hubo cambios en la vuelta anterior
+        for (int i = 1; i < cantidadNodos && huboCambio; i++) {
+            
+            huboCambio = false; // Suponemos que no habrá cambios en esta iteración
 
-                mediciones.seExpandio();    //Expansiones: (V-1)*V
-                Map<Nodo, Integer> adyacentes = grafo.obtenerAdyacentes(u);   
+            for (Nodo u : nodos) {
+                Integer distanciaU = distancias.obtenerValor(u);
                 
-                for (Nodo v : adyacentes.keySet()) {
-                    mediciones.seRelajo();  //Relajaciones: (V-1)*2E
+                if (distanciaU != null && distanciaU != Integer.MAX_VALUE) {
+                    mediciones.seExpandio();
+                    Map<Nodo, Integer> adyacentes = grafo.obtenerAdyacentes(u);   
                     
-                    Integer distanciaU = distancias.obtenerValor(u);
-                    
-                    if (distanciaU != null && distanciaU != Integer.MAX_VALUE) {
+                    for (Nodo v : adyacentes.keySet()) {
+                        mediciones.seRelajo();
+                        
                         int pesoUV = adyacentes.get(v);
                         Integer distanciaV = distancias.obtenerValor(v);
                         
                         if (distanciaV != null && distanciaU + pesoUV < distanciaV) {
                             distancias.agregar(v, distanciaU + pesoUV);
+                            huboCambio = true; // Si algo cambió, habilitamos la siguiente vuelta
                         }
                     }
                 }
@@ -54,13 +60,8 @@ public class BellmanFordInforme {
 
         long fin = System.nanoTime();
         mediciones.setearTiempoNs(fin - inicio);
+        
         Integer costoFinal = distancias.obtenerValor(destino);
-
-        if (costoFinal == null || costoFinal == Integer.MAX_VALUE) {
-            mediciones.setearCostoTotal(-1);
-        }
-        else {
-            mediciones.setearCostoTotal(costoFinal);
-        }
+        mediciones.setearCostoTotal((costoFinal == null || costoFinal == Integer.MAX_VALUE) ? -1 : costoFinal);
     }
 }

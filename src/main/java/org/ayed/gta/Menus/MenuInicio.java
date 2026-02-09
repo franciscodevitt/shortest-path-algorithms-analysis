@@ -260,9 +260,10 @@ public class MenuInicio {
         System.out.println("╠══════════════════════════════════════╣");
         System.out.println("║ Proyecto AyED - GTA Garage           ║");
         System.out.println("║ Desarrollado por:                    ║");
-        System.out.println("║                                      ║");
-        System.out.println("║                                      ║");
-        System.out.println("║ Año: 2026                            ║");
+        System.out.println("║ Devitt Francisco A.                  ║");
+        System.out.println("║ Sciani Carola                        ║");
+        System.out.println("║ Woiciechowski Matias                 ║");
+        System.out.println("║ Gonzalez Axel                        ║");
         System.out.println("╚══════════════════════════════════════╝");
         pausar();
     }

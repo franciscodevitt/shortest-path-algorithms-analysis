@@ -36,8 +36,8 @@ public class AEstrella<T> {
         this.heuristica = heuristica;
         this.comparadorCostos = new ComparadorVertice<T>(); 
         this.setAbierto = new ColaPrioridad<CostosVertice<T>>(this.comparadorCostos);
-        this.setCerrado = new Conjunto<T>(100);            
-        this.costos = new Diccionario<T, CostosVertice<T>>(100);   //Falta ver dimensiones del grafo
+        this.setCerrado = new Conjunto<T>(grafo.obtenerVertices().size()+1);            
+        this.costos = new Diccionario<T, CostosVertice<T>>(grafo.obtenerVertices().size()+1);
         this.destino = null;
     }
 
@@ -110,7 +110,13 @@ public class AEstrella<T> {
 
     /**
     * Actualiza los costos y el padre de un vecino si se encuentra un camino más económico.
-    * Crea un NUEVO objeto CostosVertice cada vez para evitar problemas con el heap.
+    * Crea y encola un nuevo objeto CostosVertice cada vez debido a que la cola de prioridad 
+    * no tiene metodo decrease/increase key.
+    * 
+    * NOTA: Esto ajusta la complejidad del algoritmo de O((V+E)logV) a O((V+E)logE), 
+    * ya que el tamaño de la cola de prioridad queda acotado por el número de aristas (E) 
+    * en lugar del de vértices (V). 
+    * En el contexto de nuestro programa, el impacto en el rendimiento es despreciable.
     *
     * @param vecino         Vértice vecino a actualizar.
     * @param padre          Vértice padre desde el que se llega al vecino.
@@ -120,15 +126,13 @@ public class AEstrella<T> {
         
         CostosVertice<T> costoVecino = costos.obtenerValor(vecino);
         
-        // Solo procesamos si es un camino nuevo o mejor que el anterior
         if (costoVecino == null || nuevoCostoReal < costoVecino.obtenerCostoReal()) {
             int costoHeuristica = heuristica.calcularPuntaje(vecino, destino);
             int nuevoCostoTotal = nuevoCostoReal + costoHeuristica;
 
-            // SIEMPRE crear un nuevo objeto para evitar problemas con el heap
             CostosVertice<T> nuevoCosto = new CostosVertice<T>(vecino, nuevoCostoReal, nuevoCostoTotal, padre);
-            costos.agregar(vecino, nuevoCosto);  // Actualiza el diccionario
-            setAbierto.agregar(nuevoCosto);       // Agrega a la cola (puede haber duplicados)
+            costos.agregar(vecino, nuevoCosto);  
+            setAbierto.agregar(nuevoCosto);      
         }
     }
 
@@ -149,8 +153,8 @@ public class AEstrella<T> {
     private void inicializarBusqueda(T origen, T destino) {
 
         this.destino = destino;
-        this.costos = new Diccionario<T, CostosVertice<T>>(100);
-        this.setCerrado = new Conjunto<T>(100);
+        this.costos = new Diccionario<T, CostosVertice<T>>(grafo.obtenerVertices().size()+1);
+        this.setCerrado = new Conjunto<T>(grafo.obtenerVertices().size()+1);
         this.setAbierto = new ColaPrioridad<CostosVertice<T>>(this.comparadorCostos);
         
         int heuristicaOrigen = heuristica.calcularPuntaje(origen, destino); 

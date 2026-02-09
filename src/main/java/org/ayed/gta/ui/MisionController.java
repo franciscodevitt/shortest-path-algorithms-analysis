@@ -77,6 +77,8 @@ public class MisionController {
             mapa.moverJugador(nuevaX, nuevaY);
             // Consumir gasolina al moverse
             consumirGasolina();
+
+            vehiculoActual.sumarKilometros(1);
             reducirTiempoLimite(nuevaX, nuevaY);
         }
     }

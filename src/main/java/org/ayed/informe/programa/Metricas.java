@@ -16,7 +16,7 @@ public class Metricas {
     private long expansiones = 0;     // Nodos procesados 
     private long relajaciones = 0;    // Aristas inspeccionadas
     private long tiempoNs = 0;        // Nanosegundos
-    private int costoTotal = 0;       // Solo para corroborar
+    private int costoTotal = 0;       // Para corroborar que se obtienen rutas del mismo costo
     private int totalEjecuciones = 0; // Cantidad de ejecuciones realizadas hasta el momento
 
     private static final double NANO_A_MILISEGUNDOS = 1_000_000.0;   
@@ -62,7 +62,7 @@ public class Metricas {
         this.extracciones += otra.extracciones;
         this.inserciones += otra.inserciones;
         this.tiempoNs += otra.tiempoNs;
-        this.costoTotal = otra.costoTotal; 
+        this.costoTotal += otra.costoTotal; 
         this.totalEjecuciones++;
     }
 
@@ -79,12 +79,14 @@ public class Metricas {
         long promedioExp = 0;
         long promedioRel = 0;
         long promedioOp = 0;
+        long promedioCostos = 0;
 
         if (totalEjecuciones != 0) {
             promedioMs = (tiempoNs / (double)totalEjecuciones) / NANO_A_MILISEGUNDOS;
             promedioExp = expansiones / totalEjecuciones;
             promedioRel = relajaciones / totalEjecuciones;
             promedioOp = obtenerOperacionesTotales() / totalEjecuciones;
+            promedioCostos = costoTotal / totalEjecuciones;
         }
 
         return String.format(Locale.US, "%s,%d,%d,%d,%s,%d,%d,%d,%.4f,%d",
@@ -97,7 +99,7 @@ public class Metricas {
                             promedioRel, 
                             promedioOp, 
                             promedioMs, 
-                            this.costoTotal);
+                            promedioCostos);
     }
 
     /*
@@ -139,8 +141,7 @@ public class Metricas {
 
     /**
      * Guarda el costo del camino minimo obtenido.
-     * Se utiliza principalmete para corroborar que todas las ejecuciones
-     * hayan obtenido el mismo camino, o en defecto uno de igual costo.
+     * @param c Costo obtenido.
      */
     public void setearCostoTotal(int c) { this.costoTotal = c; }
 }

@@ -29,7 +29,7 @@ public class Mapa {
 
     private final Random SEMILLA = new Random(42);  // semilla que garantiza que el tráfico sea siempre igual
     private static final String RUTA_MAPAS = "data/ciudades/";  
-
+    private static final String RUTA_MAPAS_ANALISIS = "data/analisisCiudades/";
     private static final String CALLE = "+"; 
     private static final String EDIFICIO = "#";
     private static final String PARQUE = "-";
@@ -53,9 +53,10 @@ public class Mapa {
         
         this.esModoAnalisis = modoAnalisis;
 
-        Vector<String> lineas = leerArchivo(RUTA_MAPAS + ciudadElegida);
+        String rutaBase = esModoAnalisis ? RUTA_MAPAS_ANALISIS : RUTA_MAPAS;
+        Vector<String> lineas = leerArchivo(rutaBase + ciudadElegida);
         if (lineas.tamanio() < 2) {
-            throw new ExcepcionMapa("El archivo de mapa es inválido o está vacío.");
+            throw new ExcepcionMapa("El archivo de mapa es inválido o está vacío en: \" + rutaBase + ciudadElegida);");
         }
         
         this.procesarDimensiones(lineas.dato(0));

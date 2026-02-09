@@ -28,8 +28,8 @@ public class BellmanFordInforme {
         distancias.agregar(origen, 0);
 
         long inicio = System.nanoTime();
-        for (int i = 1; i < cantidadNodos; i++) {
-            
+        for (int i = 1; i < cantidadNodos; i++) {     //son V-1 iteraciones. En cada una se expanden todos los vertices
+                                                      // y se relajan todas las aristas
             for (Nodo u : nodos) {
 
                 mediciones.seExpandio();    //Expansiones: (V-1)*V

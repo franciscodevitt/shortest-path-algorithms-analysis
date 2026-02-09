@@ -15,9 +15,12 @@ import java.util.Random;
  */
 public class PruebaComplejidad {
     
-    private static final String RUTA_MAPAS = "data/ciudades/";
+    private static final String RUTA_MAPAS = "data/analisisCiudades/";
     private static final String SALIDA_CSV = "src/main/java/org/ayed/informe/resultados/mediciones.csv";
-    private static final String[] ALGORITMOS = {"A*", "Dijkstra", "Bellman-Ford"};
+    //private static final String MEDICIONES = "mediciones.csv";
+    //private static final String COSTOS_CAMINOS = "costosCamino.csv";
+    private static final String[] ALGORITMOS = {"A*","Dijkstra","Bellman-Ford"};
+    private static final int RUTAS = 100;
     private static final int REPETICIONES = 10;
 
     /**
@@ -32,10 +35,10 @@ public class PruebaComplejidad {
             java.util.Arrays.sort(listaArchivos); 
         }
 
-        try (PrintWriter escritorCsv = new PrintWriter(new FileWriter(SALIDA_CSV))) {
+        try (PrintWriter medicionesCsv = new PrintWriter(new FileWriter(SALIDA_CSV))) {
             
-            escritorCsv.println("Mapa,Tamaño(V+E),Nodos(V),Aristas(E),Algoritmo,Expansiones,Relajaciones,OperacionesTotales,TiempoMs,Costo");
-
+            medicionesCsv.println("Mapa,Tamaño(V+E),Nodos(V),Aristas(E),Algoritmo,Expansiones,Relajaciones,OperacionesTotales,TiempoMs,Costo");
+                        
             for (File archivoTxt : listaArchivos) {
                 System.out.println("Procesando mapa: " + archivoTxt.getName());
                 
@@ -44,7 +47,7 @@ public class PruebaComplejidad {
                 
                 int cantidadNodos = grafo.obtenerVertices().size();
                 int cantidadAristas = calcularCantidadAristas(grafo);
-                ejecutarPruebas(archivoTxt.getName(), grafo, cantidadNodos, cantidadAristas, escritorCsv);
+                ejecutarPruebas(archivoTxt.getName(), grafo, cantidadNodos, cantidadAristas, medicionesCsv);
             }
             System.out.println("Resultados generados con éxito en: " + SALIDA_CSV);
         } 
@@ -75,9 +78,9 @@ public class PruebaComplejidad {
      * @param grafo           Grafo de la ciudad.
      * @param cantidadNodos   Número de nodos (V).
      * @param cantidadAristas Número de aristas (E).
-     * @param csv             PrintWriter para registrar los resultados.
+     * @param medicionesCsv   Para registrar las mediciones de cada algoritmo.
      */
-    private static void ejecutarPruebas(String nombreMapa, Grafo<Nodo> grafo, int cantidadNodos, int cantidadAristas, PrintWriter csv) {
+    private static void ejecutarPruebas(String nombreMapa, Grafo<Nodo> grafo, int cantidadNodos, int cantidadAristas, PrintWriter medicionesCsv) {
 
         Object[] nodos = grafo.obtenerVertices().toArray();
         for (String algoritmo : ALGORITMOS) {
@@ -86,7 +89,7 @@ public class PruebaComplejidad {
             Random semilla = new Random(28);
             int rutasValidas = 0;
 
-            while (rutasValidas < REPETICIONES) {     
+            while (rutasValidas < RUTAS) {     
                 Nodo origen = (Nodo) nodos[semilla.nextInt(nodos.length)];
                 Nodo destino = (Nodo) nodos[semilla.nextInt(nodos.length)];
                 Metricas resultadoRuta = medirRuta(algoritmo, grafo, origen, destino, cantidadNodos, cantidadAristas);
@@ -98,17 +101,26 @@ public class PruebaComplejidad {
             }
 
             if (rutasValidas > 0) {
-                csv.println(metricaFinal.filaCsv(nombreMapa));
+                medicionesCsv.println(metricaFinal.filaCsv(nombreMapa));
             }
         }
     }
 
     /**
-     * Realiza las 10 mediciones de tiempo para una ruta específica y devuelve una métrica
-     * con el tiempo promedio.
+     * Ejecuta REPETICIONES veces la busqueda para la ruta actual, con el proposito de reducir el efecto
+     * del hardware en la medicion de tiempo del algoritmo.
+     *
+     * @param algoritmo Algoritmo seleccionado para la busqueda
+     * @param grafo Grafo de la ciudad en el cual se ejecutará la busqueda de camino minimo.
+     * @param origen Nodo inicial de la ruta.
+     * @param destino Nodo al que se quiere llegar mediante el camino minimo.
+     * @param cantidadNodos
+     * @param cantidadAristas
      * 
-     * @return Objeto Metricas con el promedio de tiempo seteado, o null si la ruta es inalcanzable.
-     */
+     * @return Objeto Metricas con todas las mediciones relevantes del algoritmo o null si el destino
+     * es inalcansable.
+     * El tiempo estará promediado segun la cantidad de REPETICIONES.
+     */ 
     private static Metricas medirRuta(String algoritmo, Grafo<Nodo> grafo, Nodo origen, Nodo destino, int cantidadNodos, int cantidadAristas) {
         long sumaTiempos = 0;
         Metricas metricaReferencia = null;

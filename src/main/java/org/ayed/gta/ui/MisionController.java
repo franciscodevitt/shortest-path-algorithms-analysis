@@ -77,6 +77,8 @@ public class MisionController {
             mapa.moverJugador(nuevaX, nuevaY);
             // Consumir gasolina al moverse
             consumirGasolina();
+
+            vehiculoActual.sumarKilometros(1);
             reducirTiempoLimite(nuevaX, nuevaY);
         }
     }
@@ -144,17 +146,5 @@ public class MisionController {
      */
     public void terminarMision() {
         enMision = false;
-    }
-    
-    /**
-     * Reinicia la misión (resetea vehículo y mapa a estado inicial).
-     */
-    public void reiniciarMision() {
-        if (vehiculoActual != null) {
-            vehiculoActual.cargarAlMaximo();
-        }
-        tiempoRestante = 5000;
-        mapa.reiniciarMapa();
-        enMision = true;
     }
 }

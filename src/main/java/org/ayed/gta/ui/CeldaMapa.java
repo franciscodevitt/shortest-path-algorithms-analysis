@@ -159,6 +159,19 @@ public class CeldaMapa extends StackPane {
         fondoTerreno.setStrokeWidth(0.5);
     }
     
+
+    public void setDestino() {
+        String rutaImagen = "/images/elementos/destino.png";
+        URL url = getClass().getResource(rutaImagen);
+        if (url != null) {
+            Image imagenDestino = new Image(url.toExternalForm());
+            mostrarImagen(imagenDestino);
+        }else{
+            mostrarIcono("■", Color.LIME);
+            resaltar(Color.LIME);
+        }
+    }
+
     /**
      * Obtiene la posición de la celda en el mapa.
      */

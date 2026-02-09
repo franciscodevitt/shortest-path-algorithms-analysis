@@ -16,10 +16,10 @@ public class MenuInicio {
     private Scanner scanner;
 
     // Opciones del menú
-    private static final int NUEVA_PARTIDA = 1;
-    private static final int CARGAR_PARTIDA = 2;
-    private static final int CREDITOS = 3;
-    private static final int SALIR = 0;
+    private final int NUEVA_PARTIDA = 1;
+    private final int CARGAR_PARTIDA = 2;
+    private final int CREDITOS = 3;
+    private final int SALIR = 0;
 
     public MenuInicio() {
         this.scanner = new Scanner(System.in);

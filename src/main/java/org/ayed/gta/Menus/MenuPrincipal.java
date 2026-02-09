@@ -1,5 +1,6 @@
 package org.ayed.gta.Menus;
 
+import java.io.File;
 import java.util.Scanner;
 
 import org.ayed.gta.Garaje;
@@ -11,19 +12,21 @@ public class MenuPrincipal {
     private Concesionario concesionario;
     private String ruta;
     private Scanner scanner;
+    private boolean perdio;
 
     // Opciones del menú
-    private static final int MENU_GARAJE = 1;
-    private static final int MENU_CONCESIONARIO = 2;
-    private static final int MENU_MISIONES = 3;
-    private static final int GUARDAR_PARTIDA = 4;
-    private static final int SALIR_PARTIDA = 5;
+    private final int MENU_GARAJE = 1;
+    private final int MENU_CONCESIONARIO = 2;
+    private final int MENU_MISIONES = 3;
+    private final int GUARDAR_PARTIDA = 4;
+    private final int SALIR_PARTIDA = 5;
 
     public MenuPrincipal(Garaje garaje, Concesionario concesionario, String ruta) {
         this.garaje = garaje;
         this.concesionario = concesionario;
         this.scanner = new Scanner(System.in);
         this.ruta = ruta;
+        this.perdio = false;
     }
 
     /* ===================== LOOP PRINCIPAL ===================== */
@@ -33,7 +36,13 @@ public class MenuPrincipal {
         do {
             opcion = mostrarMenu();
             ejecutarOpcion(opcion);
-        } while (opcion != SALIR_PARTIDA);
+        } while (opcion != SALIR_PARTIDA && !perdio);
+
+        if(perdio) {
+            System.out.println("Has perdido la partida. Fin del juego.");
+            borrarPartida();
+            pausar();
+        }
     }
 
     /* ===================== MENU ===================== */
@@ -105,6 +114,7 @@ public class MenuPrincipal {
     private void abrirMenuMisiones() {
         MenuMisiones menu = new MenuMisiones(garaje);
         menu.iniciar();
+        perdio = garaje.getDinero() < 0;
         pausar();
     }
 
@@ -131,6 +141,21 @@ public class MenuPrincipal {
         }
 
         System.out.println("Saliendo de la partida...");
+    }
+
+    private void borrarPartida(){
+        try{
+            File carpeta = new File(ruta);
+            File garajePartida = new File(ruta + "/garaje.csv");
+            File concesionarioPartida = new File(ruta + "/concesionario.csv");
+            garajePartida.delete();
+            concesionarioPartida.delete();
+            carpeta.delete();
+            System.out.println("Tu partida fue eliminada...");
+
+        }catch(Exception e){
+            System.out.println("Error al borrar la partida: " + e.getMessage());
+        }
     }
 
     /* ===================== UTILIDADES ===================== */

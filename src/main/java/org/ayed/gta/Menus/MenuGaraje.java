@@ -12,17 +12,17 @@ public class MenuGaraje {
     private Scanner scanner;
 
     // Opciones del menú
-    private static final int MOSTRAR_VEHICULOS = 1;
-    private static final int VENDER_VEHICULO = 2;
-    private static final int MEJORAR_GARAJE = 3;
-    private static final int COMPRAR_CREDITOS = 4;
-    private static final int MOSTRAR_VALOR = 5;
-    private static final int MOSTRAR_COSTO = 6;
-    private static final int CARGAR_TODOS_VEHICULOS = 7;
-    private static final int CARGAR_VEHICULO = 8;
-    private static final int CARGAR_VEHICULO_AL_MAXIMO = 9;
-    private static final int SALIR = 0;
-
+    private final int MOSTRAR_VEHICULOS = 1;
+    private final int VENDER_VEHICULO = 2;
+    private final int MEJORAR_GARAJE = 3;
+    private final int COMPRAR_CREDITOS = 4;
+    private final int MOSTRAR_VALOR = 5;
+    private final int MOSTRAR_COSTO = 6;
+    private final int CARGAR_TODOS_VEHICULOS = 7;
+    private final int CARGAR_VEHICULO = 8;
+    private final int CARGAR_VEHICULO_AL_MAXIMO = 9;
+    private final int SALIR = 0;
+    
     public MenuGaraje(Garaje garaje, Concesionario concesionario) {
         this.garaje = garaje;
         this.concesionario = concesionario;

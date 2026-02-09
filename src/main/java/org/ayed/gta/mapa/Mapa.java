@@ -65,18 +65,20 @@ public class Mapa {
         procesarCiudad(lineas);
         generarGrafo();
         
-        if (!esModoAnalisis) {
+        if (!esModoAnalisis) { //inicializa para el juego
             inicializarEntradaSalida();
             inicializarRecompensaExtra();
             this.gps = new AEstrella<Nodo>(this.grafoCiudad, new Manhattan());
-        } else {
+        } else { // inicializa para el informe
             this.posicionJugador = null;
             this.destino = null;
             this.recompensaExtra = null;
         }
 
+
         this.recompensaExtraRecogida = false;
         this.posicionAnteriorJugador = null;
+
     }    
 
     // Constructor por defecto para el juego

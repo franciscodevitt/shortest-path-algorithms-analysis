@@ -73,6 +73,7 @@ public class Cola<T> {
             primero = null;
             ultimo = null;
         }
+        cantidadDatos--;
         return dato;
     }
 

@@ -41,10 +41,10 @@ public class MenuMisiones {
     private Scanner scanner;
 
     // Opciones del menú
-    private static final int FACIL = 1;
-    private static final int NORMAL = 2;
-    private static final int DIFICIL = 3;
-    private static final int VOLVER_AL_MENU = 0;
+    private final int FACIL = 1;
+    private final int NORMAL = 2;
+    private final int DIFICIL = 3;
+    private final int VOLVER_AL_MENU = 0;
 
     public MenuMisiones(Garaje garaje) {
         this.garaje = garaje;
@@ -220,8 +220,8 @@ public class MenuMisiones {
                 return;
             }
         }
-        // Lógica para iniciar la misión según el vehículo seleccionado y la dificultad
-        // Iniciar la misión...
+        
+        // Preparar la misión
         String rutaMapa = mapaAleatorio();
         try{
             Mapa mapa = new Mapa(rutaMapa);
@@ -233,15 +233,33 @@ public class MenuMisiones {
             System.out.println("- Flechas o WASD para mover");
             System.out.println("- ESC para salir");
             System.out.println("\n");
-            MisionView.iniciarMision(mapa, vehiculoSeleccionado, obtenerTiempoLimite(dificultad));
+            
+            // Crear la vista de la misión
+            MisionView vista = new MisionView(mapa, vehiculoSeleccionado, obtenerTiempoLimite(dificultad));
+            
+            // Mostrar la ventana en el hilo de JavaFX
+            javafx.application.Platform.runLater(() -> {
+                vista.mostrarVentana();
+            });
+
+
+            
+            // ESPERAR a que el usuario cierre la ventana
+            try {
+                Thread.sleep(5000); // 5 segundos
+            } catch (InterruptedException e) {
+                // no pasa nada
+            }
+            pausar();
             System.out.println("\n¡Interfaz cerrada!");
+            
+            // Procesar resultados de la misión
             terminoPartida(dificultad, mapa);
         }catch(Exception e){
             System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
         
-        pausar();
     }
 
     private String mapaAleatorio(){
@@ -296,9 +314,10 @@ public class MenuMisiones {
         }
         garaje.avanzarDia();
         garaje.cobrarMantenimientoDiario();
-        System.out.println("Avanzando al día " + garaje.getDia() + ". Mantenimiento diario cobrado: $" + garaje.obtenerCostoMantenimiento());
-        System.out.println("Dinero actual: $" + garaje.getDinero());
-        pausar();
+        if(garaje.getDinero() >= 0){
+            System.out.println("Avanzando al día " + garaje.getDia() + ". Mantenimiento diario cobrado: $" + garaje.obtenerCostoMantenimiento());
+            System.out.println("Dinero actual: $" + garaje.getDinero());
+        }
     }
 
     private void obtenerRecompensa(int dificultad){
@@ -359,18 +378,18 @@ public class MenuMisiones {
 
     }
 
-    Vehiculo parsearExotico(String linea){
+    private Vehiculo parsearExotico(String linea){
         // formato: nombre, precio, tipo, ruedas, capacidadGasolina, gasolinaActual, kilometraje
         String[] parte = linea.split(",");
 
-        String nombre = parte[garaje.NOMBRE].trim();
-        int precio = Integer.parseInt(parte[garaje.PRECIO].trim());
-        TipoVehiculo tipo = TipoVehiculo.valueOf(parte[garaje.TIPO_VEHICULO].trim().toUpperCase());
-        int ruedas = Integer.parseInt(parte[garaje.RUEDAS].trim());
-        int capacidadGasolina = Integer.parseInt(parte[garaje.CAPACIDAD_GASOLINA].trim());
-        int gasolinaActual = Integer.parseInt(parte[garaje.GASOLINA_ACTUAL].trim());
-        int kilometraje = Integer.parseInt(parte[garaje.KILOMETRAJE].trim());
-        int velocidadMaxima = Integer.parseInt(parte[garaje.VELOCIDAD_MAXIMA].trim());
+        String nombre = parte[Garaje.NOMBRE].trim();
+        int precio = Integer.parseInt(parte[Garaje.PRECIO].trim());
+        TipoVehiculo tipo = TipoVehiculo.valueOf(parte[Garaje.TIPO_VEHICULO].trim().toUpperCase());
+        int ruedas = Integer.parseInt(parte[Garaje.RUEDAS].trim());
+        int capacidadGasolina = Integer.parseInt(parte[Garaje.CAPACIDAD_GASOLINA].trim());
+        int gasolinaActual = Integer.parseInt(parte[Garaje.GASOLINA_ACTUAL].trim());
+        int kilometraje = Integer.parseInt(parte[Garaje.KILOMETRAJE].trim());
+        int velocidadMaxima = Integer.parseInt(parte[Garaje.VELOCIDAD_MAXIMA].trim());
 
         Vehiculo exotico = new Exotico(nombre, precio, capacidadGasolina, velocidadMaxima, ruedas);
         exotico.cargarCombustible(gasolinaActual);

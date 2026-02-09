@@ -371,7 +371,7 @@ public class MenuMisiones {
             int chance = (int)(Math.random() * exoticos.tamanio()); // Genera un número entre 0 y el tamaño de exoticos
             return exoticos.dato(chance);
         }catch (IOException e) {
-            throw new ExcepcionGaraje("No se pudo leer el garaje: " + e.getMessage());
+            throw new ExcepcionGaraje("No se pudo leer el CSV: " + e.getMessage());
         } catch (RuntimeException e) {
             throw new ExcepcionGaraje("Formato inválido en CSV: " + e.getMessage());
         }

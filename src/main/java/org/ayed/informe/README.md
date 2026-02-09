@@ -14,7 +14,7 @@ que:
 
 - Genera grafos de prueba bajo condiciones controladas.
 - Ejecuta distintos algoritmos de caminos mínimos **sobre el mismo grafo**.
-- Mide y registra métricas de rendimiento.
+- Registra métricas de rendimiento.
 - Exporta los resultados a un archivo CSV para su posterior análisis.
 
 Los algoritmos evaluados incluyen:
@@ -42,10 +42,9 @@ Esto asegura que las diferencias observadas se deban al algoritmo y no al azar.
 Los resultados se guardan en un archivo CSV ubicado en el directorio `resultados/`.
 
 Este archivo contiene, para cada experimento:
-- tamaño del grafo,
-- algoritmo utilizado,
-- tiempo promedio,
-- cantidad promedio de operaciones,
-- costo del camino mínimo.
+- tamaño del grafo
+- algoritmo utilizado
+- tiempo promedio de ejecución
+- cantidad promedio de operaciones
 
 El CSV se utiliza luego para generar tablas y gráficos en el informe escrito.

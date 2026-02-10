@@ -12,7 +12,7 @@
 
 ## Entregables:
 
-1. [Informe de complejidad algorítmica](https://www.enlaceaca.com/)
+1. [Informe de complejidad algorítmica](Informe_Grafosaurios.pdf)
 2. [Video de demostración del programa](https://drive.google.com/file/d/1-wpHSg8PORbuOqN_nmjHhJw3OPbRReaN/view?usp=drive_link)
 
 

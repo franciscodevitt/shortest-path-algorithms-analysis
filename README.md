@@ -3,10 +3,10 @@
 
 ## Integrantes:
 
-1. APELLIDO, NOMBRE - PADRÓN (Delegado)
-2. APELLIDO, NOMBRE - PADRÓN
-3. APELLIDO, NOMBRE - PADRÓN
-4. APELLIDO, NOMBRE - PADRÓN
+1. Devitt, Francisco - 105402 (Delegado)
+2. Sciani, Carola - 111406
+3. Woiciechowski, Matias - 104837
+4. Gonzalez, Axel - 114001
 
 ## Entregables:
 

@@ -74,7 +74,7 @@ public class MenuGaraje {
                 garaje.cargarVehiculoAlMaximo(ingresarNombre());
                 break;
             case SALIR:
-                System.out.println("Saliendo del programa...");
+                System.out.println("Saliendo del garaje...");
                 break;
             default:
                 System.out.println("Opción inválida.");

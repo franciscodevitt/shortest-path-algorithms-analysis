@@ -6,6 +6,7 @@ import org.ayed.tda.vector.*;
 import org.ayed.tda.aestrella.*;
 import org.ayed.tda.lista.Pila;
 import java.io.*;
+import java.util.Random;
 
 /*
  * Clase que crea y carga el mapa de la ciudad para jugar la misión.
@@ -24,8 +25,11 @@ public class Mapa {
     private boolean recompensaExtraRecogida;
     private AEstrella<Nodo> gps;
 
-    private static final String RUTA_MAPAS = "data/ciudades/";  //ver bien esto
+    private final boolean esModoAnalisis;
 
+    private final Random SEMILLA = new Random(42);  // semilla que garantiza que el tráfico sea siempre igual
+    private static final String RUTA_MAPAS = "data/ciudades/";  
+    private static final String RUTA_MAPAS_ANALISIS = "data/analisisCiudades/";
     private static final String CALLE = "+"; 
     private static final String EDIFICIO = "#";
     private static final String PARQUE = "-";
@@ -35,36 +39,52 @@ public class Mapa {
     private static final int COSTO_CALLE = 1;
     private static final int COSTO_PARQUE = 15;
     private static final int COSTO_TRAFICO = 5;
-
+   
     /**
      * Constructor de Mapa. 
      * Carga el mapa de la ciudad desde un archivo y lo inicializa completamente.
      * 
      * @param ciudadElegida   Nombre del archivo de la ciudad a cargar.
+     * @param modoAnalisis    True si el mapa será usado para el análisis de complejidad.
+     *                        False si será usado para el juego.
      * @throws ExcepcionMapa  si el archivo correspondiente no tiene formato valido o no existe.
      */
-    public Mapa(String ciudadElegida) {
+    public Mapa(String ciudadElegida, boolean modoAnalisis) {
         
-        Vector<String> lineas = leerArchivo(RUTA_MAPAS + ciudadElegida);
+        this.esModoAnalisis = modoAnalisis;
+
+        String rutaBase = esModoAnalisis ? RUTA_MAPAS_ANALISIS : RUTA_MAPAS;
+        Vector<String> lineas = leerArchivo(rutaBase + ciudadElegida);
         if (lineas.tamanio() < 2) {
-            throw new ExcepcionMapa("El archivo de mapa es inválido o está vacío.");
+            throw new ExcepcionMapa("El archivo de mapa es inválido o está vacío en: \" + rutaBase + ciudadElegida);");
         }
         
         this.procesarDimensiones(lineas.dato(0));
         this.ciudad = new Matriz<Nodo>(this.altura, this.ancho);
-        procesarCiudad(lineas);
-
-        
         this.grafoCiudad = new Grafo<Nodo>();
+        procesarCiudad(lineas);
         generarGrafo();
         
-        inicializarEntradaSalida();
-        inicializarRecompensaExtra();
-        this.recompensaExtraRecogida = false;
+        if (!esModoAnalisis) { //inicializa para el juego
+            inicializarEntradaSalida();
+            inicializarRecompensaExtra();
+            this.gps = new AEstrella<Nodo>(this.grafoCiudad, new Manhattan());
+        } else { // inicializa para el informe
+            this.posicionJugador = null;
+            this.destino = null;
+            this.recompensaExtra = null;
+        }
 
+
+        this.recompensaExtraRecogida = false;
         this.posicionAnteriorJugador = null;
-        this.gps = new AEstrella<Nodo>(this.grafoCiudad, new Manhattan());
+
     }    
+
+    // Constructor por defecto para el juego
+    public Mapa(String ciudadElegida) {
+        this(ciudadElegida, false);
+    }
 
     /**
      * Lee el archivo y devuelve su contenido línea por línea en un Vector.
@@ -121,7 +141,11 @@ public class Mapa {
      *                False caso contrario.   
      */
     private boolean generarTrafico(String terreno) {
-        return (terreno.equals(CALLE) && (Math.random() < TASA_TRAFICO)); 
+        if (!terreno.equals(CALLE)) return false;
+
+        double probabilidad = this.esModoAnalisis ? SEMILLA.nextDouble() : Math.random();
+    
+        return probabilidad < TASA_TRAFICO;
     }
     
     /**

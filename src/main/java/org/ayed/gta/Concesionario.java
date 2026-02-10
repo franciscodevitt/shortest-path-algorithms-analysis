@@ -153,7 +153,7 @@ public class Concesionario {
      * Formato: nombre,precio,tipo,ruedas,capacidadGasolina,gasolinaActual,kilometraje
      */
     private Vehiculo parsearVehiculoDesdeCsv(String linea) {
-        // formato: nombre, precio, tipo, ruedas, capacidadGasolina, gasolinaActual, kilometraje
+        // formato: nombre, precio, tipo, ruedas, capacidadGasolina, gasolinaActual, kilometraje, velocidadMaxima
         String[] parte = linea.split(",");
 
         String nombre = parte[NOMBRE].trim();

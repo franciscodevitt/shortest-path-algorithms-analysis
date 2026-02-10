@@ -1,5 +1,5 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/cGHEVCeI)
-# TPG - 2c2025 - Manejando por la ciudad - Grupo NOMBRE
+# TPG - 2c2025 - Manejando por la ciudad - Grupo GRAFOSAURIOS
 
 ## Integrantes:
 
@@ -11,7 +11,7 @@
 ## Entregables:
 
 1. [Informe de complejidad algorítmica](https://www.enlaceaca.com/)
-2. [Video de demostración del programa](https://www.enlaceaca.com/)
+2. [Video de demostración del programa](https://drive.google.com/file/d/1-wpHSg8PORbuOqN_nmjHhJw3OPbRReaN/view?usp=drive_link)
 
 ## Proyecto
 
@@ -21,13 +21,19 @@ y puede ser compilado, empaquetado y probado fácilmente usando los siguientes c
 ### Compilar
 
 ```
-mvn compile
+mvn compile -DskipTests
+```
+
+### Correr el juego
+
+```
+mvn -DskipTests exec:java -Dexec.mainClass="org.ayed.Main" -Dexec.cleanupDaemonThreads=false -Dexec.vmArgs="--add-modules=javafx.controls,javafx.fxml,javafx.media"
 ```
 
 ### Empaquetar
 
 ```
-mvn package
+mvn package -DskipTests
 ```
 
 ### Pruebas

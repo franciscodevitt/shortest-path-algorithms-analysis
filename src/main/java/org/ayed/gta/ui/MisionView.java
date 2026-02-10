@@ -135,9 +135,6 @@ public class MisionView {
             }
         }
         
-        // Forzar que GridPane no agrande las celdas
-        gridMapa.setStyle("-fx-background-color: #000000; -fx-padding: 10;");
-        
         // Panel derecho - Información
         VBox panelInfo = crearPanelInformacion();
         

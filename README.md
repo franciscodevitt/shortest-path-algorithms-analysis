@@ -1,6 +1,8 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/cGHEVCeI)
 # TPG - 2c2025 - Manejando por la ciudad - Grupo GRAFOSAURIOS
 
+![Captura del juego](doc/captura-mision.png)
+
 ## Integrantes:
 
 1. Devitt, Francisco - 105402 (Delegado)
@@ -12,6 +14,7 @@
 
 1. [Informe de complejidad algorítmica](https://www.enlaceaca.com/)
 2. [Video de demostración del programa](https://drive.google.com/file/d/1-wpHSg8PORbuOqN_nmjHhJw3OPbRReaN/view?usp=drive_link)
+
 
 ## Proyecto
 

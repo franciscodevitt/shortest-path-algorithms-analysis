@@ -52,27 +52,13 @@ public class MisionView {
      * Constructor: recibe los datos de la misión.
      */
     public MisionView(Mapa mapa, Vehiculo vehiculo, double tiempoLimite) {
-        this(mapa, vehiculo, tiempoLimite, null);
-    }
-    
-    /**
-     * Constructor con imagen personalizada.
-     */
-    public MisionView(Mapa mapa, Vehiculo vehiculo, double tiempoLimite, Image imagenVehiculo) {
         this.mapa = mapa;
         this.vehiculo = vehiculo;
         this.tiempoLimite = tiempoLimite;
         
         // Obtener imagen del vehículo
-        if (imagenVehiculo == null) {
-            String tipo = vehiculo.getTipo().toString();
-            this.imagenVehiculo = GestorImagenesVehiculos.obtenerImagenPorTipo(tipo);
-        } else {
-            this.imagenVehiculo = imagenVehiculo;
-        }
+        this.imagenVehiculo = GestorImagenesVehiculos.obtenerImagenVehiculo(vehiculo);
     }
-
-
 
     /**
      * Muestra la ventana de la misión.

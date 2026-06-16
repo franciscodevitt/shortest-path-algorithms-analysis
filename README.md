@@ -122,7 +122,7 @@ shortest-path-algorithms-analysis/
 │   │   ├── gta/                       # Simulación del juego
 │   │   │   ├── Vehiculo.java          # Vehículo abstracto (Auto, Moto, Exotico)
 │   │   │   ├── Garaje.java            # Garage con zona de espera FIFO
-│   │   │   ├── Concesionario.java     # Catálogo del dealership
+│   │   │   ├── Concesionario.java     # Catálogo del concesionario
 │   │   │   ├── mapa/                  # Carga de mapas, generación de grafo, GPS
 │   │   │   │   ├── Mapa.java
 │   │   │   │   ├── Nodo.java
@@ -183,7 +183,7 @@ mvn install -DskipTests
 El juego carga su inventario inicial de vehículos desde dos archivos CSV:
 
 - `data/default/default_garaje.csv` — vehículos precargados en el garage
-- `data/default/default_concesionario.csv` — vehículos disponibles en el dealership
+- `data/default/default_concesionario.csv` — vehículos disponibles en el concesionario
 
 Podés editar estos archivos directamente para personalizar el inventario inicial. Cada fila sigue el formato:
 

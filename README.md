@@ -9,12 +9,14 @@ Una aplicación en Java que combina una **simulación de ciudad inspirada en GTA
 ## Tabla de contenidos
 
 - [Descripción](#descripción)
+- [Desarrollado en equipo](#desarrollado-en-equipo)
 - [Funcionalidades principales](#funcionalidades-principales)
 - [Tecnologías utilizadas](#tecnologías-utilizadas)
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Instalación](#instalación)
 - [Configuración](#configuración)
 - [Uso](#uso)
+- [Video de demostración](#video-de-demostración)
 - [Ejemplos y resultados](#ejemplos-y-resultados)
 - [Posibles mejoras futuras](#posibles-mejoras-futuras)
 
@@ -22,11 +24,13 @@ Una aplicación en Java que combina una **simulación de ciudad inspirada en GTA
 
 ## Descripción
 
-Este proyecto fue desarrollado como un trabajo práctico universitario para una materia de Estructuras de Datos y Algoritmos. Tiene dos objetivos entrelazados:
+Este proyecto fue desarrollado originalmente en el contexto de una materia de Estructuras de Datos y Algoritmos, pero fue encarado con foco en diseño de software, modelado orientado a objetos y análisis algorítmico reproducible. El resultado es una aplicación que combina una simulación interactiva de conducción urbana con un módulo de benchmarking pensado para comparar estrategias reales de pathfinding sobre grafos ponderados.
 
-1. **Simulación de juego** — Una aplicación de consola + JavaFX que simula una ciudad simplificada al estilo GTA. El jugador administra un garaje de vehículos, compra en un concesionario y completa misiones que requieren navegar desde un origen hasta un destino a través de una grilla urbana. La navegación está impulsada por un motor de GPS basado en **A\***.
+El sistema tiene dos objetivos entrelazados:
 
-2. **Análisis de algoritmos** — Un módulo automatizado de benchmarking que ejecuta A\*, Dijkstra y Bellman-Ford sobre nueve mapas urbanos de tamaño creciente, recolectando tiempos promedio de ejecución, expansiones de nodos, relajaciones de aristas y operaciones de Priority Queue por consulta. Los resultados se exportan a CSV para su análisis posterior.
+1. **Simulación de juego** — Una aplicación de consola + JavaFX que modela un loop de progresión completo: el jugador administra un garaje con capacidad limitada, compra vehículos en un concesionario, mejora infraestructura usando créditos y completa misiones de conducción sobre mapas urbanos cargados desde archivo. Cada misión exige administrar tiempo, combustible, tipo de vehículo y costo operativo, mientras un GPS basado en **A\*** recalcula en todo momento la mejor ruta disponible.
+
+2. **Análisis de algoritmos** — Un módulo automatizado de benchmarking que ejecuta A\*, Dijkstra y Bellman-Ford sobre nueve mapas urbanos de tamaño creciente, recolectando tiempos promedio de ejecución, expansiones de nodos, relajaciones de aristas y operaciones de Priority Queue por consulta. Los resultados se exportan a CSV para su análisis posterior y justifican técnicamente la elección del algoritmo de navegación usado dentro del juego.
 
 Una restricción clave de diseño fue que **todos los tipos abstractos de datos (TDAs) debían implementarse desde cero**: arreglos dinámicos, listas enlazadas, pilas, colas, Hash Tables, sets, Priority Queues, grafos genéricos y más, sin depender de las colecciones de `java.util`.
 
@@ -56,10 +60,10 @@ Cada estructura fue implementada genéricamente desde cero:
 
 Se implementaron e instrumentaron tres algoritmos para benchmarking:
 
-| Algoritmo | Complejidad | Característica principal |
+| Algoritmo | Complejidad  teorica | Característica principal |
 |-----------|------------|--------------------------|
-| **A\*** | O((V + E) log E) | La heurística Manhattan guía la búsqueda, minimizando los nodos explorados |
-| **Dijkstra** | O((V + E) log E) | A\* con heurística nula; explora toda la frontera |
+| **A\*** | O((V + E) log V) | La heurística Manhattan guía la búsqueda, minimizando los nodos explorados |
+| **Dijkstra** | O((V + E) log V) | A\* con heurística nula; explora toda la frontera |
 | **Bellman-Ford** | O(V × E) | Basado en relajaciones; el más lento, pero soporta pesos negativos |
 
 Los tres fueron instrumentados para contar expansiones de nodos, relajaciones de aristas y operaciones de Priority Queue por consulta. Cada experimento promedió 1 000 pares origen-destino aleatorios × 10 repeticiones, usando una semilla fija para garantizar reproducibilidad.
@@ -67,10 +71,16 @@ Los tres fueron instrumentados para contar expansiones de nodos, relajaciones de
 ### Simulación de ciudad estilo GTA
 
 - **Jerarquía de vehículos** — `Auto`, `Moto` y `Exotico` extienden una clase abstracta `Vehiculo` con lógica polimórfica de costo de mantenimiento y consumo de combustible.
-- **Garage (`Garaje`)** — Almacenamiento de vehículos con capacidad limitada y una zona de espera FIFO; soporta carga de combustible, seguimiento de kilometraje y gestión diaria.
-- **Dealership (`Concesionario`)** — Catálogo de vehículos con búsqueda, compra y persistencia en CSV.
-- **Mapas de ciudad** — Grillas en archivos de texto con cuatro tipos de terreno: calle (`+`), edificio (`#`), parque (`-`) y agua (`~`). El tráfico se aplica probabilísticamente sobre las calles.
-- **Navegación GPS** — El pathfinding con A\* encuentra la ruta más barata (las calles cuestan 1, los parques 15 y el tráfico suma +5), y luego guía al jugador paso a paso.
+- **Modelo económico del vehículo** — Cada vehículo mantiene precio, cantidad de ruedas, capacidad de combustible, gasolina actual, kilometraje y velocidad máxima. El mantenimiento diario depende del tipo: autos y motos incrementan su costo según kilometraje acumulado, mientras que los exóticos agregan un costo fijo adicional y una fórmula especial por rueda.
+- **Garaje (`Garaje`)** — El garaje comienza con espacio para **5 vehículos** y puede ampliarse usando créditos obtenidos en el juego. Si el jugador compra un vehículo y no hay lugar disponible, el sistema lo envía a una **cola de espera FIFO**, preservando el orden de compra hasta que se liberen o adquieran espacios.
+- **Costo operativo diario** — El mantenimiento diario del garaje se calcula como la **suma de los costos de mantenimiento de todos los vehículos almacenados** en él. Ese costo se descuenta al avanzar de día, de modo que la progresión del juego obliga a balancear rendimiento, consumo y sustentabilidad económica.
+- **Gestión de combustible** — Cada vehículo puede cargarse de forma parcial o hasta completar su capacidad máxima. El garaje además soporta recarga masiva de combustible para toda la flota, lo que simplifica la preparación antes de una misión.
+- **Concesionario (`Concesionario`)** — Catálogo de vehículos con búsqueda, compra y persistencia en CSV.
+- **Mapas de ciudad** — Grillas rectangulares cargadas desde archivos de texto con cuatro tipos de terreno: calle (`+`), edificio (`#`), parque (`-`) y agua (`~`). Los edificios y el agua son intransitables; las calles y los parques se traducen a nodos transitables con costos distintos dentro del grafo.
+- **Tráfico y costo de movimiento** — Las calles tienen costo base 1, pero pueden presentar congestión aleatoria y pasar a costar más tiempo al atravesarlas. Los parques también son transitables, aunque su costo es mucho mayor, por lo que el GPS solo los usa cuando conviene en términos globales de ruta.
+- **Navegación GPS** — El pathfinding con A\* encuentra la ruta más barata sobre el estado actual del mapa y la recalcula dinámicamente a medida que el jugador avanza. Esto permite que el camino sugerido refleje posición actual, terreno y penalizaciones activas del mapa.
+- **Misiones con riesgo y recompensa** — Cada misión genera un punto de salida y un destino transitables, descuenta tiempo y combustible en cada movimiento, y aumenta el kilometraje del vehículo utilizado. Además, pueden aparecer recompensas aleatorias sobre el mapa: **créditos**, **dinero** o, en casos raros, **vehículos exóticos**, que solo se obtienen de esta manera y no están disponibles en el concesionario.
+- **Tres niveles de dificultad** — El juego ofrece misiones **fáciles**, **moderadas** y **difíciles**, con distintos límites de tiempo, recompensas y restricciones. Las difíciles además pueden exigir un tipo de vehículo específico, lo que introduce una capa adicional de planificación sobre la composición del garaje.
 - **UI basada en menús** — Una interfaz en capas de consola + JavaFX que cubre nueva/cargar partida, gestión de garaje, exploración del concesionario y despacho de misiones.
 
 ### Benchmarking y análisis
@@ -86,7 +96,7 @@ Los tres fueron instrumentados para contar expansiones de nodos, relajaciones de
 | Tecnología | Rol |
 |------------|-----|
 | **Java 11** | Lenguaje principal |
-| **JavaFX 20.0.1** | Interfaz gráfica y multimedia |
+| **JavaFX 20.0.1** | Interfaz gráfica y multimedia para misiones|
 | **Maven** | Build, gestión de dependencias y testing |
 | **JUnit 5** | Pruebas unitarias para todos los TDAs propios |
 | **PlantUML** | Documentación de diagramas de clases UML |
@@ -188,7 +198,7 @@ Los mapas son archivos de texto plano en formato de grilla. Cada celda es una de
 
 | Símbolo | Terreno | Costo |
 |--------|---------|-------|
-| `+` | Calle | 1 (+ 5 si hay tráfico) |
+| `+` | Calle | 1 (* 5 si hay tráfico) |
 | `-` | Parque | 15 |
 | `#` | Edificio | Intransitable |
 | `~` | Agua | Intransitable |
@@ -198,6 +208,14 @@ Se pueden agregar nuevos mapas en `data/ciudades/` y seleccionarlos desde el men
 ---
 
 ## Uso
+
+### Video de demostración
+
+Recorrido completo del juego en menos de 5 minutos: navegación por menús, gestión del garaje, compra en el concesionario y una misión con GPS en tiempo real.
+
+▶️ **[Ver video de demostración](https://drive.google.com/file/d/1-wpHSg8PORbuOqN_nmjHhJw3OPbRReaN/view?usp=sharing)**
+
+---
 
 ### Ejecutar el juego
 
@@ -219,10 +237,23 @@ MenuInicio
 ```
 
 Una vez dentro, podés:
-- **Administrar tu garage** — agregar, vender y cargar combustible a vehículos
-- **Explorar el dealership** — buscar y comprar vehículos
-- **Iniciar una misión** — elegir un mapa; el GPS (A\*) calcula la ruta más corta y te guía paso a paso por la grilla urbana
-- **Guardar y salir** — el estado se persiste en archivos CSV
+- **Administrar tu garage** — operar una flota con 5 espacios iniciales, ampliar capacidad con créditos, revisar vehículos en cola de espera y decidir qué unidades conviene conservar por su costo de mantenimiento diario
+- **Explorar el consecionario** — buscar vehículos por nombre o marca, comprar unidades compatibles con el presupuesto y derivarlas al garaje o a la zona de espera si no queda lugar
+- **Iniciar una misión** — seleccionar dificultad, elegir un vehículo válido, recorrer el mapa usando WASD y seguir un GPS que recalcula la mejor ruta según terreno, tráfico y posición actual
+- **Buscar recompensas estratégicas** — desviarte del camino óptimo para recoger dinero, créditos de garaje o vehículos exóticos, evaluando el riesgo  de perder la mision por costo adicional en tiempo y combustible
+- **Guardar y salir** — persistir el estado del jugador, su dinero y la información del garaje en archivos CSV
+
+### Lógica de progresión del juego
+
+El loop principal está organizado por días. En cada jornada el jugador intenta completar una misión, cobra la recompensa si tiene éxito y luego avanza al día siguiente. Ese avance diario descuenta automáticamente el costo de mantenimiento total del garaje; si la economía del jugador deja de ser sostenible, la partida termina.
+
+Las misiones fueron diseñadas para combinar navegación algorítmica y toma de decisiones. Cada movimiento consume un litro de combustible, suma kilometraje al vehículo y agrega tiempo en función del costo del terreno dividido por la velocidad máxima del vehículo.
+
+Las dificultades estructuran esa progresión:
+
+- **Fácil** — límite de tiempo amplio y recompensa inicial orientada a construir una base económica.
+- **Moderada** — menor margen de error, mejor recompensa y mayor presión sobre el uso eficiente del combustible y del tiempo.
+- **Difícil** — límite estricto, recompensa alta y restricción por tipo de vehículo, lo que obliga a planificar inventario, espacio y upgrades del garaje con anticipación.
 
 ### Ejecutar la suite de benchmarking
 
@@ -261,37 +292,44 @@ mvn package -DskipTests
 
 ## Ejemplos y Resultados
 
+
 ### Navegación GPS
 
 Cuando comienza una misión, el jugador selecciona un mapa. La clase `Mapa` parsea la grilla en un grafo ponderado, aplica tráfico probabilístico (10 % de las calles, con semilla reproducible), y luego A\* calcula el camino de menor costo. El juego después renderiza el recorrido y simula el viaje paso a paso.
 
+Sobre esa base, el sistema integra una lógica de juego adicional: el vehículo elegido condiciona cuánto tarda cada desplazamiento según su velocidad máxima, cuánto combustible puede sostener y cuánto costará conservarlo en días posteriores.
+
 ### Resultados del Benchmark de Algoritmos
 
-A continuación se muestran promedios representativos sobre 1 000 consultas aleatorias por mapa (10 repeticiones cada una):
+Se realizó un análisis experimental comparativo de A\*, Dijkstra y Bellman-Ford sobre nueve mapas urbanos, representados por grafos de tamaño creciente de V+E (desde 97 hasta 2592). Cada benchmark ejecutó 1000 pares de origen-destino aleatorios por mapa, repetidos 10 veces con semilla fija para garantizar reproducibilidad.
 
-| Mapa | Vértices | Aristas | Tiempo A\* | Tiempo Dijkstra | Tiempo Bellman-Ford |
-|-----|----------|---------|------------|-----------------|---------------------|
-| mapa1 | 31 | 66 | 0.010 ms | 0.020 ms | 0.060 ms |
-| mapa5 | 340 | 816 | 0.070 ms | 0.220 ms | 2.200 ms |
-| mapa9 | 1 645 | 4 288 | 0.260 ms | 1.190 ms | 30.660 ms |
+Los gráficos de rendimiento, análisis de expansiones de nodos, relajaciones de aristas y operaciones de Priority Queue están disponibles en:
 
-**Observaciones clave:**
+📊 **[Informe de complejidad algorítmica](Informe_de_complejidad_Algoritmica.pdf)** — Documento completo con gráficos comparativos, tablas detalladas y análisis estadístico.
 
-- **A\*** es consistentemente el más rápido. Su heurística Manhattan poda aproximadamente el 80 % de los nodos que Dijkstra expandiría, lo que lo convierte en la opción más clara para un GPS en tiempo real.
-- **Dijkstra** escala bien en la práctica (O((V + E) log E)), pero carece de la guía direccional que aporta una heurística.
-- **Bellman-Ford** presenta un crecimiento O(V × E) que se vuelve prohibitivo a medida que aumenta el tamaño del mapa: es 118× más lento que A\* en el grafo más grande.
+**Datos crudos:**
 
-Los resultados completos están disponibles en [`src/main/java/org/ayed/informe/resultados/mediciones.csv`](src/main/java/org/ayed/informe/resultados/mediciones.csv) y el análisis escrito detallado está incluido en [`Informe_Grafosaurios.pdf`](Informe_Grafosaurios.pdf).
+Los resultados de cada ejecución se exportan a CSV y están disponibles en:
+
+```
+src/main/java/org/ayed/informe/resultados/mediciones.csv
+```
+
+**Conclusión del análisis:**
+
+- **A\*** presenta el desempeño más eficiente en todas las instancias evaluadas. Su curva de crecimiento es notablemente más plana que la de los otros algoritmos, lo que indica que la cantidad de expansiones y relajaciones se mantiene acotada independientemente del tamaño del mapa.
+- **Dijkstra** exhibe una cantidad de operaciones consistentemente superior a A*. Su comportamiento refleja una exploración en "ondas" o círculos concéntricos desde el origen; al carecer de una guía hacia el destino, se ve obligado a relajar una mayor proporción de aristas para garantizar la optimalidad. No obstante, su crecimiento sigue una tendencia log-lineal estable (O(ElogV)), consolidándose como un baseline robusto y confiable.
+- **Bellman-Ford** La curva de este algoritmo muestra una pendiente pronunciada que escala rápidamente con el tamaño del grafo. Dado que su mecánica se basa en múltiples pasadas sobre la totalidad de las aristas, el volumen de operaciones resulta órdenes de magnitud superior a los métodos basados en colas de prioridad. Este comportamiento lo posiciona como el candidato menos apto para un sistema dinámico como el GPS de un juego, donde el recálculo constante de rutas volvería ineficiente la experiencia de usuario.
 
 ---
 
-## Posibles Mejoras Futuras
+## Desarrollado en equipo
 
-- **A\* bidireccional** — ejecutar búsquedas simultáneas desde el origen y el destino para reducir a la mitad la frontera explorada.
-- **Priority Queue con decrease-key** — reemplazar el enfoque actual de lazy deletion por un Fibonacci heap para alcanzar O((V + E) + V log V) en Dijkstra.
-- **Tráfico dinámico** — actualizar pesos de aristas en tiempo real e implementar re-planificación incremental (D\* Lite) en lugar de volver a ejecutar A\* desde cero.
-- **Generador de mapas más grandes** — generar grillas urbanas proceduralmente a escala arbitraria para producir curvas de benchmarking estadísticamente más robustas.
-- **Vista gráfica de la ciudad** — renderizar la grilla de la ciudad y el camino calculado visualmente dentro de la ventana JavaFX en lugar de la consola.
-- **Cifrado de archivos de guardado** — la persistencia actual basada en CSV almacena el estado del juego en texto plano; un cifrado liviano evitaría la edición trivial de partidas guardadas.
-- **Validación de soporte para pesos negativos** — Bellman-Ford es el único algoritmo que maneja pesos negativos; agregar detección automática de ciclos negativos haría que la base de código esté lista para producción.
-- **Heurísticas adicionales** — comparar las heurísticas Euclidean, Chebyshev y Octile contra Manhattan para medir su efecto sobre el rendimiento de A\* en grafos no alineados a una grilla.
+Este proyecto fue desarrollado en grupo.
+
+**Integrantes:**
+
+- Devitt, Francisco Augusto
+- Gonzales, Axel
+- Sciaini, Carola
+- Woiciechowski, Matias

@@ -325,7 +325,7 @@ src/main/java/org/ayed/informe/resultados/mediciones.csv
 
 ## Desarrollado en equipo
 
-Este proyecto fue desarrollado en grupo.
+Este proyecto fue desarrollado en grupo en el marco de un trabajo para la materia "Algoritmos y Estructuras de Datos" de la carrera de Ingenieria Informatica de la FIUBA (Facultad de Ingenieria de la UBA).
 
 **Integrantes:**
 
